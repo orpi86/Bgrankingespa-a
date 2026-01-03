@@ -14,12 +14,20 @@ const REGION = 'EU';
 const SEASON_ID = 17;
 const TOTAL_PAGES_TO_SCAN = 25;
 
-// Cargar lista de jugadores
+// Cargar lista de jugadores (VERSIÓN MEJORADA)
 const loadPlayers = () => {
     try {
-        const data = fs.readFileSync('jugadores.json', 'utf8');
-        return JSON.parse(data);
+        // Usamos path.join para asegurar que encuentra el archivo en Linux/Render
+        const filePath = path.join(__dirname, 'jugadores.json');
+        console.log("Intentando leer archivo en:", filePath); // Chivato 1
+        
+        const data = fs.readFileSync(filePath, 'utf8');
+        const parsed = JSON.parse(data);
+        
+        console.log(`¡Éxito! Se han cargado ${parsed.length} jugadores.`); // Chivato 2
+        return parsed;
     } catch (e) {
+        console.error("ERROR LEYENDO JUGADORES.JSON:", e.message); // Chivato de error
         return [];
     }
 };
@@ -82,3 +90,4 @@ app.listen(PORT, () => {
     console.log(`Servidor funcionando en puerto ${PORT}`);
 
 });
+
