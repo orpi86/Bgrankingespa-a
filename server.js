@@ -13,7 +13,7 @@ app.use(express.static(__dirname));
 // --- CONFIGURACIÓN ---
 const REGION = 'EU';
 const SEASON_ID = 17; // Temporada actual
-const MAX_PAGES_TO_SCAN = 60; // Buscamos hasta 60 páginas. Si hay menos, no pasa nada.
+const MAX_PAGES_TO_SCAN = 100; // Buscamos hasta 60 páginas. Si hay menos, no pasa nada.
 
 // --- CARGAR LISTA DE JUGADORES ---
 const loadPlayers = () => {
@@ -125,3 +125,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor funcionando en puerto ${PORT}`);
 });
+
