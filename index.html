@@ -72,13 +72,14 @@
             border-radius: 4px;
         }
 
-        /* --- NAVEGACIÓN DE TEMPORADAS --- */
+        /* NAVEGACIÓN DE TEMPORADAS */
         .season-nav {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
             margin-bottom: 25px;
+            max-width: 800px;
         }
 
         .season-btn {
@@ -106,7 +107,6 @@
             font-weight: bold;
             box-shadow: 0 0 10px rgba(252, 209, 68, 0.4);
         }
-        /* -------------------------------- */
 
         .container {
             width: 100%;
@@ -146,28 +146,22 @@
         }
 
         tr:hover td { background-color: rgba(252, 209, 68, 0.05); }
-
-        /* Top 16 */
         tr.top-16 td { background-color: rgba(0, 255, 157, 0.03); }
         tr.top-16 td:first-child { border-left: 3px solid var(--hs-tournament); }
         tr.cutoff-border td { border-bottom: 3px double var(--hs-tournament) !important; }
 
-        /* Estilos Columnas */
         .col-es { font-weight: bold; color: #fff; font-size: 1.2rem; width: 60px; }
         .col-eu { color: #aaa; font-size: 0.9rem; width: 80px; }
         .col-name { text-align: left; padding-left: 20px; color: #fff; font-weight: bold; display: flex; align-items: center; gap: 10px;}
         .col-mmr { text-align: right; padding-right: 20px; font-family: 'Cinzel', serif; font-weight: bold; color: #fff; }
 
-        /* Top 3 */
         .es-1 { color: #ffd700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.6); }
         .es-2 { color: #c0c0c0; }
         .es-3 { color: #cd7f32; }
-
         .mmr-high { color: #00ff9d; }
         .mmr-low { color: #ff6b6b; font-size: 0.9rem; font-style: italic; opacity: 0.8; }
         .mini-flag { width: 18px; vertical-align: middle; margin-right: 4px; opacity: 0.8; }
 
-        /* Twitch */
         .twitch-link {
             text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
             width: 24px; height: 24px; border-radius: 4px; color: #555; transition: all 0.3s;
@@ -195,6 +189,7 @@
             .col-name { flex-direction: column; align-items: flex-start; gap: 2px; }
             .twitch-link { width: 20px; height: 20px; font-size: 0.8rem; }
             h1 { font-size: 1.8rem; }
+            .season-btn { padding: 6px 8px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -204,14 +199,12 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Bandera España" class="flag-header">
             <h1>Ranking BG España</h1>
         </div>
-        <!-- Título dinámico -->
         <div id="season-title" class="current-season-title">Temporada 12 (Actual)</div>
     </header>
 
     <!-- Barra de Navegación de Temporadas -->
     <div class="season-nav">
-        <!-- onclick: cambia el ID (17) y el numero (12) -->
-        <button class="season-btn active" onclick="cambiarTemporada(17, 12)">T. 12</button>
+        <button class="season-btn active" onclick="cambiarTemporada(17, 12)">T. 12 (Actual)</button>
         <button class="season-btn" onclick="cambiarTemporada(16, 11)">T. 11</button>
         <button class="season-btn" onclick="cambiarTemporada(15, 10)">T. 10</button>
         <button class="season-btn" onclick="cambiarTemporada(14, 9)">T. 9</button>
@@ -237,40 +230,34 @@
     <footer>Datos obtenidos de Blizzard API</footer>
 
     <script>
-        // Función para gestionar el cambio de botón y recarga
         function cambiarTemporada(id, num) {
-            // Actualizar título
             const titulo = num === 12 ? 'Temporada 12 (Actual)' : `Temporada ${num}`;
             document.getElementById('season-title').innerText = titulo;
 
-            // Actualizar botones (clase active)
             const botones = document.querySelectorAll('.season-btn');
             botones.forEach(btn => {
                 btn.classList.remove('active');
-                if(btn.innerText.includes(num)) btn.classList.add('active');
+                if(btn.onclick.toString().includes(`(${id},`)) btn.classList.add('active');
             });
 
-            // Llamar a cargar datos con el nuevo ID
             cargarRanking(id);
         }
 
-        async function cargarRanking(seasonId = 17) {
+        async function cargarRanking(seasonId = 17) { // 17 es la ID por defecto (S12)
             const tbody = document.getElementById('ranking-body');
             const loading = document.getElementById('loading');
             
-            // Mostrar carga y limpiar tabla
             tbody.innerHTML = '';
             loading.style.display = 'block';
 
             try {
-                // Petición con parámetro de temporada
                 const response = await fetch(`/api/ranking?season=${seasonId}`);
                 const jugadores = await response.json();
                 
                 loading.style.display = 'none';
 
                 if (jugadores.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;">No se encontraron datos para esta temporada.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;">No se encontraron datos.</td></tr>';
                     return;
                 }
 
@@ -290,7 +277,6 @@
                     const nombreVisible = jugador.battleTag.split('#')[0]; 
                     const tagNumero = jugador.battleTag.split('#')[1];
 
-                    // Twitch (Solo sale si está online, y en temporadas viejas es posible que nadie lo esté jugando ahora mismo)
                     let twitchHtml = '';
                     if (jugador.twitchUser) {
                         const liveClass = jugador.isLive ? 'twitch-live' : '';
@@ -322,7 +308,7 @@
             }
         }
 
-        // Cargar Season 17 (Actual/12) al iniciar
+        // Cargar por defecto la S12 (ID 17)
         cargarRanking(17);
     </script>
 </body>
