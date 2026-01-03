@@ -13,6 +13,7 @@
             --hs-blue: #141829;
             --hs-purple: #2b1d30;
             --hs-text: #f0f0f0;
+            --hs-tournament: #00ff9d; /* Verde brillante para Top 16 */
         }
 
         body {
@@ -77,12 +78,11 @@
             font-family: 'Cinzel', serif;
             color: var(--hs-gold);
             padding: 15px;
-            text-align: center; /* Centrados */
+            text-align: center;
             font-size: 1rem;
             text-shadow: 1px 1px 0 #000;
         }
         
-        /* Alinear a la izquierda solo el nombre */
         th.th-name { text-align: left; padding-left: 20px; }
         th.th-mmr { text-align: right; padding-right: 20px; }
 
@@ -90,12 +90,45 @@
             padding: 12px 15px;
             border-bottom: 1px solid rgba(184, 149, 49, 0.2);
             font-size: 1.05rem;
-            text-align: center; /* Por defecto centrados */
+            text-align: center;
             vertical-align: middle;
+            transition: all 0.3s ease;
         }
 
-        tr:last-child td { border-bottom: none; }
+        /* Hover general */
         tr:hover td { background-color: rgba(252, 209, 68, 0.05); }
+
+        /* --- ESTILOS TOP 16 --- */
+        
+        /* Fila del Top 16 (Fondo y borde izquierdo) */
+        tr.top-16 td {
+            background-color: rgba(0, 255, 157, 0.03); /* Fondo verde muy sutil */
+        }
+        
+        /* Borde brillante a la izquierda del primer elemento */
+        tr.top-16 td:first-child {
+            border-left: 3px solid var(--hs-tournament);
+            box-shadow: inset 10px 0 15px -10px rgba(0, 255, 157, 0.3);
+        }
+
+        /* Línea de corte después del 16 */
+        tr.cutoff-border td {
+            border-bottom: 3px double var(--hs-tournament) !important;
+            position: relative;
+        }
+        
+        /* Etiqueta visual de corte (opcional, visual) */
+        tr.cutoff-border td:first-child::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            box-shadow: 0 5px 10px rgba(0,255,157,0.5);
+        }
+
+        /* --- FIN ESTILOS TOP 16 --- */
 
         /* COLUMNAS */
         .col-es { font-weight: bold; color: #fff; font-size: 1.2rem; width: 60px; }
@@ -135,6 +168,8 @@
             h1 { font-size: 1.8rem; }
             th, td { padding: 10px 5px; font-size: 0.85rem; }
             .col-eu { font-size: 0.75rem; }
+            .col-name { padding-left: 10px; }
+            .flag-header { width: 40px; }
         }
     </style>
 </head>
@@ -184,17 +219,23 @@
                 jugadores.forEach(jugador => {
                     const tr = document.createElement('tr');
                     
-                    // Rango EU (Si no tiene, ponemos guion)
                     const rangoEU = jugador.found ? `#${jugador.rank}` : '-';
                     
-                    // Estilos dinámicos
                     let esClass = 'col-es';
                     let mmrClass = 'col-mmr ' + (jugador.found ? 'mmr-high' : 'mmr-low');
 
-                    // Destacar Top 3 España
+                    // Destacar Top 3
                     if (jugador.spainRank === 1) esClass += ' es-1';
                     if (jugador.spainRank === 2) esClass += ' es-2';
                     if (jugador.spainRank === 3) esClass += ' es-3';
+
+                    // --- LOGICA TOP 16 ---
+                    if (jugador.spainRank <= 16) {
+                        tr.classList.add('top-16'); // Añade borde verde y fondo
+                    }
+                    if (jugador.spainRank === 16) {
+                        tr.classList.add('cutoff-border'); // Añade la línea de corte abajo
+                    }
 
                     const nombreVisible = jugador.battleTag.split('#')[0]; 
                     const tagNumero = jugador.battleTag.split('#')[1];
