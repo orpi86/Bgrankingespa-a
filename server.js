@@ -11,7 +11,7 @@ app.use(express.static(__dirname));
 // --- CONFIGURACIÓN ---
 const REGION = 'EU';
 const CURRENT_SEASON_ID = 17; // ID por defecto (Season 12)
-const MAX_PAGES_TO_SCAN = 200;
+const MAX_PAGES_TO_SCAN = 100;
 
 // Las claves de Twitch (desde Render)
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
@@ -135,4 +135,5 @@ app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); }
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor en puerto ${PORT}`); });
+
 
