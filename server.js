@@ -9,10 +9,10 @@ app.use(cors());
 app.use(express.static(__dirname));
 
 // --- CONFIGURACIÓN ---
-const REGION = 'EU';
+const REGION = 'eu';
 const CURRENT_SEASON_ID = 17; 
 // CAMBIO IMPORTANTE: Subimos a 400 páginas (Top 10.000 jugadores)
-const MAX_PAGES_TO_SCAN = 65; 
+const MAX_PAGES_TO_SCAN = 150; 
 
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
@@ -154,5 +154,6 @@ app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); }
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`🚀 Servidor en puerto ${PORT}`); });
+
 
 
