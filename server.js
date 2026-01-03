@@ -2,95 +2,126 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const fs = require('fs');
-const path = require('path'); // NUEVO
+const path = require('path');
 
 const app = express();
 app.use(cors());
 
-// NUEVO: Servir los archivos estáticos (el index.html)
+// Servir los archivos estáticos (index.html, etc.)
 app.use(express.static(__dirname));
 
+// --- CONFIGURACIÓN ---
 const REGION = 'EU';
-const SEASON_ID = 17;
-const TOTAL_PAGES_TO_SCAN = 200;
+const SEASON_ID = 17; // Temporada actual
+const MAX_PAGES_TO_SCAN = 60; // Buscamos hasta 60 páginas. Si hay menos, no pasa nada.
 
-// Cargar lista de jugadores (VERSIÓN MEJORADA)
+// --- CARGAR LISTA DE JUGADORES ---
 const loadPlayers = () => {
     try {
-        // Usamos path.join para asegurar que encuentra el archivo en Linux/Render
+        // Usamos path.join para asegurar que encuentra el archivo en la nube
         const filePath = path.join(__dirname, 'jugadores.json');
-        console.log("Intentando leer archivo en:", filePath); // Chivato 1
+        console.log("Leyendo lista desde:", filePath);
         
         const data = fs.readFileSync(filePath, 'utf8');
         const parsed = JSON.parse(data);
-        
-        console.log(`¡Éxito! Se han cargado ${parsed.length} jugadores.`); // Chivato 2
+        console.log(`Lista cargada con éxito: ${parsed.length} jugadores.`);
         return parsed;
     } catch (e) {
-        console.error("ERROR LEYENDO JUGADORES.JSON:", e.message); // Chivato de error
+        console.error("ERROR: No se pudo leer jugadores.json. Asegúrate de que el formato es correcto.", e.message);
         return [];
     }
 };
 
+// --- RUTA PRINCIPAL (API) ---
 app.get('/api/ranking', async (req, res) => {
     const myPlayers = loadPlayers();
-    let foundPlayers = [];
-    const playersMap = new Map();
-    myPlayers.forEach(p => playersMap.set(p.toLowerCase(), { battleTag: p, rank: null, rating: '< 8000', found: false }));
+    
+    // Preparamos la lista para buscar de dos formas: Nombre exacto o solo Nombre
+    let results = myPlayers.map(p => ({
+        battleTag: p, 
+        nameOnly: p.split('#')[0].toLowerCase(), // Ejemplo: "orpinell"
+        fullTag: p.toLowerCase(),                // Ejemplo: "orpinell#2250"
+        rank: null,
+        rating: '< 8000', // Valor por defecto si no aparecen
+        found: false
+    }));
 
     try {
         const requests = [];
-        for (let i = 1; i <= TOTAL_PAGES_TO_SCAN; i++) {
+        
+        // Lanzamos peticiones a las páginas de Blizzard
+        for (let i = 1; i <= MAX_PAGES_TO_SCAN; i++) {
             requests.push(
                 axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${i}&seasonId=${SEASON_ID}`)
+                    .catch(e => null) // IMPORTANTE: Si la página no existe, devuelve null en vez de error
             );
         }
 
         const responses = await Promise.all(requests);
 
+        // Procesamos todas las páginas que han devuelto datos
         responses.forEach(response => {
+            // Si la página dio error (era null) o no tiene filas, la saltamos
+            if (!response || !response.data || !response.data.leaderboard || !response.data.leaderboard.rows) return;
+
             const rows = response.data.leaderboard.rows;
+            
             rows.forEach(row => {
-                const btag = row.accountid.toLowerCase();
-                if (playersMap.has(btag)) {
-                    playersMap.set(btag, {
-                        battleTag: row.accountid,
-                        rank: row.rank,
-                        rating: row.rating,
-                        found: true
-                    });
-                }
+                // El ID que devuelve blizzard (a veces es "Nombre" y a veces "Nombre#1234")
+                const blizzID = row.accountid ? row.accountid.toString().toLowerCase() : "";
+                
+                // Comparamos con nuestra lista
+                results.forEach(player => {
+                    if (player.found) return; // Si ya lo tenemos, siguiente
+
+                    // OPCIÓN 1: Coincidencia Perfecta (Orpinell#2250 == Orpinell#2250)
+                    if (blizzID === player.fullTag) {
+                        player.rank = row.rank;
+                        player.rating = row.rating;
+                        player.found = true;
+                    } 
+                    // OPCIÓN 2: Coincidencia Parcial (Orpinell empieza con orpinell)
+                    // Esto sirve si Blizzard decide ocultar los números en el ranking
+                    else if (blizzID.startsWith(player.nameOnly)) {
+                        player.rank = row.rank;
+                        player.rating = row.rating;
+                        player.found = true;
+                    }
+                });
             });
         });
 
-        const result = Array.from(playersMap.values());
-        result.sort((a, b) => {
+        // Limpiamos los datos internos antes de enviarlos a la web
+        const finalResponse = results.map(p => ({
+            battleTag: p.battleTag,
+            rank: p.rank,
+            rating: p.rating,
+            found: p.found
+        }));
+
+        // Ordenamos: Primero los encontrados (por rango), luego los no encontrados
+        finalResponse.sort((a, b) => {
             if (a.found && !b.found) return -1;
             if (!a.found && b.found) return 1;
             if (a.found && b.found) return a.rank - b.rank;
-            return 0;
+            return 0; // Si ninguno está, igual
         });
 
-        res.json(result);
+        res.json(finalResponse);
 
     } catch (error) {
-        console.error("Error conectando con Blizzard:", error.message);
+        console.error("Error grave en el servidor:", error.message);
         res.status(500).json({ error: "Error obteniendo datos de Blizzard" });
     }
 });
 
-// NUEVO: Enviar el index.html cuando entren a la web
+// --- RUTA PARA MOSTRAR LA WEB ---
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// IMPORTANTE: Render nos da un puerto dinámico en process.env.PORT
+// --- INICIAR SERVIDOR ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor funcionando en puerto ${PORT}`);
-
 });
-
-
-
-
