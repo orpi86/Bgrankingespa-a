@@ -3,84 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranking BG España - Copia</title>
+    <title>Ranking BG España</title>
+    <!-- Importamos fuente estilo medieval/fantasía de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --hs-gold: #fcd144;
+            --hs-gold-dim: #b89531;
+            --hs-blue: #141829;
+            --hs-purple: #2b1d30;
+            --hs-text: #f0f0f0;
+            --hs-border: #4a3826;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a0f1f;
-            color: #fff;
+            font-family: 'Lato', sans-serif;
+            background-color: #0b0d12;
+            background-image: radial-gradient(circle at center, #1b1626 0%, #0b0d12 100%);
+            color: var(--hs-text);
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
+
+        /* Cabecera con bandera y título */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         h1 {
-            color: #fcd144; /* Dorado Hearthstone */
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--hs-gold);
             text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(252, 209, 68, 0.3);
+            margin: 0;
             letter-spacing: 2px;
         }
+
+        .flag {
+            width: 50px;
+            height: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid var(--hs-gold-dim);
+            border-radius: 4px;
+        }
+
+        /* Contenedor principal estilo carta/tabla */
         .container {
             width: 100%;
-            max-width: 800px;
-            background-color: #2b1d30;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            max-width: 900px;
+            background-color: rgba(30, 20, 40, 0.95);
+            border: 3px solid var(--hs-gold-dim);
+            border-radius: 12px;
+            box-shadow: 
+                0 0 0 4px #000, /* Borde negro externo */
+                0 10px 30px rgba(0,0,0,0.8),
+                inset 0 0 20px rgba(0,0,0,0.8);
             overflow: hidden;
+            position: relative;
         }
+
+        /* Decoración de esquinas (simulado con CSS) */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            background: linear-gradient(90deg, transparent, var(--hs-gold), transparent);
+            opacity: 0.7;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
+        thead {
+            background: linear-gradient(to bottom, #3d2a45, #2b1d30);
+            border-bottom: 2px solid var(--hs-gold-dim);
+        }
+
         th {
-            background-color: #382440;
-            color: #fcd144;
-            padding: 15px;
+            font-family: 'Cinzel', serif;
+            color: var(--hs-gold);
+            padding: 18px;
             text-align: left;
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 0 #000;
         }
+
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #44314d;
+            padding: 15px 18px;
+            border-bottom: 1px solid rgba(184, 149, 49, 0.2); /* Dorado muy suave */
+            font-size: 1.05rem;
         }
-        tr:hover {
-            background-color: #3d2a45;
+
+        tr:last-child td {
+            border-bottom: none;
         }
-        .rank { font-weight: bold; color: #fff; }
-        .mmr { color: #00ff9d; font-weight: bold; }
-        .low-mmr { color: #ff6b6b; font-style: italic; }
+
+        /* Efecto hover en filas */
+        tr:hover td {
+            background-color: rgba(252, 209, 68, 0.05);
+            transition: background 0.3s;
+        }
+
+        /* Estilos específicos para las columnas */
+        .rank-col { 
+            font-weight: bold; 
+            color: #aaa; 
+            width: 80px;
+        }
         
+        .name-col {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .mmr-col {
+            text-align: right;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        /* Colores para Top 3 */
+        .rank-1 { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .rank-2 { color: #c0c0c0 !important; }
+        .rank-3 { color: #cd7f32 !important; }
+
+        .mmr-high { color: #00ff9d; text-shadow: 0 0 5px rgba(0, 255, 157, 0.3); }
+        .mmr-low { color: #ff6b6b; font-size: 0.9rem; font-style: italic; opacity: 0.8; }
+
         .loading {
-            padding: 20px;
+            padding: 40px;
             text-align: center;
             font-style: italic;
-            color: #aaa;
+            color: var(--hs-gold);
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Spinner de carga */
+        .spinner {
+            border: 4px solid rgba(252, 209, 68, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--hs-gold);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            th, td { padding: 12px 10px; font-size: 0.9rem; }
+            .flag { width: 35px; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Ranking BG España</h1>
+    <header>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Bandera España" class="flag">
+        <h1>Ranking BG España</h1>
+    </header>
     
     <div class="container">
         <table>
             <thead>
                 <tr>
                     <th>Rango</th>
-                    <th>Jugador (BattleTag)</th>
-                    <th>Puntos (MMR)</th>
+                    <th>Jugador</th>
+                    <th style="text-align: right;">MMR</th>
                 </tr>
             </thead>
             <tbody id="ranking-body">
                 <!-- Aquí se inyectan los datos con JS -->
             </tbody>
         </table>
-        <div id="loading" class="loading">Cargando datos de Blizzard...</div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Consultando al tabernero...
+        </div>
     </div>
+
+    <footer>
+        Datos obtenidos de Blizzard API - Season 17
+    </footer>
 
     <script>
         async function cargarRanking() {
             try {
-                // Conectamos con nuestro script de Node.js
+                // Hacemos la petición a tu servidor (misma ruta que antes)
                 const response = await fetch('/api/ranking');
                 const jugadores = await response.json();
                 
@@ -88,18 +225,41 @@
                 const loading = document.getElementById('loading');
                 
                 loading.style.display = 'none';
-                tbody.innerHTML = ''; // Limpiar
+                tbody.innerHTML = '';
+
+                if (jugadores.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">No se encontraron jugadores.</td></tr>';
+                    return;
+                }
 
                 jugadores.forEach(jugador => {
                     const tr = document.createElement('tr');
                     
-                    // Lógica visual: Si tiene rango se muestra, si no "-"
-                    const rangoDisplay = jugador.found ? `#${jugador.rank}` : '-';
-                    const mmrClass = jugador.found ? 'mmr' : 'low-mmr';
+                    // Lógica visual
+                    let rangoDisplay = '-';
+                    let rankClass = 'rank-col';
+                    let mmrClass = 'mmr-col mmr-low';
                     
+                    if (jugador.found) {
+                        rangoDisplay = `#${jugador.rank}`;
+                        mmrClass = 'mmr-col mmr-high';
+                        
+                        // Colorear Top 3
+                        if (jugador.rank === 1) rankClass += ' rank-1';
+                        if (jugador.rank === 2) rankClass += ' rank-2';
+                        if (jugador.rank === 3) rankClass += ' rank-3';
+                    }
+
+                    // Limpiar el nombre para que no se vea tan largo en móvil (opcional)
+                    // Si prefieres ver el número completo, usa jugador.battleTag
+                    const nombreVisible = jugador.battleTag.split('#')[0]; 
+                    const tagNumero = jugador.battleTag.split('#')[1];
+
                     tr.innerHTML = `
-                        <td class="rank">${rangoDisplay}</td>
-                        <td>${jugador.battleTag}</td>
+                        <td class="${rankClass}">${rangoDisplay}</td>
+                        <td class="name-col">
+                            ${nombreVisible} <span style="color: #666; font-size: 0.8em;">#${tagNumero}</span>
+                        </td>
                         <td class="${mmrClass}">${jugador.rating}</td>
                     `;
                     tbody.appendChild(tr);
@@ -107,7 +267,7 @@
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading').innerText = "Error cargando el ranking. Asegúrate de iniciar el servidor.";
+                document.getElementById('loading').innerHTML = "<span style='color: #ff6b6b'>Error conectando con el servidor.</span>";
             }
         }
 
@@ -115,5 +275,4 @@
         cargarRanking();
     </script>
 </body>
-
 </html>
