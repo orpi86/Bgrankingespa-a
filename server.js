@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.static(__dirname));
 
 const REGION = 'EU';
-const SEASON_ID = 25;
+const SEASON_ID = 17;
 const TOTAL_PAGES_TO_SCAN = 500;
 
 // Cargar lista de jugadores (VERSIÓN MEJORADA)
@@ -90,5 +90,6 @@ app.listen(PORT, () => {
     console.log(`Servidor funcionando en puerto ${PORT}`);
 
 });
+
 
 
