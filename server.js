@@ -10,10 +10,10 @@ app.use(express.static(__dirname));
 
 // --- CONFIGURACIÓN ---
 const REGION = 'EU';
-const CURRENT_SEASON_ID = 17; // ID por defecto (Season 12)
-const MAX_PAGES_TO_SCAN = 100;
+const CURRENT_SEASON_ID = 17; 
+// CAMBIO IMPORTANTE: Subimos a 400 páginas (Top 10.000 jugadores)
+const MAX_PAGES_TO_SCAN = 400; 
 
-// Las claves de Twitch (desde Render)
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 
@@ -24,7 +24,7 @@ const loadPlayers = () => {
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (e) {
-        console.error("Error leyendo JSON:", e.message);
+        console.error("❌ Error leyendo jugadores.json:", e.message);
         return [];
     }
 };
@@ -42,9 +42,8 @@ async function getTwitchToken() {
 
 // --- API ---
 app.get('/api/ranking', async (req, res) => {
-    // LEER TEMPORADA DE LA URL (Ej: /api/ranking?season=16)
-    // Si no viene nada, usamos la actual (17)
     const seasonToScan = req.query.season || CURRENT_SEASON_ID;
+    console.log(`🔍 Iniciando escaneo de Season ${seasonToScan} (Hasta ${MAX_PAGES_TO_SCAN} páginas)...`);
 
     const myPlayersRaw = loadPlayers();
     
@@ -55,38 +54,58 @@ app.get('/api/ranking', async (req, res) => {
         nameOnly: p.battleTag.split('#')[0].toLowerCase(),
         fullTag: p.battleTag.toLowerCase(),
         rank: null,
-        rating: '< 8000', // Nota: En temporadas viejas, el corte era distinto, pero lo dejamos visual
+        rating: '< 8000',
         found: false
     }));
 
     try {
-        // 1. BLIZZARD
+        // 1. BLIZZARD - Bucle de peticiones
         const requests = [];
         for (let i = 1; i <= MAX_PAGES_TO_SCAN; i++) {
             requests.push(
                 axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${i}&seasonId=${seasonToScan}`)
+                .then(res => ({ page: i, data: res.data })) // Guardamos el número de página para el log
                 .catch(e => null)
             );
         }
+        
+        // Esperamos a todas las peticiones
         const responses = await Promise.all(requests);
+        console.log(`✅ Descargas finalizadas. Procesando datos...`);
+
+        let totalBlizzardPlayersScanned = 0;
 
         responses.forEach(response => {
-            if (!response?.data?.leaderboard?.rows) return;
-            response.data.leaderboard.rows.forEach(row => {
+            if (!response || !response.data || !response.data.leaderboard || !response.data.leaderboard.rows) return;
+            
+            const rows = response.data.leaderboard.rows;
+            totalBlizzardPlayersScanned += rows.length;
+
+            // CHIVATO: Verificamos que estamos descargando datos reales en la primera página
+            if (response.page === 1) {
+                console.log(`ℹ️ DEBUG: Página 1 descargada. El Top 1 es: ${rows[0].accountid} con ${rows[0].rating} puntos.`);
+            }
+            
+            rows.forEach(row => {
                 const blizzID = row.accountid?.toString().toLowerCase() || "";
+                
                 results.forEach(player => {
                     if (player.found) return;
+
+                    // Lógica de coincidencia
                     if (blizzID === player.fullTag || blizzID.startsWith(player.nameOnly)) {
                         player.rank = row.rank;
                         player.rating = row.rating;
                         player.found = true;
+                        console.log(`🎉 ¡ENCONTRADO! ${player.battleTag} en Rank ${row.rank} (${row.rating})`);
                     }
                 });
             });
         });
 
-        // 2. TWITCH (Solo chequeamos si es la temporada actual)
-        // Si miramos la temporada 6, da igual si están online hoy, pero lo dejamos activo siempre por si acaso.
+        console.log(`📊 Total jugadores escaneados en Europa: ${totalBlizzardPlayersScanned}`);
+
+        // 2. TWITCH
         const twitchUsersToCheck = results.filter(r => r.twitchUser).map(r => r.twitchUser);
         if (twitchUsersToCheck.length > 0) {
             const token = await getTwitchToken();
@@ -101,7 +120,7 @@ app.get('/api/ranking', async (req, res) => {
                         const player = results.find(p => p.twitchUser && p.twitchUser.toLowerCase() === stream.user_login.toLowerCase());
                         if (player) player.isLive = true;
                     });
-                } catch (err) { console.error("Twitch Error"); }
+                } catch (err) { console.error("Twitch Error:", err.message); }
             }
         }
 
@@ -126,7 +145,7 @@ app.get('/api/ranking', async (req, res) => {
         res.json(finalResponse);
 
     } catch (error) {
-        console.error("Error:", error.message);
+        console.error("🚨 Error Fatal:", error.message);
         res.status(500).json({ error: "Error interno" });
     }
 });
@@ -134,6 +153,5 @@ app.get('/api/ranking', async (req, res) => {
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { console.log(`Servidor en puerto ${PORT}`); });
-
+app.listen(PORT, () => { console.log(`🚀 Servidor en puerto ${PORT}`); });
 
