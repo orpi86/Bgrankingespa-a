@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking BG España</title>
-    <!-- Importamos fuente estilo medieval/fantasía de Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -14,7 +13,6 @@
             --hs-blue: #141829;
             --hs-purple: #2b1d30;
             --hs-text: #f0f0f0;
-            --hs-border: #4a3826;
         }
 
         body {
@@ -30,7 +28,6 @@
             min-height: 100vh;
         }
 
-        /* Cabecera con bandera y título */
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -51,42 +48,25 @@
             letter-spacing: 2px;
         }
 
-        .flag {
+        .flag-header {
             width: 50px;
             height: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             border: 2px solid var(--hs-gold-dim);
             border-radius: 4px;
         }
 
-        /* Contenedor principal estilo carta/tabla */
         .container {
             width: 100%;
             max-width: 900px;
             background-color: rgba(30, 20, 40, 0.95);
             border: 3px solid var(--hs-gold-dim);
             border-radius: 12px;
-            box-shadow: 
-                0 0 0 4px #000, /* Borde negro externo */
-                0 10px 30px rgba(0,0,0,0.8),
-                inset 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 0 0 4px #000, 0 10px 30px rgba(0,0,0,0.8);
             overflow: hidden;
             position: relative;
         }
 
-        /* Decoración de esquinas (simulado con CSS) */
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 5px;
-            background: linear-gradient(90deg, transparent, var(--hs-gold), transparent);
-            opacity: 0.7;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
 
         thead {
             background: linear-gradient(to bottom, #3d2a45, #2b1d30);
@@ -96,55 +76,42 @@
         th {
             font-family: 'Cinzel', serif;
             color: var(--hs-gold);
-            padding: 18px;
-            text-align: left;
-            font-size: 1.1rem;
+            padding: 15px;
+            text-align: center; /* Centrados */
+            font-size: 1rem;
             text-shadow: 1px 1px 0 #000;
         }
+        
+        /* Alinear a la izquierda solo el nombre */
+        th.th-name { text-align: left; padding-left: 20px; }
+        th.th-mmr { text-align: right; padding-right: 20px; }
 
         td {
-            padding: 15px 18px;
-            border-bottom: 1px solid rgba(184, 149, 49, 0.2); /* Dorado muy suave */
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(184, 149, 49, 0.2);
             font-size: 1.05rem;
+            text-align: center; /* Por defecto centrados */
+            vertical-align: middle;
         }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(252, 209, 68, 0.05); }
 
-        /* Efecto hover en filas */
-        tr:hover td {
-            background-color: rgba(252, 209, 68, 0.05);
-            transition: background 0.3s;
-        }
+        /* COLUMNAS */
+        .col-es { font-weight: bold; color: #fff; font-size: 1.2rem; width: 60px; }
+        .col-eu { color: #aaa; font-size: 0.9rem; width: 80px; }
+        .col-name { text-align: left; padding-left: 20px; color: #fff; font-weight: bold; }
+        .col-mmr { text-align: right; padding-right: 20px; font-family: 'Cinzel', serif; font-weight: bold; color: #fff; }
 
-        /* Estilos específicos para las columnas */
-        .rank-col { 
-            font-weight: bold; 
-            color: #aaa; 
-            width: 80px;
-        }
-        
-        .name-col {
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .mmr-col {
-            text-align: right;
-            font-family: 'Cinzel', serif;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #fff;
-        }
-
-        /* Colores para Top 3 */
-        .rank-1 { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        .rank-2 { color: #c0c0c0 !important; }
-        .rank-3 { color: #cd7f32 !important; }
+        /* Top 3 España */
+        .es-1 { color: #ffd700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.6); font-size: 1.4rem; }
+        .es-2 { color: #c0c0c0; text-shadow: 0 0 5px rgba(192, 192, 192, 0.4); font-size: 1.3rem; }
+        .es-3 { color: #cd7f32; text-shadow: 0 0 5px rgba(205, 127, 50, 0.4); font-size: 1.3rem; }
 
         .mmr-high { color: #00ff9d; text-shadow: 0 0 5px rgba(0, 255, 157, 0.3); }
         .mmr-low { color: #ff6b6b; font-size: 0.9rem; font-style: italic; opacity: 0.8; }
+
+        .mini-flag { width: 18px; vertical-align: middle; margin-right: 4px; opacity: 0.8; }
 
         .loading {
             padding: 40px;
@@ -153,40 +120,28 @@
             color: var(--hs-gold);
             font-family: 'Cinzel', serif;
         }
-
-        /* Spinner de carga */
         .spinner {
             border: 4px solid rgba(252, 209, 68, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             border-left-color: var(--hs-gold);
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
         }
-
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        footer { margin-top: 30px; font-size: 0.8rem; color: #666; }
 
-        /* Footer */
-        footer {
-            margin-top: 30px;
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
-        }
-
-        /* Responsive para móviles */
         @media (max-width: 600px) {
             h1 { font-size: 1.8rem; }
-            th, td { padding: 12px 10px; font-size: 0.9rem; }
-            .flag { width: 35px; }
+            th, td { padding: 10px 5px; font-size: 0.85rem; }
+            .col-eu { font-size: 0.75rem; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Bandera España" class="flag">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Bandera España" class="flag-header">
         <h1>Ranking BG España</h1>
     </header>
     
@@ -194,14 +149,13 @@
         <table>
             <thead>
                 <tr>
-                    <th>Rango</th>
-                    <th>Jugador</th>
-                    <th style="text-align: right;">MMR</th>
+                    <th><img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" class="mini-flag">ES</th>
+                    <th>🇪🇺 EU</th>
+                    <th class="th-name">Jugador</th>
+                    <th class="th-mmr">MMR</th>
                 </tr>
             </thead>
-            <tbody id="ranking-body">
-                <!-- Aquí se inyectan los datos con JS -->
-            </tbody>
+            <tbody id="ranking-body"></tbody>
         </table>
         
         <div id="loading" class="loading">
@@ -210,54 +164,45 @@
         </div>
     </div>
 
-    <footer>
-        Datos obtenidos de Blizzard API - Season 17
-    </footer>
+    <footer>Datos obtenidos de Blizzard API - Season 17</footer>
 
     <script>
         async function cargarRanking() {
             try {
-                // Hacemos la petición a tu servidor (misma ruta que antes)
                 const response = await fetch('/api/ranking');
                 const jugadores = await response.json();
                 
                 const tbody = document.getElementById('ranking-body');
-                const loading = document.getElementById('loading');
-                
-                loading.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
                 tbody.innerHTML = '';
 
                 if (jugadores.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">No se encontraron jugadores.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;">No se encontraron jugadores.</td></tr>';
                     return;
                 }
 
                 jugadores.forEach(jugador => {
                     const tr = document.createElement('tr');
                     
-                    // Lógica visual
-                    let rangoDisplay = '-';
-                    let rankClass = 'rank-col';
-                    let mmrClass = 'mmr-col mmr-low';
+                    // Rango EU (Si no tiene, ponemos guion)
+                    const rangoEU = jugador.found ? `#${jugador.rank}` : '-';
                     
-                    if (jugador.found) {
-                        rangoDisplay = `#${jugador.rank}`;
-                        mmrClass = 'mmr-col mmr-high';
-                        
-                        // Colorear Top 3
-                        if (jugador.rank === 1) rankClass += ' rank-1';
-                        if (jugador.rank === 2) rankClass += ' rank-2';
-                        if (jugador.rank === 3) rankClass += ' rank-3';
-                    }
+                    // Estilos dinámicos
+                    let esClass = 'col-es';
+                    let mmrClass = 'col-mmr ' + (jugador.found ? 'mmr-high' : 'mmr-low');
 
-                    // Limpiar el nombre para que no se vea tan largo en móvil (opcional)
-                    // Si prefieres ver el número completo, usa jugador.battleTag
+                    // Destacar Top 3 España
+                    if (jugador.spainRank === 1) esClass += ' es-1';
+                    if (jugador.spainRank === 2) esClass += ' es-2';
+                    if (jugador.spainRank === 3) esClass += ' es-3';
+
                     const nombreVisible = jugador.battleTag.split('#')[0]; 
                     const tagNumero = jugador.battleTag.split('#')[1];
 
                     tr.innerHTML = `
-                        <td class="${rankClass}">${rangoDisplay}</td>
-                        <td class="name-col">
+                        <td class="${esClass}">${jugador.spainRank}</td>
+                        <td class="col-eu">${rangoEU}</td>
+                        <td class="col-name">
                             ${nombreVisible} <span style="color: #666; font-size: 0.8em;">#${tagNumero}</span>
                         </td>
                         <td class="${mmrClass}">${jugador.rating}</td>
@@ -267,11 +212,9 @@
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading').innerHTML = "<span style='color: #ff6b6b'>Error conectando con el servidor.</span>";
+                document.getElementById('loading').innerHTML = "<span style='color: #ff6b6b'>Error de conexión.</span>";
             }
         }
-
-        // Cargar al iniciar
         cargarRanking();
     </script>
 </body>
