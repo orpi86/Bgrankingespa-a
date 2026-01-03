@@ -1,0 +1,120 @@
+code
+Html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking BG España - Copia</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a0f1f;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #fcd144; /* Dorado Hearthstone */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #2b1d30;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #382440;
+            color: #fcd144;
+            padding: 15px;
+            text-align: left;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #44314d;
+        }
+        tr:hover {
+            background-color: #3d2a45;
+        }
+        .rank { font-weight: bold; color: #fff; }
+        .mmr { color: #00ff9d; font-weight: bold; }
+        .low-mmr { color: #ff6b6b; font-style: italic; }
+        
+        .loading {
+            padding: 20px;
+            text-align: center;
+            font-style: italic;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ranking BG España</h1>
+    
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rango</th>
+                    <th>Jugador (BattleTag)</th>
+                    <th>Puntos (MMR)</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-body">
+                <!-- Aquí se inyectan los datos con JS -->
+            </tbody>
+        </table>
+        <div id="loading" class="loading">Cargando datos de Blizzard...</div>
+    </div>
+
+    <script>
+        async function cargarRanking() {
+            try {
+                // Conectamos con nuestro script de Node.js
+                const response = await fetch('/api/ranking');
+                const jugadores = await response.json();
+                
+                const tbody = document.getElementById('ranking-body');
+                const loading = document.getElementById('loading');
+                
+                loading.style.display = 'none';
+                tbody.innerHTML = ''; // Limpiar
+
+                jugadores.forEach(jugador => {
+                    const tr = document.createElement('tr');
+                    
+                    // Lógica visual: Si tiene rango se muestra, si no "-"
+                    const rangoDisplay = jugador.found ? `#${jugador.rank}` : '-';
+                    const mmrClass = jugador.found ? 'mmr' : 'low-mmr';
+                    
+                    tr.innerHTML = `
+                        <td class="rank">${rangoDisplay}</td>
+                        <td>${jugador.battleTag}</td>
+                        <td class="${mmrClass}">${jugador.rating}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerText = "Error cargando el ranking. Asegúrate de iniciar el servidor.";
+            }
+        }
+
+        // Cargar al iniciar
+        cargarRanking();
+    </script>
+</body>
+</html>
