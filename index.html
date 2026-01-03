@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking BG España</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Iconos de FontAwesome para el logo de Twitch -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -15,6 +14,7 @@
             --hs-text: #f0f0f0;
             --hs-tournament: #00ff9d;
             --twitch-color: #9146ff;
+            --hs-blue-dark: #1b1626;
         }
 
         body {
@@ -32,11 +32,18 @@
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title-row {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 15px;
+            justify-content: center;
             flex-wrap: wrap;
         }
 
@@ -50,12 +57,56 @@
             letter-spacing: 2px;
         }
 
+        .current-season-title {
+            font-family: 'Cinzel', serif;
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-top: -5px;
+            letter-spacing: 1px;
+        }
+
         .flag-header {
             width: 50px;
             height: auto;
             border: 2px solid var(--hs-gold-dim);
             border-radius: 4px;
         }
+
+        /* --- NAVEGACIÓN DE TEMPORADAS --- */
+        .season-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .season-btn {
+            background-color: rgba(43, 29, 48, 0.8);
+            border: 1px solid var(--hs-gold-dim);
+            color: #aaa;
+            padding: 8px 12px;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+
+        .season-btn:hover {
+            border-color: var(--hs-gold);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .season-btn.active {
+            background-color: var(--hs-gold);
+            color: #1a0f1f;
+            border-color: var(--hs-gold);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(252, 209, 68, 0.4);
+        }
+        /* -------------------------------- */
 
         .container {
             width: 100%;
@@ -116,30 +167,16 @@
         .mmr-low { color: #ff6b6b; font-size: 0.9rem; font-style: italic; opacity: 0.8; }
         .mini-flag { width: 18px; vertical-align: middle; margin-right: 4px; opacity: 0.8; }
 
-        /* --- TWITCH STYLES --- */
+        /* Twitch */
         .twitch-link {
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            color: #555; /* Offline color */
-            transition: all 0.3s;
+            text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; border-radius: 4px; color: #555; transition: all 0.3s;
         }
-        
         .twitch-live {
-            color: #fff;
-            background-color: var(--twitch-color);
-            box-shadow: 0 0 10px var(--twitch-color);
+            color: #fff; background-color: var(--twitch-color); box-shadow: 0 0 10px var(--twitch-color);
             animation: pulse 2s infinite;
         }
-        
-        .twitch-live:hover {
-            transform: scale(1.1);
-        }
-
+        .twitch-live:hover { transform: scale(1.1); }
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(145, 70, 255, 0.7); }
             70% { box-shadow: 0 0 0 6px rgba(145, 70, 255, 0); }
@@ -157,14 +194,31 @@
         @media (max-width: 600px) {
             .col-name { flex-direction: column; align-items: flex-start; gap: 2px; }
             .twitch-link { width: 20px; height: 20px; font-size: 0.8rem; }
+            h1 { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
     <header>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Bandera España" class="flag-header">
-        <h1>Ranking BG España</h1>
+        <div class="header-title-row">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Bandera España" class="flag-header">
+            <h1>Ranking BG España</h1>
+        </div>
+        <!-- Título dinámico -->
+        <div id="season-title" class="current-season-title">Temporada 12 (Actual)</div>
     </header>
+
+    <!-- Barra de Navegación de Temporadas -->
+    <div class="season-nav">
+        <!-- onclick: cambia el ID (17) y el numero (12) -->
+        <button class="season-btn active" onclick="cambiarTemporada(17, 12)">T. 12</button>
+        <button class="season-btn" onclick="cambiarTemporada(16, 11)">T. 11</button>
+        <button class="season-btn" onclick="cambiarTemporada(15, 10)">T. 10</button>
+        <button class="season-btn" onclick="cambiarTemporada(14, 9)">T. 9</button>
+        <button class="season-btn" onclick="cambiarTemporada(13, 8)">T. 8</button>
+        <button class="season-btn" onclick="cambiarTemporada(12, 7)">T. 7</button>
+        <button class="season-btn" onclick="cambiarTemporada(11, 6)">T. 6</button>
+    </div>
     
     <div class="container">
         <table>
@@ -180,20 +234,43 @@
         </table>
         <div id="loading" class="loading"><div class="spinner"></div>Consultando al tabernero...</div>
     </div>
-    <footer>Datos obtenidos de Blizzard API - Season 17</footer>
+    <footer>Datos obtenidos de Blizzard API</footer>
 
     <script>
-        async function cargarRanking() {
+        // Función para gestionar el cambio de botón y recarga
+        function cambiarTemporada(id, num) {
+            // Actualizar título
+            const titulo = num === 12 ? 'Temporada 12 (Actual)' : `Temporada ${num}`;
+            document.getElementById('season-title').innerText = titulo;
+
+            // Actualizar botones (clase active)
+            const botones = document.querySelectorAll('.season-btn');
+            botones.forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText.includes(num)) btn.classList.add('active');
+            });
+
+            // Llamar a cargar datos con el nuevo ID
+            cargarRanking(id);
+        }
+
+        async function cargarRanking(seasonId = 17) {
+            const tbody = document.getElementById('ranking-body');
+            const loading = document.getElementById('loading');
+            
+            // Mostrar carga y limpiar tabla
+            tbody.innerHTML = '';
+            loading.style.display = 'block';
+
             try {
-                const response = await fetch('/api/ranking');
+                // Petición con parámetro de temporada
+                const response = await fetch(`/api/ranking?season=${seasonId}`);
                 const jugadores = await response.json();
                 
-                const tbody = document.getElementById('ranking-body');
-                document.getElementById('loading').style.display = 'none';
-                tbody.innerHTML = '';
+                loading.style.display = 'none';
 
                 if (jugadores.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;">No se encontraron jugadores.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;">No se encontraron datos para esta temporada.</td></tr>';
                     return;
                 }
 
@@ -213,7 +290,7 @@
                     const nombreVisible = jugador.battleTag.split('#')[0]; 
                     const tagNumero = jugador.battleTag.split('#')[1];
 
-                    // --- LOGICA TWITCH ---
+                    // Twitch (Solo sale si está online, y en temporadas viejas es posible que nadie lo esté jugando ahora mismo)
                     let twitchHtml = '';
                     if (jugador.twitchUser) {
                         const liveClass = jugador.isLive ? 'twitch-live' : '';
@@ -241,10 +318,12 @@
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading').innerHTML = "<span style='color: #ff6b6b'>Error de conexión.</span>";
+                loading.innerHTML = "<span style='color: #ff6b6b'>Error de conexión.</span>";
             }
         }
-        cargarRanking();
+
+        // Cargar Season 17 (Actual/12) al iniciar
+        cargarRanking(17);
     </script>
 </body>
 </html>
