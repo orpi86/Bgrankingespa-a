@@ -11,7 +11,7 @@ app.use(express.static(__dirname));
 // --- CONFIGURACIÓN ---
 const REGION = 'EU';
 const CURRENT_SEASON_ID = 17; 
-const MAX_PAGES_TO_SCAN = 300; // Máximo teórico (pero pararemos antes si se acaba)
+const MAX_PAGES_TO_SCAN = 150; // Máximo teórico (pero pararemos antes si se acaba)
 
 // --- SEGURIDAD ANTI-BLOQUEO ---
 const CONCURRENT_REQUESTS = 5; // Bajamos a 5 peticiones simultáneas para ser más suaves
@@ -213,5 +213,6 @@ app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); }
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`🚀 Servidor RAM Listo en puerto ${PORT}`); });
+
 
 
