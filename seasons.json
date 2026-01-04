@@ -1,0 +1,33 @@
+{
+    "currentSeason": 17,
+    "seasons": [
+        {
+            "id": 17,
+            "name": "T. 12 (Actual)"
+        },
+        {
+            "id": 16,
+            "name": "Temporada 11"
+        },
+        {
+            "id": 15,
+            "name": "Temporada 10"
+        },
+        {
+            "id": 14,
+            "name": "Temporada 9"
+        },
+        {
+            "id": 13,
+            "name": "Temporada 8"
+        },
+        {
+            "id": 12,
+            "name": "Temporada 7"
+        },
+        {
+            "id": 11,
+            "name": "Temporada 6"
+        }
+    ]
+}
