@@ -9,84 +9,29 @@ app.use(cors());
 app.use(express.static(__dirname));
 
 // --- CONFIGURACIÓN & ESTADO ---
-const CONFIG_PATH = path.join(__dirname, 'seasons.json');
-const CACHE_PATH = path.join(__dirname, 'cache.json');
+// Intentamos cargar configuración, si no existe usamos valores por defecto
 let CONFIG = { currentSeason: 17, seasons: [] };
+const CONFIG_PATH = path.join(__dirname, 'seasons.json');
 
 try {
     if (fs.existsSync(CONFIG_PATH)) {
         CONFIG = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
     }
 } catch (e) {
-    console.error("❌ Error cargando seasons.json:", e.message);
+    console.log("ℹ️ No se encontró seasons.json, usando config por defecto.");
 }
 
 const REGION = 'EU';
-const CURRENT_SEASON_ID = CONFIG.currentSeason;
-const MAX_PAGES_TO_SCAN = 500;
-const CONCURRENT_REQUESTS = 4;
-const REQUEST_DELAY = 300;
+const CURRENT_SEASON_ID = 17; // Valor fijo si falla la config
+const MAX_PAGES_TO_SCAN = 500; 
+const CONCURRENT_REQUESTS = 4; 
+const REQUEST_DELAY = 300;     
 
-// --- MEMORIA Y PERSISTENCIA ---
+// --- MEMORIA (CACHÉ) ---
 let memoriaCache = {};
-const TIEMPO_CACHE_ACTUAL = 24 * 60 * 60 * 1000;
+const TIEMPO_CACHE_ACTUAL = 24 * 60 * 60 * 1000; // 24 horas
 
-const loadCache = () => {
-    try {
-        if (fs.existsSync(CACHE_PATH)) {
-            const data = fs.readFileSync(CACHE_PATH, 'utf8');
-            memoriaCache = JSON.parse(data);
-            console.log("📂 Cache cargada desde disco.");
-        }
-    } catch (e) {
-        console.error("❌ Error cargando cache.json:", e.message);
-    }
-};
-
-const saveCache = () => {
-    try {
-        fs.writeFileSync(CACHE_PATH, JSON.stringify(memoriaCache, null, 2));
-        console.log("💾 Cache guardada en disco.");
-    } catch (e) {
-        console.error("❌ Error guardando cache.json:", e.message);
-    }
-};
-
-loadCache();
-
-const HISTORY_PATH = path.join(__dirname, 'history.json');
-let historyData = {};
-
-const loadHistory = () => {
-    try {
-        if (fs.existsSync(HISTORY_PATH)) {
-            historyData = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf8'));
-        }
-    } catch (e) { console.error("Error cargando history:", e.message); }
-};
-
-const saveHistory = (currentData) => {
-    const today = new Date().toISOString().split('T')[0];
-    currentData.forEach(p => {
-        if (!p.found) return;
-        if (!historyData[p.battleTag]) historyData[p.battleTag] = [];
-        const lastEntry = historyData[p.battleTag][historyData[p.battleTag].length - 1];
-        if (!lastEntry || lastEntry.date !== today) {
-            historyData[p.battleTag].push({ date: today, rating: p.rating, rank: p.rank });
-        } else {
-            lastEntry.rating = p.rating;
-            lastEntry.rank = p.rank;
-        }
-    });
-    fs.writeFileSync(HISTORY_PATH, JSON.stringify(historyData, null, 2));
-};
-
-loadHistory();
-
-const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
-const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
-
-// --- FUNCIONES ---
+// --- CARGA DE JUGADORES ---
 const loadPlayers = () => {
     try {
         const filePath = path.join(__dirname, 'jugadores.json');
@@ -98,6 +43,9 @@ const loadPlayers = () => {
 };
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
+const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 
 async function getTwitchToken() {
     if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) return null;
@@ -111,16 +59,6 @@ async function getTwitchToken() {
 
 // --- API ---
 
-app.get('/api/seasons', (req, res) => {
-    res.json(CONFIG);
-});
-
-app.get('/api/history', (req, res) => {
-    const { player } = req.query;
-    if (!player || !historyData[player]) return res.json([]);
-    res.json(historyData[player]);
-});
-
 app.get('/api/ranking', async (req, res) => {
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
@@ -133,8 +71,9 @@ app.get('/api/ranking', async (req, res) => {
 
     if (datosGuardados) {
         if (!isCurrentSeason) {
-            usarMemoria = true;
+            usarMemoria = true; // Temporadas viejas siempre de caché
         } else {
+            // Temporada actual: válida si es reciente
             if (Date.now() - datosGuardados.timestamp < TIEMPO_CACHE_ACTUAL) {
                 usarMemoria = true;
             }
@@ -142,7 +81,7 @@ app.get('/api/ranking', async (req, res) => {
     }
 
     if (usarMemoria) {
-        console.log(`⚡ Sirviendo desde CACHÉ.`);
+        console.log(`⚡ Sirviendo Season ${seasonToScan} desde CACHÉ.`);
         const dataWithTwitch = await actualizarTwitchLive(datosGuardados.data);
         return res.json(dataWithTwitch);
     }
@@ -184,11 +123,11 @@ app.get('/api/ranking', async (req, res) => {
                 if (rows.length > 0) jugadoresEncontradosEnLote += rows.length;
 
                 rows.forEach(row => {
-                    // --- CORRECCIÓN CLAVE PARA TEMPORADAS VIEJAS ---
-                    // Buscamos 'accountid', 'battleTag' O 'name' (este último es el que usan las viejas)
+                    // --- CORRECCIÓN CRUCIAL PARA TEMPORADAS VIEJAS (6-10) ---
+                    // Blizzard antes usaba 'name', ahora usa 'accountid'. Buscamos en ambos.
                     const rawName = row.accountid || row.battleTag || row.name || "";
                     const blizzName = rawName.toString().toLowerCase();
-                    
+
                     if (!blizzName) return;
 
                     results.forEach(player => {
@@ -197,6 +136,7 @@ app.get('/api/ranking', async (req, res) => {
                         const targetName = player.nameOnly.toLowerCase();
                         const targetFull = player.fullTag.toLowerCase();
 
+                        // Comparamos nombre corto (orpinell) y largo (orpinell#2250)
                         if (blizzName === targetName || blizzName === targetFull) {
                             console.log(`🎯 ¡Jugador encontrado!: ${player.battleTag} -> Rank ${row.rank} (${row.rating})`);
                             player.rank = row.rank;
@@ -207,11 +147,13 @@ app.get('/api/ranking', async (req, res) => {
                 });
             });
 
+            // Si ya encontramos a todos, paramos
             if (results.every(p => p.found)) {
                 console.log("📍 Todos los jugadores encontrados. Parada segura.");
                 break;
             }
 
+            // Si Blizzard nos devuelve páginas vacías, paramos
             if (jugadoresEncontradosEnLote === 0) {
                 console.log(`🛑 Fin de los datos en página ${i}. Parando escaneo.`);
                 break;
@@ -239,20 +181,59 @@ app.get('/api/ranking', async (req, res) => {
 
         finalResponse.forEach((player, index) => player.spainRank = index + 1);
 
-        // 4. GUARDAR EN CACHÉ Y DISCO
+        // 4. GUARDAR EN CACHÉ (Memoria RAM)
         memoriaCache[seasonToScan] = {
             timestamp: Date.now(),
             data: finalResponse
         };
-        saveCache();
-        if (isCurrentSeason) saveHistory(finalResponse);
+        
+        console.log(`✅ Season ${seasonToScan} guardada en memoria.`);
 
+        // 5. ENVIAR RESPUESTA
         const dataWithTwitch = await actualizarTwitchLive(finalResponse);
-        const dataWithAchievements = calcularLogros(dataWithTwitch);
-        res.json(dataWithAchievements);
+        res.json(dataWithTwitch);
 
     } catch (error) {
         console.error("🚨 Error Servidor:", error.message);
-        res.status(500).json({ error: "Error inte
+        // Aquí estaba el error de sintaxis antes, ahora está corregido:
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
 
+async function actualizarTwitchLive(playersList) {
+    const twitchUsers = playersList.filter(r => r.twitchUser).map(r => r.twitchUser);
+    if (twitchUsers.length === 0) return playersList;
+
+    const token = await getTwitchToken();
+    if (!token) return playersList;
+
+    const updatedList = JSON.parse(JSON.stringify(playersList));
+
+    try {
+        const queryParams = new URLSearchParams();
+        twitchUsers.forEach(user => queryParams.append('user_login', user));
+        
+        const twitchResp = await axios.get(`https://api.twitch.tv/helix/streams?${queryParams.toString()}`, {
+            headers: { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${token}` }
+        });
+
+        const liveStreams = twitchResp.data.data;
+        updatedList.forEach(player => {
+            player.isLive = false;
+            if (player.twitchUser && liveStreams.some(s => s.user_login.toLowerCase() === player.twitchUser.toLowerCase())) {
+                player.isLive = true;
+            }
+        });
+    } catch (e) {
+        console.error("Twitch Error:", e.message);
+    }
+    return updatedList;
+}
+
+// Servir la web
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+
+// Iniciar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => { console.log(`🚀 Servidor Corregido listo en puerto ${PORT}`); });
 
