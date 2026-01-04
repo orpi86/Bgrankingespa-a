@@ -563,6 +563,45 @@
             text-align: right;
         }
 
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--glass-border);
+            object-fit: cover;
+            transition: all 0.3s;
+        }
+
+        .player-avatar.live {
+            border-color: var(--twitch-color);
+            box-shadow: 0 0 12px var(--twitch-color);
+            animation: pulse-live 2s infinite;
+        }
+
+        .player-avatar-link {
+            position: relative;
+            display: inline-block;
+        }
+
+        .player-avatar-link.live::after {
+            content: "LIVE";
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff0000;
+            color: #fff;
+            font-size: 0.6rem;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .player-avatar-link:hover .player-avatar {
+            transform: scale(1.1);
+            border-color: var(--hs-gold);
+        }
+
         .twitch-badge {
             display: inline-flex;
             align-items: center;
@@ -1206,9 +1245,16 @@
                 const [name, tag] = player.battleTag.split('#');
 
                 const twitchClass = player.isLive ? 'live' : '';
-                const twitchTitle = player.isLive ? '¡En directo!' : (player.twitchUser ? 'Offline' : '');
-                const twitchLink = player.twitchUser ?
-                    `<a href="https://twitch.tv/${player.twitchUser}" target="_blank" class="twitch-badge ${twitchClass}" title="${twitchTitle}"><i class="fab fa-twitch"></i></a>` : '';
+                const twitchTitle = player.isLive ? '¡En directo!' : (player.twitchUser ? 'Ver en Twitch' : '');
+
+                // Avatar de Twitch o icono por defecto
+                let avatarHtml = '';
+                if (player.twitchUser) {
+                    const avatarSrc = player.twitchAvatar || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/ebe4cd89-b4f4-4f9e-a8cf-c1d420019876-profile_image-70x70.png';
+                    avatarHtml = `<a href="https://twitch.tv/${player.twitchUser}" target="_blank" title="${twitchTitle}" class="player-avatar-link ${twitchClass}">
+                        <img src="${avatarSrc}" class="player-avatar ${twitchClass}" alt="${player.twitchUser}">
+                    </a>`;
+                }
 
                 const ratingFormatted = isNaN(player.rating) ? player.rating : formatNumber(player.rating);
 
@@ -1228,14 +1274,14 @@
                     <td class="col-rank-es">#${player.spainRank}</td>
                     <td class="col-rank-eu">${player.found ? '#' + player.rank : '-'}</td>
                     <td class="col-player">
+                        ${avatarHtml}
                         <div class="player-info">
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="player-name">${name}</span> 
+                                <span class="player-name">${name}</span>
                                 ${badgesHtml}
                             </div>
                             <span class="player-tag">#${tag}</span>
                         </div>
-                        ${twitchLink}
                     </td>
                     <td style="text-align: center;">
                         <button class="stats-btn" onclick="showHistory('${player.battleTag}')">

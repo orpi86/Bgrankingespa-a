@@ -160,7 +160,7 @@ app.get('/api/ranking', async (req, res) => {
         nameOnly: p.battleTag.split('#')[0].toLowerCase(),
         fullTag: p.battleTag.toLowerCase(),
         rank: null,
-        rating: '< 1000', // Valor por defecto bajo
+        rating: 'Sin datos', // Valor por defecto cuando no se encuentra
         found: false
     }));
 
@@ -311,16 +311,23 @@ async function actualizarTwitchLive(playersList) {
         if (!player.twitchUser) continue;
 
         try {
-            const response = await axios.get(`https://decapi.me/twitch/uptime/${player.twitchUser}`, {
+            // Check live status
+            const uptimeRes = await axios.get(`https://decapi.me/twitch/uptime/${player.twitchUser}`, {
                 timeout: 3000
             });
-            // Si NO dice "offline", está en directo
-            player.isLive = !response.data.toLowerCase().includes('offline');
+            player.isLive = !uptimeRes.data.toLowerCase().includes('offline');
             if (player.isLive) {
                 console.log(`📺 ${player.twitchUser} está EN DIRECTO`);
             }
+
+            // Get avatar URL
+            const avatarRes = await axios.get(`https://decapi.me/twitch/avatar/${player.twitchUser}`, {
+                timeout: 3000
+            });
+            player.twitchAvatar = avatarRes.data;
         } catch (e) {
             player.isLive = false;
+            player.twitchAvatar = null;
         }
     }
 
@@ -352,7 +359,7 @@ async function realizarEscaneoInterno(seasonId) {
         nameOnly: p.battleTag.split('#')[0].toLowerCase(),
         fullTag: p.battleTag.toLowerCase(),
         rank: null,
-        rating: '< 1000',
+        rating: 'Sin datos',
         found: false
     }));
 
