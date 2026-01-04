@@ -11,21 +11,16 @@ app.use(express.static(__dirname));
 // --- CONFIGURACIÓN ---
 const REGION = 'EU';
 const CURRENT_SEASON_ID = 17; 
-const MAX_PAGES_TO_SCAN = 400;
+const MAX_PAGES_TO_SCAN = 400; // Máximo teórico (pero pararemos antes si se acaba)
 
-// --- ANTI-BLOQUEO & SEGURIDAD ---
-const CONCURRENT_REQUESTS = 10;
-const REQUEST_DELAY = 100;
+// --- SEGURIDAD ANTI-BLOQUEO ---
+const CONCURRENT_REQUESTS = 5; // Bajamos a 5 peticiones simultáneas para ser más suaves
+const REQUEST_DELAY = 100;     // Pausa de 0.1s entre bloques
 
-// --- CACHÉ PERSISTENTE (EN DISCO) ---
-// Render nos da una carpeta '/data' que no se borra. Ahí guardaremos los JSON.
-const CACHE_DIR = '/data/cache'; 
-const CACHE_DURATION_CURRENT = 30 * 60 * 1000; // 30 min para la actual
-
-// Creamos la carpeta de caché si no existe al arrancar
-if (!fs.existsSync(CACHE_DIR)) {
-    fs.mkdirSync(CACHE_DIR, { recursive: true });
-}
+// --- MEMORIA RAM (CACHÉ) ---
+// Aquí se guardan los datos para no escribirlos en disco (evita error EACCES)
+const memoriaCache = {}; 
+const TIEMPO_CACHE_ACTUAL = 30 * 60 * 1000; // La actual caduca en 30 min
 
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
@@ -57,25 +52,33 @@ async function getTwitchToken() {
 app.get('/api/ranking', async (req, res) => {
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
-    
-    // Ruta al archivo de caché para esta temporada
-    const cacheFilePath = path.join(CACHE_DIR, `season-${seasonToScan}.json`);
 
-    // 1. REVISAR SI EL ARCHIVO DE CACHÉ EXISTE
-    if (fs.existsSync(cacheFilePath)) {
-        const cacheData = JSON.parse(fs.readFileSync(cacheFilePath, 'utf8'));
-        
-        // Si es temporada actual, comprobamos si el archivo tiene menos de 30 min.
-        // Si es temporada vieja, la servimos directamente.
-        if (!isCurrentSeason || (Date.now() - cacheData.timestamp < CACHE_DURATION_CURRENT)) {
-            console.log(`⚡ Sirviendo Season ${seasonToScan} desde ARCHIVO CACHÉ.`);
-            const finalData = await actualizarTwitchLive(cacheData.data);
-            return res.json(finalData);
+    console.log(`📡 Petición recibida para Season ${seasonToScan}`);
+
+    // 1. REVISAR MEMORIA RAM
+    const datosGuardados = memoriaCache[seasonToScan];
+    let usarMemoria = false;
+
+    if (datosGuardados) {
+        if (!isCurrentSeason) {
+            // Si es una temporada vieja, SIEMPRE usamos la memoria (nunca cambia)
+            usarMemoria = true;
+        } else {
+            // Si es la actual, usamos memoria si es reciente (< 30 min)
+            if (Date.now() - datosGuardados.timestamp < TIEMPO_CACHE_ACTUAL) {
+                usarMemoria = true;
+            }
         }
     }
 
-    // 2. SI NO HAY CACHÉ VÁLIDA, DESCARGAMOS DE BLIZZARD
-    console.log(`🌐 Descargando Season ${seasonToScan} de Blizzard (se guardará en disco permanentemente)...`);
+    if (usarMemoria) {
+        console.log(`⚡ Sirviendo desde MEMORIA RAM (Sin molestar a Blizzard).`);
+        const dataWithTwitch = await actualizarTwitchLive(datosGuardados.data);
+        return res.json(dataWithTwitch);
+    }
+
+    // 2. SI NO ESTÁ EN MEMORIA, DESCARGAR
+    console.log(`🌐 Iniciando descarga inteligente de Season ${seasonToScan}...`);
 
     const myPlayersRaw = loadPlayers();
     let results = myPlayersRaw.map(p => ({
@@ -85,55 +88,87 @@ app.get('/api/ranking', async (req, res) => {
         nameOnly: p.battleTag.split('#')[0].toLowerCase(),
         fullTag: p.battleTag.toLowerCase(),
         rank: null,
-        rating: '< 8000',
+        rating: '< 8000', // Valor por defecto
         found: false
     }));
 
     try {
-        // Descarga segura con auto-stop
+        // Bucle de escaneo CON FRENO AUTOMÁTICO
         for (let i = 1; i <= MAX_PAGES_TO_SCAN; i += CONCURRENT_REQUESTS) {
             const batchPromises = [];
+            
+            // Preparamos lote de 5 páginas
             for (let j = i; j < i + CONCURRENT_REQUESTS && j <= MAX_PAGES_TO_SCAN; j++) {
-                batchPromises.push(axios.get(`...URL...&seasonId=${seasonToScan}`).then(r => r.data).catch(() => null));
+                batchPromises.push(
+                    axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonToScan}`)
+                    .then(r => r.data)
+                    .catch(() => null)
+                );
             }
+
             const batchResponses = await Promise.all(batchPromises);
             
-            let playersFoundInBatch = 0;
+            // Verificamos si encontramos ALGO en este lote
+            let jugadoresEncontradosEnLote = 0;
+
             batchResponses.forEach(data => {
-                if (!data?.leaderboard?.rows) return;
-                playersFoundInBatch += data.leaderboard.rows.length;
-                data.leaderboard.rows.forEach(row => {
+                if (!data || !data.leaderboard || !data.leaderboard.rows) return;
+                
+                const rows = data.leaderboard.rows;
+                if (rows.length > 0) jugadoresEncontradosEnLote += rows.length;
+
+                rows.forEach(row => {
                     const blizzID = row.accountid?.toString().toLowerCase() || "";
                     results.forEach(player => {
-                        if (!player.found && (blizzID === player.fullTag || blizzID.startsWith(player.nameOnly))) {
-                            player.rank = row.rank; player.rating = row.rating; player.found = true;
+                        if (player.found) return;
+                        if (blizzID === player.fullTag || blizzID.startsWith(player.nameOnly)) {
+                            player.rank = row.rank;
+                            player.rating = row.rating;
+                            player.found = true;
                         }
                     });
                 });
             });
 
-            if (playersFoundInBatch === 0) {
-                console.log(`🛑 Temporada finalizada en pág ${i}. Deteniendo escaneo.`);
-                break;
+            // *** EL FRENO DE MANO ***
+            // Si Blizzard nos devuelve páginas vacías, significa que la temporada terminó.
+            // PARAMOS AQUÍ para no generar errores 404 y que no nos baneen.
+            if (jugadoresEncontradosEnLote === 0) {
+                console.log(`🛑 Fin de la temporada detectado en página ${i}. Parando escaneo.`);
+                break; 
             }
+
+            // Esperar un poco antes del siguiente bloque
             await wait(REQUEST_DELAY);
         }
 
-        // 3. PROCESAR Y GUARDAR
-        let finalResponse = results.map(p => ({ battleTag: p.battleTag, rank: p.rank, rating: p.rating, found: p.found, twitchUser: p.twitchUser, isLive: false }));
+        // 3. PROCESAR RESULTADOS
+        let finalResponse = results.map(p => ({
+            battleTag: p.battleTag,
+            rank: p.rank,
+            rating: p.rating,
+            found: p.found,
+            twitchUser: p.twitchUser,
+            isLive: false 
+        }));
+
         finalResponse.sort((a, b) => {
-            if (a.found && !b.found) return -1; if (!a.found && b.found) return 1; if (a.found && b.found) return a.rank - b.rank; return 0;
+            if (a.found && !b.found) return -1;
+            if (!a.found && b.found) return 1;
+            if (a.found && b.found) return a.rank - b.rank;
+            return 0;
         });
+
         finalResponse.forEach((player, index) => player.spainRank = index + 1);
 
-        // Guardamos los datos en un archivo JSON en el disco persistente
-        const dataToSave = {
+        // 4. GUARDAR EN MEMORIA RAM
+        memoriaCache[seasonToScan] = {
             timestamp: Date.now(),
             data: finalResponse
         };
-        fs.writeFileSync(cacheFilePath, JSON.stringify(dataToSave));
-        console.log(`💾 Season ${seasonToScan} guardada en disco para el futuro.`);
+        console.log(`✅ Datos guardados en RAM para el futuro.`);
 
+        // 5. AÑADIR TWITCH Y ENVIAR
         const dataWithTwitch = await actualizarTwitchLive(finalResponse);
         res.json(dataWithTwitch);
 
@@ -143,16 +178,24 @@ app.get('/api/ranking', async (req, res) => {
     }
 });
 
+// Función auxiliar para Twitch
 async function actualizarTwitchLive(playersList) {
     const twitchUsers = playersList.filter(r => r.twitchUser).map(r => r.twitchUser);
     if (twitchUsers.length === 0) return playersList;
+
     const token = await getTwitchToken();
     if (!token) return playersList;
+
     const updatedList = JSON.parse(JSON.stringify(playersList));
+
     try {
         const queryParams = new URLSearchParams();
         twitchUsers.forEach(user => queryParams.append('user_login', user));
-        const twitchResp = await axios.get(`https://api.twitch.tv/helix/streams?${queryParams.toString()}`, { headers: { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${token}` } });
+        
+        const twitchResp = await axios.get(`https://api.twitch.tv/helix/streams?${queryParams.toString()}`, {
+            headers: { 'Client-ID': TWITCH_CLIENT_ID, 'Authorization': `Bearer ${token}` }
+        });
+
         const liveStreams = twitchResp.data.data;
         updatedList.forEach(player => {
             player.isLive = false;
@@ -160,11 +203,13 @@ async function actualizarTwitchLive(playersList) {
                 player.isLive = true;
             }
         });
-    } catch (e) { console.error("Twitch Error:", e.message); }
+    } catch (e) {
+        console.error("Twitch Error:", e.message);
+    }
     return updatedList;
 }
 
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { console.log(`🚀 Servidor Final (con caché en disco) en puerto ${PORT}`); });
+app.listen(PORT, () => { console.log(`🚀 Servidor RAM Listo en puerto ${PORT}`); });
