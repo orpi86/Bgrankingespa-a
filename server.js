@@ -10,18 +10,16 @@ app.use(express.static(__dirname));
 
 // --- CONFIGURACIÓN ---
 const REGION = 'EU';
-const CURRENT_SEASON_ID = 17; // La única que cambia
-const MAX_PAGES_TO_SCAN = 400;
+const CURRENT_SEASON_ID = 17; 
+const MAX_PAGES_TO_SCAN = 150; // Buscamos profundo...
 
-// --- ANTI-BLOQUEO BLIZZARD ---
-const CONCURRENT_REQUESTS = 10;
-const REQUEST_DELAY = 50;
+// --- ANTI-BLOQUEO & SEGURIDAD ---
+const CONCURRENT_REQUESTS = 10; // Peticiones simultáneas
+const REQUEST_DELAY = 100;      // Pausa entre bloques (aumentada a 100ms por seguridad)
 
-// --- CONFIGURACIÓN DE CACHÉ ---
-const CACHE_DURATION_CURRENT = 30 * 60 * 1000; // La temporada actual se actualiza cada 30 min
-// Las temporadas pasadas NO tienen duración, son "infinitas"
-
-const serverCache = {}; // Aquí guardaremos todo
+// --- CACHÉ ---
+const CACHE_DURATION_CURRENT = 30 * 60 * 1000; // 30 min para la actual
+const serverCache = {}; 
 
 const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
@@ -51,36 +49,30 @@ async function getTwitchToken() {
 
 // --- API ---
 app.get('/api/ranking', async (req, res) => {
-    // Convertimos a número para asegurar comparaciones correctas
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
 
-    // 1. LÓGICA DE CACHÉ INTELIGENTE
+    // 1. REVISAR CACHÉ
     const cachedSeason = serverCache[seasonToScan];
-    
     let serveFromCache = false;
 
     if (cachedSeason) {
         if (!isCurrentSeason) {
-            // Si es temporada PASADA, la caché sirve SIEMPRE (los datos no cambian)
-            serveFromCache = true;
+            serveFromCache = true; // Temporadas viejas siempre de caché
         } else {
-            // Si es temporada ACTUAL, comprobamos si caducó (30 min)
             if (Date.now() - cachedSeason.timestamp < CACHE_DURATION_CURRENT) {
-                serveFromCache = true;
+                serveFromCache = true; // Temporada actual si es reciente
             }
         }
     }
 
     if (serveFromCache) {
-        console.log(`⚡ Sirviendo Season ${seasonToScan} desde CACHÉ (${isCurrentSeason ? 'Actual/Temporal' : 'Histórico/Fijo'})`);
-        // IMPORTANTE: Aunque los datos sean viejos, chequeamos Twitch en tiempo real
+        console.log(`⚡ Sirviendo Season ${seasonToScan} desde CACHÉ.`);
         const finalData = await actualizarTwitchLive(cachedSeason.data);
         return res.json(finalData);
     }
 
-    // 2. SI NO HAY CACHÉ, DESCARGAMOS DE BLIZZARD
-    console.log(`🌐 Descargando Season ${seasonToScan} de Blizzard (Se guardará en memoria)...`);
+    console.log(`🌐 Descargando Season ${seasonToScan} de Blizzard (Con auto-stop)...`);
 
     const myPlayersRaw = loadPlayers();
     let results = myPlayersRaw.map(p => ({
@@ -95,9 +87,11 @@ app.get('/api/ranking', async (req, res) => {
     }));
 
     try {
-        // Bucle de descarga con pausas (Anti-Ban)
+        // 2. DESCARGA INTELIGENTE (Se detiene si no hay datos)
         for (let i = 1; i <= MAX_PAGES_TO_SCAN; i += CONCURRENT_REQUESTS) {
             const batchPromises = [];
+            
+            // Preparamos lote
             for (let j = i; j < i + CONCURRENT_REQUESTS && j <= MAX_PAGES_TO_SCAN; j++) {
                 batchPromises.push(
                     axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonToScan}`)
@@ -108,9 +102,16 @@ app.get('/api/ranking', async (req, res) => {
 
             const batchResponses = await Promise.all(batchPromises);
             
+            // Variable para detectar si este lote estaba vacío
+            let playersFoundInBatch = 0;
+
             batchResponses.forEach(data => {
                 if (!data || !data.leaderboard || !data.leaderboard.rows) return;
-                data.leaderboard.rows.forEach(row => {
+                
+                const rows = data.leaderboard.rows;
+                playersFoundInBatch += rows.length;
+
+                rows.forEach(row => {
                     const blizzID = row.accountid?.toString().toLowerCase() || "";
                     results.forEach(player => {
                         if (player.found) return;
@@ -123,20 +124,26 @@ app.get('/api/ranking', async (req, res) => {
                 });
             });
 
-            // Pausa entre bloques
-            if (i + CONCURRENT_REQUESTS <= MAX_PAGES_TO_SCAN) {
-                await wait(REQUEST_DELAY);
+            // --- EL FRENO DE MANO ---
+            // Si en estas 10 páginas no hemos encontrado NINGÚN jugador de Blizzard,
+            // asumimos que la temporada se ha terminado y paramos de buscar.
+            if (playersFoundInBatch === 0) {
+                console.log(`🛑 Temporada terminada en página ${i}. Parando escaneo para evitar ban.`);
+                break; // Rompe el bucle for
             }
+
+            // Pausa de seguridad
+            await wait(REQUEST_DELAY);
         }
 
-        // Procesar y ordenar
+        // 3. PROCESAR
         let finalResponse = results.map(p => ({
             battleTag: p.battleTag,
             rank: p.rank,
             rating: p.rating,
             found: p.found,
             twitchUser: p.twitchUser,
-            isLive: false // Se actualiza abajo
+            isLive: false
         }));
 
         finalResponse.sort((a, b) => {
@@ -148,34 +155,28 @@ app.get('/api/ranking', async (req, res) => {
 
         finalResponse.forEach((player, index) => player.spainRank = index + 1);
 
-        // 3. GUARDAR EN CACHÉ
+        // Guardar en caché
         serverCache[seasonToScan] = {
             timestamp: Date.now(),
             data: finalResponse
         };
 
-        console.log(`✅ Season ${seasonToScan} guardada en memoria.`);
-
-        // 4. AÑADIR INFO DE TWITCH (FRESCA) Y ENVIAR
         const dataWithTwitch = await actualizarTwitchLive(finalResponse);
         res.json(dataWithTwitch);
 
     } catch (error) {
         console.error("🚨 Error Servidor:", error.message);
-        res.status(500).json({ error: "Error obteniendo datos" });
+        res.status(500).json({ error: "Error interno" });
     }
 });
 
-// Función separada para consultar Twitch en tiempo real
 async function actualizarTwitchLive(playersList) {
-    // Si no hay jugadores con twitch, devolvemos la lista tal cual
     const twitchUsers = playersList.filter(r => r.twitchUser).map(r => r.twitchUser);
     if (twitchUsers.length === 0) return playersList;
 
     const token = await getTwitchToken();
     if (!token) return playersList;
 
-    // Clonamos la lista para no modificar la "copia maestra" de la caché
     const updatedList = JSON.parse(JSON.stringify(playersList));
 
     try {
@@ -187,18 +188,14 @@ async function actualizarTwitchLive(playersList) {
         });
 
         const liveStreams = twitchResp.data.data;
-        
         updatedList.forEach(player => {
-            player.isLive = false; // Resetear estado
-            if (player.twitchUser) {
-                const isStreaming = liveStreams.some(s => s.user_login.toLowerCase() === player.twitchUser.toLowerCase());
-                if (isStreaming) {
-                    player.isLive = true;
-                }
+            player.isLive = false;
+            if (player.twitchUser && liveStreams.some(s => s.user_login.toLowerCase() === player.twitchUser.toLowerCase())) {
+                player.isLive = true;
             }
         });
     } catch (e) {
-        console.error("⚠️ Error consultando Twitch (se devolverán datos sin estado live):", e.message);
+        console.error("Twitch Error:", e.message);
     }
     return updatedList;
 }
@@ -206,5 +203,4 @@ async function actualizarTwitchLive(playersList) {
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { console.log(`🚀 Servidor Optimizado en puerto ${PORT}`); });
-
+app.listen(PORT, () => { console.log(`🚀 Servidor Final en puerto ${PORT}`); });
