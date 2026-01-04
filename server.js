@@ -24,12 +24,12 @@ try {
 const REGION = 'EU';
 const CURRENT_SEASON_ID = CONFIG.currentSeason;
 const MAX_PAGES_TO_SCAN = 500; // Aumentado a 500 para escaneo profundo
-const CONCURRENT_REQUESTS = 8; // Aumentado ligeramente para mayor velocidad
-const REQUEST_DELAY = 150;     // Un poco más de delay para compensar las peticiones simultáneas
+const CONCURRENT_REQUESTS = 4; // Reducido para evitar rate limiting
+const REQUEST_DELAY = 300;     // Más delay para evitar bloqueos de API
 
 // --- MEMORIA Y PERSISTENCIA ---
 let memoriaCache = {};
-const TIEMPO_CACHE_ACTUAL = 60 * 60 * 1000; // La actual caduca en 1 hora
+const TIEMPO_CACHE_ACTUAL = 24 * 60 * 60 * 1000; // Cache válida por 24 horas
 
 const loadCache = () => {
     try {
@@ -336,17 +336,61 @@ async function actualizarTwitchLive(playersList) {
 
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
+// Endpoint para forzar refresh manual (usar con cuidado)
+app.get('/api/force-refresh', async (req, res) => {
+    console.log("🔄 Refresh manual solicitado...");
+    try {
+        for (const season of CONFIG.seasons) {
+            delete memoriaCache[season.id]; // Invalidar cache
+        }
+        for (const season of CONFIG.seasons) {
+            await realizarEscaneoInterno(season.id);
+        }
+        res.json({ success: true, message: "Cache refrescada exitosamente" });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor con Persistencia en puerto ${PORT}`);
 
-    // Lanzar escaneo inicial para TODAS las temporadas configuradas
-    console.log("⚡ Lanzando escaneo de seguridad para todas las temporadas...");
-    for (const season of CONFIG.seasons) {
-        console.log(`📡 Preparando datos para: ${season.name} (ID: ${season.id})`);
-        await realizarEscaneoInterno(season.id);
+    // Solo escanear si no hay cache válida
+    const cacheValida = memoriaCache[CURRENT_SEASON_ID] &&
+        (Date.now() - memoriaCache[CURRENT_SEASON_ID].timestamp < TIEMPO_CACHE_ACTUAL);
+
+    if (!cacheValida) {
+        console.log("⚡ Cache vacía o expirada. Lanzando escaneo inicial...");
+        for (const season of CONFIG.seasons) {
+            console.log(`📡 Preparando datos para: ${season.name} (ID: ${season.id})`);
+            await realizarEscaneoInterno(season.id);
+        }
+    } else {
+        console.log("✅ Cache válida encontrada. Usando datos existentes.");
     }
+
     console.log("✅ Sistema de Taberna listo y cargado.");
+
+    // Programar escaneo diario a las 6:00 AM
+    const ahora = new Date();
+    const proximoEscaneo = new Date();
+    proximoEscaneo.setHours(6, 0, 0, 0);
+    if (proximoEscaneo <= ahora) {
+        proximoEscaneo.setDate(proximoEscaneo.getDate() + 1);
+    }
+    const tiempoHastaEscaneo = proximoEscaneo - ahora;
+    console.log(`⏰ Próximo escaneo automático programado para las 6:00 AM (en ${Math.round(tiempoHastaEscaneo / 3600000)}h)`);
+
+    setTimeout(async function escaneoProgamado() {
+        console.log("🌅 Ejecutando escaneo diario programado...");
+        for (const season of CONFIG.seasons) {
+            delete memoriaCache[season.id];
+            await realizarEscaneoInterno(season.id);
+        }
+        // Re-programar para mañana
+        setTimeout(escaneoProgamado, 24 * 60 * 60 * 1000);
+    }, tiempoHastaEscaneo);
 });
 
 // Función interna para escaneo sin necesidad de request HTTP
