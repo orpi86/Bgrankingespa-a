@@ -1,0 +1,2179 @@
+{
+  "11": {
+    "timestamp": 1767552559761,
+    "data": [
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  },
+  "12": {
+    "timestamp": 1767552560269,
+    "data": [
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": 65,
+        "rating": 13760,
+        "found": true,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": 98,
+        "rating": 13069,
+        "found": true,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": 130,
+        "rating": 12653,
+        "found": true,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": 196,
+        "rating": 12026,
+        "found": true,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": 266,
+        "rating": 11554,
+        "found": true,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": 444,
+        "rating": 10938,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": 482,
+        "rating": 10817,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": 603,
+        "rating": 10570,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": 632,
+        "rating": 10520,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": 857,
+        "rating": 10153,
+        "found": true,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": 1004,
+        "rating": 10037,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": 1036,
+        "rating": 10018,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": 1925,
+        "rating": 9343,
+        "found": true,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": 2185,
+        "rating": 9250,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": 2371,
+        "rating": 9195,
+        "found": true,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": 2944,
+        "rating": 9031,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  },
+  "13": {
+    "timestamp": 1767552559737,
+    "data": [
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": 62,
+        "rating": 14005,
+        "found": true,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": 97,
+        "rating": 13202,
+        "found": true,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": 104,
+        "rating": 13063,
+        "found": true,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": 185,
+        "rating": 12098,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": 192,
+        "rating": 12048,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": 250,
+        "rating": 11612,
+        "found": true,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": 281,
+        "rating": 11449,
+        "found": true,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": 386,
+        "rating": 11044,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": 392,
+        "rating": 11033,
+        "found": true,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": 404,
+        "rating": 11003,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": 524,
+        "rating": 10671,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": 661,
+        "rating": 10344,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": 758,
+        "rating": 10210,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": 783,
+        "rating": 10173,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": 1792,
+        "rating": 9317,
+        "found": true,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": 2038,
+        "rating": 9200,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": 2534,
+        "rating": 9018,
+        "found": true,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  },
+  "14": {
+    "timestamp": 1767552559713,
+    "data": [
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": 41,
+        "rating": 15000,
+        "found": true,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": 120,
+        "rating": 13198,
+        "found": true,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": 122,
+        "rating": 13193,
+        "found": true,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": 245,
+        "rating": 12133,
+        "found": true,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": 264,
+        "rating": 12049,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": 340,
+        "rating": 11770,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": 382,
+        "rating": 11584,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": 414,
+        "rating": 11486,
+        "found": true,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": 599,
+        "rating": 11048,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": 794,
+        "rating": 10685,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": 1146,
+        "rating": 10236,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": 1171,
+        "rating": 10215,
+        "found": true,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": 1355,
+        "rating": 10090,
+        "found": true,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": 2018,
+        "rating": 9699,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": 2035,
+        "rating": 9685,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": 2264,
+        "rating": 9562,
+        "found": true,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": 2380,
+        "rating": 9501,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  },
+  "15": {
+    "timestamp": 1767552497504,
+    "data": [
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": 57,
+        "rating": 13405,
+        "found": true,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": 133,
+        "rating": 12186,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": 148,
+        "rating": 12058,
+        "found": true,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": 153,
+        "rating": 12038,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": 160,
+        "rating": 12011,
+        "found": true,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": 263,
+        "rating": 11258,
+        "found": true,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": 314,
+        "rating": 11022,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": 491,
+        "rating": 10361,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": 536,
+        "rating": 10254,
+        "found": true,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": 956,
+        "rating": 9596,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": 1117,
+        "rating": 9418,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": 1166,
+        "rating": 9365,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": 1262,
+        "rating": 9284,
+        "found": true,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": 1442,
+        "rating": 9145,
+        "found": true,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": 1946,
+        "rating": 8883,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": 2450,
+        "rating": 8672,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": 2734,
+        "rating": 8590,
+        "found": true,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": 2874,
+        "rating": 8549,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": 2978,
+        "rating": 8518,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": 3484,
+        "rating": 8409,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": 3649,
+        "rating": 8372,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": 6064,
+        "rating": 8074,
+        "found": true,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": 7903,
+        "rating": 8033,
+        "found": true,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": 9063,
+        "rating": 8017,
+        "found": true,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  },
+  "16": {
+    "timestamp": 1767552239418,
+    "data": [
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": 85,
+        "rating": 13464,
+        "found": true,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": 168,
+        "rating": 12301,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": 203,
+        "rating": 12031,
+        "found": true,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": 206,
+        "rating": 12025,
+        "found": true,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": 247,
+        "rating": 11737,
+        "found": true,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": 248,
+        "rating": 11733,
+        "found": true,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": 324,
+        "rating": 11349,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": 405,
+        "rating": 11035,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": 411,
+        "rating": 11022,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": 412,
+        "rating": 11019,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": 429,
+        "rating": 10984,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": 885,
+        "rating": 10028,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": 899,
+        "rating": 10022,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": 1338,
+        "rating": 9539,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": 1359,
+        "rating": 9521,
+        "found": true,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": 1411,
+        "rating": 9470,
+        "found": true,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": 1466,
+        "rating": 9421,
+        "found": true,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": 1526,
+        "rating": 9373,
+        "found": true,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": 2142,
+        "rating": 9048,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": 2438,
+        "rating": 8933,
+        "found": true,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": 2884,
+        "rating": 8796,
+        "found": true,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": 3090,
+        "rating": 8734,
+        "found": true,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": 3728,
+        "rating": 8587,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": 7641,
+        "rating": 8096,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  },
+  "17": {
+    "timestamp": 1767551951662,
+    "data": [
+      {
+        "battleTag": "KuositoVélez#2154",
+        "rank": 90,
+        "rating": 10410,
+        "found": true,
+        "twitchUser": "kuosito",
+        "isLive": false,
+        "spainRank": 1
+      },
+      {
+        "battleTag": "clamox#2725",
+        "rank": 109,
+        "rating": 10145,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 2
+      },
+      {
+        "battleTag": "GOTOR8#2419",
+        "rank": 110,
+        "rating": 10133,
+        "found": true,
+        "twitchUser": "gotorkun",
+        "isLive": false,
+        "spainRank": 3
+      },
+      {
+        "battleTag": "IlDavis#2608",
+        "rank": 111,
+        "rating": 10129,
+        "found": true,
+        "twitchUser": "ildavisbg",
+        "isLive": false,
+        "spainRank": 4
+      },
+      {
+        "battleTag": "HOPLITA#21433",
+        "rank": 156,
+        "rating": 9662,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 5
+      },
+      {
+        "battleTag": "nocre1992#2706",
+        "rank": 227,
+        "rating": 9196,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 6
+      },
+      {
+        "battleTag": "LuNotFound#2112",
+        "rank": 316,
+        "rating": 8833,
+        "found": true,
+        "twitchUser": "lucianotfound",
+        "isLive": false,
+        "spainRank": 7
+      },
+      {
+        "battleTag": "kaito1412#2484",
+        "rank": 355,
+        "rating": 8720,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 8
+      },
+      {
+        "battleTag": "CarryPotter#2745",
+        "rank": 358,
+        "rating": 8711,
+        "found": true,
+        "twitchUser": "CarryPotterGaming",
+        "isLive": false,
+        "spainRank": 9
+      },
+      {
+        "battleTag": "JUANEN1210#21397",
+        "rank": 364,
+        "rating": 8694,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 10
+      },
+      {
+        "battleTag": "Orpinell#2250",
+        "rank": 401,
+        "rating": 8605,
+        "found": true,
+        "twitchUser": "orpi86",
+        "isLive": false,
+        "spainRank": 11
+      },
+      {
+        "battleTag": "yerolo#2226",
+        "rank": 435,
+        "rating": 8516,
+        "found": true,
+        "twitchUser": "yerolo_97",
+        "isLive": false,
+        "spainRank": 12
+      },
+      {
+        "battleTag": "aiz95#2916",
+        "rank": 501,
+        "rating": 8380,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 13
+      },
+      {
+        "battleTag": "F4F1#21351",
+        "rank": 539,
+        "rating": 8313,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 14
+      },
+      {
+        "battleTag": "Sentenciado#21853",
+        "rank": 545,
+        "rating": 8301,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 15
+      },
+      {
+        "battleTag": "Tormento#2410",
+        "rank": 662,
+        "rating": 8142,
+        "found": true,
+        "twitchUser": "tormento22",
+        "isLive": false,
+        "spainRank": 16
+      },
+      {
+        "battleTag": "AyozeAlzado#2974",
+        "rank": 665,
+        "rating": 8135,
+        "found": true,
+        "twitchUser": "ayozealzado",
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
+        "battleTag": "saiggo16#2483",
+        "rank": 941,
+        "rating": 8027,
+        "found": true,
+        "twitchUser": "saiggo16",
+        "isLive": false,
+        "spainRank": 18
+      },
+      {
+        "battleTag": "gotenks5563#2930",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 19
+      },
+      {
+        "battleTag": "Maxl#21492",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
+        "battleTag": "CuttinoYes#2395",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 21
+      },
+      {
+        "battleTag": "Mortyprats#2559",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 22
+      },
+      {
+        "battleTag": "iRadek#2969",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "iradek_",
+        "isLive": false,
+        "spainRank": 23
+      },
+      {
+        "battleTag": "Whyte#21178",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 24
+      },
+      {
+        "battleTag": "Nauseabundo#2654",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "nauseabundo",
+        "isLive": false,
+        "spainRank": 25
+      },
+      {
+        "battleTag": "Panaa13#2925",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "paanita13",
+        "isLive": false,
+        "spainRank": 26
+      },
+      {
+        "battleTag": "Gloxinia#21342",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "gloxii_",
+        "isLive": false,
+        "spainRank": 27
+      },
+      {
+        "battleTag": "Spyrozgz#2196",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "spyrozgz",
+        "isLive": false,
+        "spainRank": 28
+      },
+      {
+        "battleTag": "Pablouss#2855",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 29
+      },
+      {
+        "battleTag": "mikibravo11#2177",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 30
+      },
+      {
+        "battleTag": "RoxQ#2234",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 31
+      },
+      {
+        "battleTag": "HSRober#2125",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "rober_hs",
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "AntoZ31#1133",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "anto_z31",
+        "isLive": false,
+        "spainRank": 33
+      },
+      {
+        "battleTag": "K4L1#21877",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": "kali_shinrei",
+        "isLive": false,
+        "spainRank": 34
+      }
+    ]
+  }
+}
