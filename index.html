@@ -79,6 +79,54 @@
             }
         }
 
+        .podium-info {
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding-bottom: 5px;
+            /* Reduced from 20px to push down */
+            /* Gradient REMOVED for all */
+            background: none;
+            padding-top: 50px;
+        }
+
+        /* Remove gradient for Rank 2 and 3 - Redundant but safe to keep or remove since parent has none */
+        .rank-2 .podium-info,
+        .rank-3 .podium-info {
+            background: none;
+        }
+
+        .podium-name {
+            font-family: 'Metamorphic', serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            /* Thick text outline effect */
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+        }
+
+        /* Specific Colors for Ranks */
+        .rank-1 .podium-name {
+            color: #fcd144;
+        }
+
+        .rank-2 .podium-name {
+            color: #e0e0e0;
+        }
+
+        .rank-3 .podium-name {
+            color: #cd7f32;
+        }
+
+        .podium-tag,
+        .podium-mmr {
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+        }
+
         .content-wrapper {
             position: relative;
             z-index: 1;
@@ -122,18 +170,17 @@
         /* Header Banner Style */
         .header-banner {
             width: 100vw;
-            height: 180px;
-            background: url('ranking_spanish_flag_banner.png') center center/cover no-repeat;
+            height: 350px;
+            /* Increased height to show more of the image */
+            background: url('ranking_spanish_flag_banner.png') center top/contain no-repeat;
             border: none;
-            border-bottom: 4px solid var(--hs-gold);
-            border-radius: 0;
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(252, 209, 68, 0.15);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.8);
             margin: 0;
             margin-left: calc(-50vw + 50%);
             margin-bottom: 20px;
             position: relative;
             display: block;
-            overflow: hidden;
+            overflow: visible;
             animation: banner-glow 5s infinite alternate;
         }
 
@@ -248,23 +295,39 @@
         }
 
         .podium-card {
-            background: var(--card-bg);
-            border: 2px solid var(--glass-border);
+            background: rgba(27, 22, 38, 0.3);
+            border: none;
             border-radius: 15px;
             padding: 20px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: none;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-end;
+            /* Content at bottom */
+            overflow: hidden;
+            min-height: 450px;
+            cursor: pointer;
+            /* Clickable */
         }
 
         .podium-card:hover {
             transform: translateY(-10px) scale(1.05);
             z-index: 10;
+        }
+
+        /* Content layers for Podium */
+        /* Content layers for Podium */
+        .podium-card>* {
+            position: relative;
+            z-index: 2;
+            /* Text above image */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+            /* Strong shadow for readability */
         }
 
         .podium-badge {
@@ -362,8 +425,15 @@
             width: 320px;
             border-color: #fcd144;
             order: 2;
-            box-shadow: 0 0 40px rgba(252, 209, 68, 0.4);
-            transform: scale(1.1);
+            width: 320px;
+            /* border-color: #fcd144; REMOVED */
+            order: 2;
+            z-index: 5;
+            /* Bring to front */
+            box-shadow: none;
+            /* REMOVED GLOW */
+            transform: scale(1.05);
+            /* Slightly bigger */
         }
 
         .podium-card.rank-1:hover {
@@ -374,31 +444,41 @@
             width: 280px;
             border-color: #c0c0c0;
             order: 1;
-            box-shadow: 0 0 25px rgba(192, 192, 192, 0.2);
+            box-shadow: none;
         }
 
         .podium-card.rank-3 {
             width: 280px;
             border-color: #cd7f32;
             order: 3;
-            box-shadow: 0 0 25px rgba(205, 127, 50, 0.2);
+            box-shadow: none;
         }
 
         .rank-medal {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 180px;
-            margin: 0 auto 15px;
-            display: block;
+            height: 100%;
+            margin: 0;
             background-size: cover;
+            /* Cover to fill space */
             background-repeat: no-repeat;
-            background-position: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background-position: center top;
+            /* Center image */
+            opacity: 1;
+            z-index: 0;
+            transition: transform 0.5s;
+        }
+
+        .podium-card:hover .rank-medal {
+            transform: scale(1.1);
         }
 
         .rank-1 .rank-medal {
             background-image: url('assets/podium/top1.png');
-            height: 220px;
+            height: 100%;
+            /* Force fill */
         }
 
         .rank-2 .rank-medal {
@@ -1251,18 +1331,10 @@
     <main class="content-wrapper">
         <header>
             <div class="header-banner"></div>
-            <div class="subtitle" id="current-view">Buscando Héroes...</div>
+            <!-- REMOVED id="current-view" -->
         </header>
 
-        <section class="tools-bar">
-            <button class="tool-btn"
-                onclick="window.open('https://hearthstone.blizzard.com/en-us/community/leaderboards', '_blank')">
-                <i class="fa-solid fa-earth-europe"></i> Blizzard Global
-            </button>
-            <button class="tool-btn" onclick="location.reload()">
-                <i class="fa-solid fa-sync-alt"></i> Refrescar
-            </button>
-        </section>
+        <!-- REMOVED class="tools-bar" -->
 
         <nav class="season-nav" id="season-selector"></nav>
 
@@ -1451,7 +1523,9 @@
                 renderTable(allData);
                 renderPodium(allData.slice(0, 3));
                 podium.style.display = 'flex';
+                /* REMOVED
                 document.getElementById('current-view').innerText = `Mostrando jugadores`;
+                */
             }
 
             if (!allData || allData.length === 0) {
@@ -1476,8 +1550,7 @@
                 loading.style.display = 'none';
                 if (allData.length > 0) podium.style.display = 'flex';
 
-                const seasonName = document.querySelector('.season-btn.active')?.innerText || `Season ${seasonId}`;
-                document.getElementById('current-view').innerText = `Mostrando jugadores`;
+                /* REMOVED: Status update logic */
             } catch (e) {
                 if (allData.length === 0) {
                     loading.innerHTML = '<span style="color:#ff6b6b">Error de conexión con la Taberna.</span>';
@@ -1503,26 +1576,26 @@
                 const twitchTitle = player.isLive ? '¡En directo!' : (player.twitchUser ? 'Ver en Twitch' : '');
 
                 // Avatar de Twitch o icono por defecto
-                let avatarHtml = '';
-                if (player.twitchUser) {
-                    const avatarSrc = player.twitchAvatar || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/ebe4cd89-b4f4-4f9e-a8cf-c1d420019876-profile_image-70x70.png';
-                    avatarHtml = `<a href="https://twitch.tv/${player.twitchUser}" target="_blank" title="${twitchTitle}" class="player-avatar-link ${twitchClass}">
-                        <img src="${avatarSrc}" loading="lazy" class="player-avatar ${twitchClass}" alt="${player.twitchUser}" 
-                             onerror="this.src='https://static-cdn.jtvnw.net/user-default-pictures-uv/ebe4cd89-b4f4-4f9e-a8cf-c1d420019876-profile_image-70x70.png'">
-                    </a>`;
+                const defaultAvatar = './default_avatar.png';
+                let avatarSrc = defaultAvatar;
+
+                if (player.twitchUser && player.twitchAvatar) {
+                    avatarSrc = player.twitchAvatar;
                 }
 
+                // Removed loading="lazy" to fix scroll vanishing
+                const avatarHtml = `<a href="${player.twitchUser ? 'https://twitch.tv/' + player.twitchUser : '#'}" target="${player.twitchUser ? '_blank' : '_self'}" title="${twitchTitle}" class="player-avatar-link ${twitchClass}" style="${!player.twitchUser ? 'pointer-events:none;' : ''}">
+                    <img src="${avatarSrc}" class="player-avatar ${twitchClass}" alt="${player.battleTag}" 
+                        style="width:40px; height:40px; background:#333; border-radius:50%;"
+                        onerror="this.onerror=null; this.src='${defaultAvatar}';">
+                </a>`;
                 const ratingFormatted = isNaN(player.rating) ? player.rating : formatNumber(player.rating);
 
-                // Badges
+                // Badges REMOVED
                 let badgesHtml = '';
-                if (player.badges) {
-                    player.badges.forEach(b => {
-                        const bClass = b.type === 'fire' ? 'badge-fire' : 'badge-stream';
-                        const icon = b.type === 'fire' ? '<i class="fa-solid fa-fire"></i>' : '<i class="fa-solid fa-video"></i>';
-                        badgesHtml += `<span class="badge ${bClass}">${icon} ${b.text}</span>`;
-                    });
-                }
+                /* 
+                if (player.badges) { ... }
+                */
 
                 const isChecked = selectedToCompare.includes(player.battleTag) ? 'checked' : '';
 
@@ -1561,13 +1634,14 @@
                 const [name, tag] = p.battleTag.split('#');
                 const ratingFormatted = isNaN(p.rating) ? p.rating : formatNumber(p.rating);
 
+                card.onclick = () => showHistory(p.battleTag); // Make card clickable
+
                 card.innerHTML = `
                     <div class="rank-medal"></div>
-                    <div class="podium-badge">TOP ${i + 1}</div>
-                    <div class="podium-name">${name}</div>
-                    <div class="podium-tag">#${tag}</div>
-                    <div class="podium-mmr"><i class="fa-solid fa-trophy"></i> ${ratingFormatted}</div>
-                    <button class="tool-btn" style="margin-top:10px; width:100%;" onclick="showHistory('${p.battleTag}')">Ver Historial</button>
+                    
+                    <div class="podium-info">
+                        <div class="podium-name" style="font-size:1.4rem;">${name}</div>
+                    </div>
                 `;
                 container.appendChild(card);
             });
@@ -1641,7 +1715,7 @@
                             <div class="stat-row"><span>Global EU</span> <span>#${p2.found ? p2.rank : '---'}</span></div>
                         </div>
                     </div>
-                `;
+                    `;
             } else {
                 selectedToCompare.forEach(tag => {
                     const p = allData.find(x => x.battleTag === tag);
@@ -1653,7 +1727,7 @@
                         <div class="stat-row"><span>Rango EU</span> <span>#${p.found ? p.rank : '-'}</span></div>
                         <div class="stat-row"><span>MMR</span> <span>${formatNumber(p.rating)}</span></div>
                         <div class="stat-row"><span>Estado</span> <span>${p.isLive ? '🔴 LIVE' : '💤 Offline'}</span></div>
-                    `;
+                `;
                     target.appendChild(col);
                 });
             }
@@ -1709,10 +1783,10 @@
                         const trophy = document.createElement('div');
                         trophy.className = 'trophy-item';
                         trophy.innerHTML = `
-                            <span class="t-season">T. ${parseInt(h.seasonId) - 5}</span>
+                            <span class="t-season">T.${parseInt(h.seasonId) - 5}</span>
                             <span class="t-rank">#${h.spainRank}</span>
                             <span style="font-size:0.6rem; color:#666;">${formatNumber(h.rating)} MMR</span>
-                        `;
+                `;
                         caseDiv.appendChild(trophy);
                     });
                 } else {
@@ -1720,7 +1794,7 @@
                 }
 
                 // 6. Cargar Historial para Gráfico y Deltas
-                const historyRes = await fetch(`/api/history?player=${encodeURIComponent(tag)}`);
+                const historyRes = await fetch(`/ api / history ? player = ${encodeURIComponent(tag)} `);
                 const history = await historyRes.json();
 
                 // Calcular Delta 24h
@@ -1731,7 +1805,7 @@
                     const deltaDiv = document.getElementById('delta-24h');
                     if (delta !== 0) {
                         deltaDiv.className = delta > 0 ? 'm-delta delta-up' : 'm-delta delta-down';
-                        deltaDiv.innerHTML = `<i class="fa-solid fa-caret-${delta > 0 ? 'up' : 'down'}"></i> ${delta > 0 ? '+' : ''}${delta}`;
+                        deltaDiv.innerHTML = `< i class="fa-solid fa-caret-${delta > 0 ? 'up' : 'down'}" ></i > ${delta > 0 ? '+' : ''}${delta}`;
                     } else {
                         deltaDiv.innerText = '';
                     }

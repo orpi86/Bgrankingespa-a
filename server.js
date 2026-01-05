@@ -204,12 +204,24 @@ app.get('/api/ranking', async (req, res) => {
         return res.json(dataWithAchievements);
     }
 
-    // 1. REVISAR MEMORIA RAM
+    // 1. REVISAR MEMORIA RAM & FILE TIMESTAMP
     const datosGuardados = memoriaCache[seasonToScan];
     let usarMemoria = false;
 
+    // Check jugadors.json modification time
+    let playersMtime = 0;
+    try {
+        const stats = fs.statSync(path.join(__dirname, 'jugadores.json'));
+        playersMtime = stats.mtimeMs;
+    } catch (e) { console.error("Error checking players file:", e); }
+
     if (datosGuardados) {
-        if (!isCurrentSeason) {
+        // If players file changed, invalidate cache immediately
+        if (datosGuardados.playersMtime !== playersMtime) {
+            console.log("♻️ Detectado cambio en jugadores.json. Invalidando caché.");
+            usarMemoria = false;
+        }
+        else if (!isCurrentSeason) {
             usarMemoria = true;
         } else {
             if (Date.now() - datosGuardados.timestamp < TIEMPO_CACHE_ACTUAL) {
@@ -319,6 +331,7 @@ app.get('/api/ranking', async (req, res) => {
         // 4. GUARDAR EN CACHÉ Y DISCO
         memoriaCache[seasonToScan] = {
             timestamp: Date.now(),
+            playersMtime: playersMtime, // Guardamos timestamp del fichero
             data: finalResponse
         };
         saveCache();

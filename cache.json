@@ -1866,12 +1866,13 @@
     ]
   },
   "17": {
-    "timestamp": 1767551951662,
+    "timestamp": 1767573395260,
+    "playersMtime": 1767573024278.982,
     "data": [
       {
         "battleTag": "KuositoVélez#2154",
-        "rank": 90,
-        "rating": 10410,
+        "rank": 85,
+        "rating": 10498,
         "found": true,
         "twitchUser": "kuosito",
         "isLive": false,
@@ -1897,8 +1898,8 @@
       },
       {
         "battleTag": "IlDavis#2608",
-        "rank": 111,
-        "rating": 10129,
+        "rank": 152,
+        "rating": 9721,
         "found": true,
         "twitchUser": "ildavisbg",
         "isLive": false,
@@ -1906,7 +1907,7 @@
       },
       {
         "battleTag": "HOPLITA#21433",
-        "rank": 156,
+        "rank": 157,
         "rating": 9662,
         "found": true,
         "twitchUser": null,
@@ -1915,34 +1916,34 @@
       },
       {
         "battleTag": "nocre1992#2706",
-        "rank": 227,
-        "rating": 9196,
+        "rank": 233,
+        "rating": 9170,
         "found": true,
         "twitchUser": null,
         "isLive": false,
         "spainRank": 6
       },
       {
-        "battleTag": "LuNotFound#2112",
-        "rank": 316,
-        "rating": 8833,
+        "battleTag": "kaito1412#2484",
+        "rank": 312,
+        "rating": 8865,
         "found": true,
-        "twitchUser": "lucianotfound",
+        "twitchUser": null,
         "isLive": false,
         "spainRank": 7
       },
       {
-        "battleTag": "kaito1412#2484",
-        "rank": 355,
-        "rating": 8720,
+        "battleTag": "LuNotFound#2112",
+        "rank": 322,
+        "rating": 8833,
         "found": true,
-        "twitchUser": null,
+        "twitchUser": "lucianotfound",
         "isLive": false,
         "spainRank": 8
       },
       {
         "battleTag": "CarryPotter#2745",
-        "rank": 358,
+        "rank": 362,
         "rating": 8711,
         "found": true,
         "twitchUser": "CarryPotterGaming",
@@ -1951,8 +1952,8 @@
       },
       {
         "battleTag": "JUANEN1210#21397",
-        "rank": 364,
-        "rating": 8694,
+        "rank": 399,
+        "rating": 8622,
         "found": true,
         "twitchUser": null,
         "isLive": false,
@@ -1960,7 +1961,7 @@
       },
       {
         "battleTag": "Orpinell#2250",
-        "rank": 401,
+        "rank": 406,
         "rating": 8605,
         "found": true,
         "twitchUser": "orpi86",
@@ -1969,17 +1970,17 @@
       },
       {
         "battleTag": "yerolo#2226",
-        "rank": 435,
-        "rating": 8516,
+        "rank": 407,
+        "rating": 8604,
         "found": true,
         "twitchUser": "yerolo_97",
         "isLive": false,
         "spainRank": 12
       },
       {
-        "battleTag": "aiz95#2916",
-        "rank": 501,
-        "rating": 8380,
+        "battleTag": "Sentenciado#21853",
+        "rank": 526,
+        "rating": 8341,
         "found": true,
         "twitchUser": null,
         "isLive": false,
@@ -1987,17 +1988,17 @@
       },
       {
         "battleTag": "F4F1#21351",
-        "rank": 539,
-        "rating": 8313,
+        "rank": 608,
+        "rating": 8218,
         "found": true,
         "twitchUser": null,
         "isLive": false,
         "spainRank": 14
       },
       {
-        "battleTag": "Sentenciado#21853",
-        "rank": 545,
-        "rating": 8301,
+        "battleTag": "aiz95#2916",
+        "rank": 652,
+        "rating": 8164,
         "found": true,
         "twitchUser": null,
         "isLive": false,
@@ -2005,7 +2006,7 @@
       },
       {
         "battleTag": "Tormento#2410",
-        "rank": 662,
+        "rank": 672,
         "rating": 8142,
         "found": true,
         "twitchUser": "tormento22",
@@ -2014,8 +2015,8 @@
       },
       {
         "battleTag": "AyozeAlzado#2974",
-        "rank": 665,
-        "rating": 8135,
+        "rank": 924,
+        "rating": 8035,
         "found": true,
         "twitchUser": "ayozealzado",
         "isLive": false,
@@ -2023,7 +2024,7 @@
       },
       {
         "battleTag": "saiggo16#2483",
-        "rank": 941,
+        "rank": 965,
         "rating": 8027,
         "found": true,
         "twitchUser": "saiggo16",
@@ -2148,13 +2149,22 @@
         "spainRank": 31
       },
       {
-        "battleTag": "HSRober#2125",
+        "battleTag": "MonjeFunky#28386",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 32
+      },
+      {
+        "battleTag": "RoberHS#2831",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
         "twitchUser": "rober_hs",
         "isLive": false,
-        "spainRank": 32
+        "spainRank": 33
       },
       {
         "battleTag": "AntoZ31#1133",
@@ -2163,7 +2173,7 @@
         "found": false,
         "twitchUser": "anto_z31",
         "isLive": false,
-        "spainRank": 33
+        "spainRank": 34
       },
       {
         "battleTag": "K4L1#21877",
@@ -2172,7 +2182,7 @@
         "found": false,
         "twitchUser": "kali_shinrei",
         "isLive": false,
-        "spainRank": 34
+        "spainRank": 35
       }
     ]
   }
