@@ -3,9 +3,25 @@ const axios = require('axios');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
+
+// --- MIDDLEWARE DE SEGURIDAD Y RENDIMIENTO ---
+app.use(compression()); // Compresión gzip para respuestas
 app.use(cors());
+
+// Rate limiting para evitar abuso de API
+const apiLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minuto
+    max: 60, // máximo 60 peticiones por minuto
+    message: { error: 'Demasiadas peticiones. Espera un momento.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api/', apiLimiter);
+
 app.use(express.static(__dirname));
 
 // --- CONFIGURACIÓN & ESTADO ---
@@ -29,11 +45,14 @@ const REQUEST_DELAY = 300;     // Más delay para evitar bloqueos de API
 
 // --- MEMORIA Y PERSISTENCIA ---
 let memoriaCache = {};
-const TIEMPO_CACHE_ACTUAL = 24 * 60 * 60 * 1000; // Cache válida por 24 horas
+const TIEMPO_CACHE_ACTUAL = 10 * 60 * 1000; // Cache válida por 10 minutos (Temporada actual)
 
 // --- DATOS HISTÓRICOS (BBDD local para temporadas pasadas) ---
 const HISTORICAL_PATH = path.join(__dirname, 'historical_data.json');
 let historicalData = { seasons: {} };
+let scansInProgress = {}; // Track active season scans
+let twitchHydrationCache = { timestamp: 0, data: null };
+const TWITCH_CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
 const loadHistoricalData = () => {
     try {
@@ -116,13 +135,34 @@ const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
 const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 
 // --- FUNCIONES ---
+let playersCache = { mtime: 0, data: [] };
+
 const loadPlayers = () => {
     try {
         const filePath = path.join(__dirname, 'jugadores.json');
-        return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const stats = fs.statSync(filePath);
+
+        if (playersCache.mtime === stats.mtimeMs) {
+            return playersCache.data;
+        }
+
+        const players = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        // Deduplicar por battleTag
+        const unique = [];
+        const seen = new Set();
+        players.forEach(p => {
+            const bt = p.battleTag.trim();
+            if (!seen.has(bt)) {
+                seen.add(bt);
+                unique.push(p);
+            }
+        });
+
+        playersCache = { mtime: stats.mtimeMs, data: unique };
+        return unique;
     } catch (e) {
         console.error("❌ Error leyendo jugadores.json:", e.message);
-        return [];
+        return playersCache.data || [];
     }
 };
 
@@ -190,17 +230,71 @@ app.get('/api/history', (req, res) => {
     res.json(historyData[player]);
 });
 
+app.get('/api/twitch-hydrate', async (req, res) => {
+    // Usar cache para no saturar DecAPI se hay muchas peticiones simultáneas
+    if (twitchHydrationCache.data && (Date.now() - twitchHydrationCache.timestamp < TWITCH_CACHE_TTL)) {
+        return res.json(twitchHydrationCache.data);
+    }
+
+    const playersList = loadPlayers();
+    const dataWithTwitch = await actualizarTwitchLive(playersList);
+    const hydration = dataWithTwitch.map(p => ({
+        battleTag: p.battleTag,
+        isLive: p.isLive,
+        twitchAvatar: p.twitchAvatar,
+        twitchUser: p.twitchUser || p.twitch // Fallback vital
+    }));
+
+    twitchHydrationCache = { timestamp: Date.now(), data: hydration };
+    res.json(hydration);
+});
+
 app.get('/api/ranking', async (req, res) => {
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
 
     console.log(`📡 Petición recibida para Season ${seasonToScan}`);
 
-    // 0. PARA TEMPORADAS PASADAS: Usar datos históricos (BBDD local)
+    // 0. PARA TEMPORADAS PASADAS: Usar datos históricos (BBDD local) + Backfill On-demand
     if (!isCurrentSeason && historicalData.seasons[seasonToScan]) {
-        console.log(`📚 Sirviendo Season ${seasonToScan} desde DATOS HISTÓRICOS (sin API).`);
-        const dataWithTwitch = await actualizarTwitchLive(historicalData.seasons[seasonToScan]);
-        const dataWithAchievements = calcularLogros(dataWithTwitch);
+        const currentPlayersList = loadPlayers();
+        const historyPlayers = historicalData.seasons[seasonToScan];
+        const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
+
+        if (missing.length > 0 && !scansInProgress[seasonToScan]) {
+            console.log(`♻️ Detectado que faltan ${missing.length} jugadores en Season ${seasonToScan}. Lanzando re-escaneo en segundo plano...`);
+            scansInProgress[seasonToScan] = true;
+            realizarEscaneoInterno(seasonToScan).finally(() => {
+                delete scansInProgress[seasonToScan];
+            });
+        }
+
+        // Combinar datos históricos con placeholders para los que faltan
+        const mergedResults = currentPlayersList.map(p => {
+            const foundInHistory = historyPlayers.find(hp => hp.battleTag === p.battleTag);
+            if (foundInHistory) return foundInHistory;
+            return {
+                battleTag: p.battleTag,
+                rank: null,
+                rating: scansInProgress[seasonToScan] ? 'Actualizando...' : 'Sin datos',
+                found: false,
+                twitchUser: p.twitch || null,
+                isLive: false,
+                spainRank: 999
+            };
+        });
+
+        // Re-ordenar y re-calcular spainRank
+        mergedResults.sort((a, b) => {
+            if (a.found && !b.found) return -1;
+            if (!a.found && b.found) return 1;
+            if (a.found && b.found) return a.rank - b.rank;
+            return 0;
+        });
+        mergedResults.forEach((p, i) => p.spainRank = i + 1);
+
+        console.log(`📚 Sirviendo Season ${seasonToScan} (datos combinados).`);
+        const dataWithAchievements = calcularLogros(mergedResults);
         return res.json(dataWithAchievements);
     }
 
@@ -224,16 +318,18 @@ app.get('/api/ranking', async (req, res) => {
         else if (!isCurrentSeason) {
             usarMemoria = true;
         } else {
-            if (Date.now() - datosGuardados.timestamp < TIEMPO_CACHE_ACTUAL) {
-                usarMemoria = true;
-            }
+            // FORCE REFRESH: By-pass cache once to fix twitch links
+            // if (Date.now() - datosGuardados.timestamp < TIEMPO_CACHE_ACTUAL) {
+            //     usarMemoria = true;
+            // }
+            usarMemoria = false;
         }
     }
 
     if (usarMemoria) {
         console.log(`⚡ Sirviendo desde CACHÉ.`);
-        const dataWithTwitch = await actualizarTwitchLive(datosGuardados.data);
-        return res.json(dataWithTwitch);
+        const dataWithAchievements = calcularLogros(datosGuardados.data);
+        return res.json(dataWithAchievements);
     }
 
     // 2. SI NO ESTÁ EN MEMORIA, DESCARGAR
@@ -345,9 +441,8 @@ app.get('/api/ranking', async (req, res) => {
 
         if (isCurrentSeason) saveHistory(finalResponse);
 
-        // 5. AÑADIR TWITCH Y ENVIAR
-        const dataWithTwitch = await actualizarTwitchLive(finalResponse);
-        const dataWithAchievements = calcularLogros(dataWithTwitch);
+        // 5. ENVIAR SIN ESPERAR A TWITCH
+        const dataWithAchievements = calcularLogros(finalResponse);
         res.json(dataWithAchievements);
 
     } catch (error) {
@@ -397,31 +492,32 @@ function calcularLogros(players) {
 }
 
 async function actualizarTwitchLive(playersList) {
-    const twitchUsers = playersList.filter(r => r.twitchUser);
-    if (twitchUsers.length === 0) return playersList;
-
     const updatedList = JSON.parse(JSON.stringify(playersList));
+    const twitchPlayers = updatedList.filter(p => p.twitch || p.twitchUser);
 
-    // Usar DecAPI (gratuito, sin credenciales)
-    for (const player of updatedList) {
-        if (!player.twitchUser) continue;
+    if (twitchPlayers.length === 0) return updatedList;
+
+    // Procesamos de forma secuencial para máxima estabilidad y evitar rate limits
+    for (const player of twitchPlayers) {
+        const username = player.twitch || player.twitchUser;
+        player.twitchUser = username; // Asegurar link desde el principio
 
         try {
-            // Check live status
-            const uptimeRes = await axios.get(`https://decapi.me/twitch/uptime/${player.twitchUser}`, {
-                timeout: 3000
-            });
-            player.isLive = !uptimeRes.data.toLowerCase().includes('offline');
-            if (player.isLive) {
-                console.log(`📺 ${player.twitchUser} está EN DIRECTO`);
-            }
+            const [uptimeRes, avatarRes] = await Promise.all([
+                axios.get(`https://decapi.me/twitch/uptime/${username}`, { timeout: 3000 }).catch(() => ({ data: 'offline' })),
+                axios.get(`https://decapi.me/twitch/avatar/${username}`, { timeout: 3000 }).catch(() => ({ data: null }))
+            ]);
 
-            // Get avatar URL
-            const avatarRes = await axios.get(`https://decapi.me/twitch/avatar/${player.twitchUser}`, {
-                timeout: 3000
-            });
-            player.twitchAvatar = avatarRes.data;
+            player.isLive = !uptimeRes.data.toLowerCase().includes('offline');
+            player.twitchAvatar = avatarRes.data && avatarRes.data.startsWith('http') ? avatarRes.data : null;
+
+            if (player.isLive) console.log(`📺 ${username} está EN DIRECTO`);
+
+            // Pequeña pausa de cortesía entre peticiones
+            await new Promise(r => setTimeout(r, 200));
+
         } catch (e) {
+            console.error(`Error Twitch ${username}: ${e.message}`);
             player.isLive = false;
             player.twitchAvatar = null;
         }
@@ -475,23 +571,75 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor con Persistencia en puerto ${PORT}`);
 
-    // Solo escanear si no hay cache válida para la temporada actual
+    // 1. GESTIONAR TEMPORADA ACTUAL
     const cacheValida = memoriaCache[CURRENT_SEASON_ID] &&
         (Date.now() - memoriaCache[CURRENT_SEASON_ID].timestamp < TIEMPO_CACHE_ACTUAL);
 
     if (!cacheValida) {
-        console.log("⚡ Cache vacía o expirada. Lanzando escaneo inicial...");
-        for (const season of CONFIG.seasons) {
-            // SKIP: Si la temporada ya está en BBDD histórica, no escanear
-            if (season.id !== CURRENT_SEASON_ID && historicalData.seasons[season.id]) {
-                console.log(`📚 Season ${season.id} ya existe en BBDD histórica. Saltando escaneo.`);
-                continue;
-            }
-            console.log(`📡 Preparando datos para: ${season.name} (ID: ${season.id})`);
-            await realizarEscaneoInterno(season.id);
-        }
+        console.log("⚡ Cache actual vacía o expirada. Escaneando Season Actual...");
+        await realizarEscaneoInterno(CURRENT_SEASON_ID);
     } else {
-        console.log("✅ Cache válida encontrada. Usando datos existentes.");
+        console.log("✅ Cache actual válida. Usando datos existentes.");
+    }
+
+    // 2. GESTIONAR TEMPORADAS PASADAS (Backfill inteligente)
+    console.log("🔍 Verificando integridad de temporadas pasadas...");
+    const currentPlayersList = loadPlayers();
+
+    for (const season of CONFIG.seasons) {
+        if (season.id === CURRENT_SEASON_ID) continue; // Ya gestionado arriba
+
+        let needsScan = false;
+        const exists = !!historicalData.seasons[season.id];
+        let missingCount = 0;
+
+        if (!exists) {
+            console.log(`📜 Season ${season.id} no existe en histórico. Programando escaneo.`);
+            needsScan = true;
+        } else {
+            // Verificar si faltan jugadores de la lista actual en el histórico
+            const historyPlayers = historicalData.seasons[season.id];
+            // Detect missing players (not just check if some exist)
+            const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
+
+            if (missing.length > 0) {
+                console.log(`♻️ Season ${season.id}: Faltan ${missing.length} jugadores (ej: ${missing[0].battleTag}). Re-escaneando temporada completa.`);
+                needsScan = true;
+                missingCount = missing.length;
+            }
+        }
+
+        if (needsScan) {
+            console.log(`📡 Iniciando Backfill para Season ${season.id}...`);
+            await realizarEscaneoInterno(season.id);
+
+            // VERIFICACIÓN POST-BACKFILL
+            const updatedHistory = historicalData.seasons[season.id];
+            if (updatedHistory) {
+                const stillMissing = currentPlayersList.filter(p => !updatedHistory.some(hp => hp.battleTag === p.battleTag));
+                if (stillMissing.length === 0) {
+                    console.log(`✅ Season ${season.id} completada. Todos los jugadores registrados.`);
+                } else {
+                    console.warn(`⚠️ Season ${season.id}: Aún faltan ${stillMissing.length} jugadores después del escaneo. Posiblemente no jugaron esa temporada.`);
+                    // Forzamos añadir los "missing" como "Sin datos" para que no vuelva a escanear en cada reinicio
+                    stillMissing.forEach(sm => {
+                        updatedHistory.push({
+                            battleTag: sm.battleTag,
+                            rank: null,
+                            rating: 'Sin datos',
+                            found: false,
+                            twitchUser: sm.twitch || null,
+                            isLive: false,
+                            spainRank: 999
+                        });
+                    });
+                    saveHistoricalData();
+                    console.log(`📝 Añadidos ${stillMissing.length} jugadores como "Sin datos" a Season ${season.id} para evitar re-escaneos futuros.`);
+                }
+            }
+        } else {
+            // console.log(`✅ Season ${season.id} verificada y completa.`);
+        }
     }
 
     console.log("✅ Sistema de Taberna listo y cargado.");
