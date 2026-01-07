@@ -7,6 +7,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
+app.set('trust proxy', 1); // Confiar en el proxy de Render para express-rate-limit
 
 // --- MIDDLEWARE DE SEGURIDAD Y RENDIMIENTO ---
 app.use(compression()); // Compresión gzip para respuestas
@@ -583,66 +584,26 @@ app.listen(PORT, async () => {
     }
 
     // 2. GESTIONAR TEMPORADAS PASADAS (Backfill inteligente)
-    console.log("🔍 Verificando integridad de temporadas pasadas...");
-    const currentPlayersList = loadPlayers();
-
-    for (const season of CONFIG.seasons) {
-        if (season.id === CURRENT_SEASON_ID) continue; // Ya gestionado arriba
-
-        let needsScan = false;
-        const exists = !!historicalData.seasons[season.id];
-        let missingCount = 0;
-
-        if (!exists) {
-            console.log(`📜 Season ${season.id} no existe en histórico. Programando escaneo.`);
-            needsScan = true;
-        } else {
-            // Verificar si faltan jugadores de la lista actual en el histórico
-            const historyPlayers = historicalData.seasons[season.id];
-            // Detect missing players (not just check if some exist)
-            const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
-
-            if (missing.length > 0) {
-                console.log(`♻️ Season ${season.id}: Faltan ${missing.length} jugadores (ej: ${missing[0].battleTag}). Re-escaneando temporada completa.`);
-                needsScan = true;
-                missingCount = missing.length;
-            }
-        }
-
-        if (needsScan) {
-            console.log(`📡 Iniciando Backfill para Season ${season.id}...`);
-            await realizarEscaneoInterno(season.id);
-
-            // VERIFICACIÓN POST-BACKFILL
-            const updatedHistory = historicalData.seasons[season.id];
-            if (updatedHistory) {
-                const stillMissing = currentPlayersList.filter(p => !updatedHistory.some(hp => hp.battleTag === p.battleTag));
-                if (stillMissing.length === 0) {
-                    console.log(`✅ Season ${season.id} completada. Todos los jugadores registrados.`);
-                } else {
-                    console.warn(`⚠️ Season ${season.id}: Aún faltan ${stillMissing.length} jugadores después del escaneo. Posiblemente no jugaron esa temporada.`);
-                    // Forzamos añadir los "missing" como "Sin datos" para que no vuelva a escanear en cada reinicio
-                    stillMissing.forEach(sm => {
-                        updatedHistory.push({
-                            battleTag: sm.battleTag,
-                            rank: null,
-                            rating: 'Sin datos',
-                            found: false,
-                            twitchUser: sm.twitch || null,
-                            isLive: false,
-                            spainRank: 999
-                        });
-                    });
-                    saveHistoricalData();
-                    console.log(`📝 Añadidos ${stillMissing.length} jugadores como "Sin datos" a Season ${season.id} para evitar re-escaneos futuros.`);
-                }
-            }
-        } else {
-            // console.log(`✅ Season ${season.id} verificada y completa.`);
-        }
-    }
+    await verificarIntegridadTemporadas();
 
     console.log("✅ Sistema de Taberna listo y cargado.");
+
+    // 3. WATCHER PARA JUGADORES.JSON
+    let watchTimeout;
+    fs.watch(path.join(__dirname, 'jugadores.json'), (eventType) => {
+        if (eventType === 'change') {
+            if (watchTimeout) clearTimeout(watchTimeout);
+            watchTimeout = setTimeout(async () => {
+                console.log("♻️ Detectado cambio en jugadores.json. Actualizando datos...");
+                loadPlayers(); // Forzar recarga de lista de jugadores
+                delete memoriaCache[CURRENT_SEASON_ID]; // Invalidar cache actual
+                await verificarIntegridadTemporadas(); // Sincronizar históricos
+                // También escanear temporada actual
+                await realizarEscaneoInterno(CURRENT_SEASON_ID);
+                console.log("✅ Sincronización tras cambio completada.");
+            }, 1000);
+        }
+    });
 
     // Programar escaneo diario a las 6:00 AM
     const ahora = new Date();
@@ -747,6 +708,58 @@ async function realizarEscaneoInterno(seasonId) {
         console.log(`✅ Escaneo de Season ${seasonId} completado con éxito.`);
     } catch (e) {
         console.error("🚨 Error en escaneo inicial:", e.message);
+    }
+}
+
+async function verificarIntegridadTemporadas() {
+    console.log("🔍 Verificando integridad de temporadas pasadas...");
+    const currentPlayersList = loadPlayers();
+
+    for (const season of CONFIG.seasons) {
+        if (season.id === CURRENT_SEASON_ID) continue;
+
+        let needsScan = false;
+        const exists = !!historicalData.seasons[season.id];
+
+        if (!exists) {
+            console.log(`📜 Season ${season.id} no existe en histórico. Programando escaneo.`);
+            needsScan = true;
+        } else {
+            const historyPlayers = historicalData.seasons[season.id];
+            const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
+
+            if (missing.length > 0) {
+                console.log(`♻️ Season ${season.id}: Faltan ${missing.length} jugadores. Re-escaneando temporada completa.`);
+                needsScan = true;
+            }
+        }
+
+        if (needsScan) {
+            console.log(`📡 Iniciando Backfill para Season ${season.id}...`);
+            await realizarEscaneoInterno(season.id);
+
+            const updatedHistory = historicalData.seasons[season.id];
+            if (updatedHistory) {
+                const stillMissing = currentPlayersList.filter(p => !updatedHistory.some(hp => hp.battleTag === p.battleTag));
+                if (stillMissing.length > 0) {
+                    console.warn(`⚠️ Season ${season.id}: Aún faltan ${stillMissing.length} jugadores tras escaneo. Marcando como "Sin datos".`);
+                    stillMissing.forEach(sm => {
+                        updatedHistory.push({
+                            battleTag: sm.battleTag,
+                            rank: null,
+                            rating: 'Sin datos',
+                            found: false,
+                            twitchUser: sm.twitch || null,
+                            isLive: false,
+                            spainRank: 999
+                        });
+                    });
+                    saveHistoricalData();
+                } else {
+                    console.log(`✅ Season ${season.id} completada.`);
+                }
+            }
+        }
     }
 }
 
