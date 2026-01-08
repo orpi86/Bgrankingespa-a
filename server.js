@@ -487,10 +487,11 @@ function calcularLogros(players) {
         else if (p.found && p.rank <= 500) {
             p.badges.push({ type: 'eu', text: '🌍 TOP 500 EU' });
         }
-
         return p;
     });
 }
+
+const persistentAvatarCache = new Map();
 
 async function actualizarTwitchLive(playersList) {
     const updatedList = JSON.parse(JSON.stringify(playersList));
@@ -498,34 +499,50 @@ async function actualizarTwitchLive(playersList) {
 
     if (twitchPlayers.length === 0) return updatedList;
 
-    // Procesamos de forma secuencial para máxima estabilidad y evitar rate limits
-    for (const player of twitchPlayers) {
-        const username = player.twitch || player.twitchUser;
-        player.twitchUser = username; // Asegurar link desde el principio
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < twitchPlayers.length; i += BATCH_SIZE) {
+        const batch = twitchPlayers.slice(i, i + BATCH_SIZE);
 
-        try {
-            const [uptimeRes, avatarRes] = await Promise.all([
-                axios.get(`https://decapi.me/twitch/uptime/${username}`, { timeout: 3000 }).catch(() => ({ data: 'offline' })),
-                axios.get(`https://decapi.me/twitch/avatar/${username}`, { timeout: 3000 }).catch(() => ({ data: null }))
-            ]);
+        await Promise.all(batch.map(async (player) => {
+            const username = player.twitch || player.twitchUser;
+            player.twitchUser = username; // Asegurar link desde el principio
 
-            const uptimeLower = uptimeRes.data.toLowerCase();
-            const isLive = uptimeLower.includes('hour') ||
-                uptimeLower.includes('minute') ||
-                uptimeLower.includes('second');
+            try {
+                const encodedUsr = encodeURIComponent(username);
+                const [uptimeRes, avatarRes] = await Promise.all([
+                    axios.get(`https://decapi.me/twitch/uptime/${encodedUsr}`, { timeout: 4000 }).catch(() => ({ data: 'offline' })),
+                    axios.get(`https://decapi.me/twitch/avatar/${encodedUsr}`, { timeout: 4000 }).catch(() => ({ data: null }))
+                ]);
 
-            player.isLive = isLive;
-            player.twitchAvatar = avatarRes.data && avatarRes.data.startsWith('http') ? avatarRes.data : null;
+                const uptimeLower = (uptimeRes.data || '').toLowerCase();
+                player.isLive = uptimeLower.includes('hour') ||
+                    uptimeLower.includes('minute') ||
+                    uptimeLower.includes('second');
 
-            if (player.isLive) console.log(`📺 ${username} está EN DIRECTO`);
+                // Lógica de Avatar con persistencia
+                const newAvatar = avatarRes.data && avatarRes.data.startsWith('http') ? avatarRes.data : null;
 
-            // Pequeña pausa de cortesía entre peticiones
-            await new Promise(r => setTimeout(r, 200));
+                if (newAvatar) {
+                    player.twitchAvatar = newAvatar;
+                    persistentAvatarCache.set(username.toLowerCase(), newAvatar);
+                } else {
+                    // Si falla el fetch (null o error de DecAPI), intentar recuperar del cache persistente
+                    player.twitchAvatar = persistentAvatarCache.get(username.toLowerCase()) || null;
+                }
 
-        } catch (e) {
-            console.error(`Error Twitch ${username}: ${e.message}`);
-            player.isLive = false;
-            player.twitchAvatar = null;
+                if (player.isLive) console.log(`📺 ${username} está EN DIRECTO`);
+
+            } catch (e) {
+                console.error(`Error Twitch ${username}: ${e.message}`);
+                player.isLive = false;
+                // Fallback al cache incluso en error total
+                player.twitchAvatar = persistentAvatarCache.get(username.toLowerCase()) || null;
+            }
+        }));
+
+        // Pequeña pausa entre batches para no saturar DecAPI
+        if (i + BATCH_SIZE < twitchPlayers.length) {
+            await new Promise(r => setTimeout(r, 300));
         }
     }
 
