@@ -509,7 +509,12 @@ async function actualizarTwitchLive(playersList) {
                 axios.get(`https://decapi.me/twitch/avatar/${username}`, { timeout: 3000 }).catch(() => ({ data: null }))
             ]);
 
-            player.isLive = !uptimeRes.data.toLowerCase().includes('offline');
+            const uptimeLower = uptimeRes.data.toLowerCase();
+            const isLive = uptimeLower.includes('hour') ||
+                uptimeLower.includes('minute') ||
+                uptimeLower.includes('second');
+
+            player.isLive = isLive;
             player.twitchAvatar = avatarRes.data && avatarRes.data.startsWith('http') ? avatarRes.data : null;
 
             if (player.isLive) console.log(`📺 ${username} está EN DIRECTO`);
