@@ -35,6 +35,13 @@ function createParticles() {
 }
 
 async function init() {
+    // Force clear cache for debugging
+    try {
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('cachedRanking_')) localStorage.removeItem(key);
+        });
+    } catch (e) { }
+
     createParticles();
     await fetchSeasons();
     await loadRanking(currentSeasonId);
@@ -42,7 +49,7 @@ async function init() {
 
 async function fetchSeasons() {
     try {
-        const res = await fetch('/api/seasons');
+        const res = await fetch(`/api/seasons?_t=${Date.now()}`);
         const config = await res.json();
         const nav = document.getElementById('season-selector');
         nav.innerHTML = '';
@@ -50,12 +57,18 @@ async function fetchSeasons() {
         config.seasons.forEach(s => {
             const btn = document.createElement('button');
             btn.className = 'season-btn' + (s.id === config.currentSeason ? ' active' : '');
-            btn.innerText = s.name;
+
+            // Extraer solo el número del nombre
+            const numMatch = s.name.match(/\d+/);
+            const displayNum = numMatch ? numMatch[0] : s.id;
+
+            btn.innerText = displayNum;
             btn.onclick = () => switchSeason(s.id, s.name, btn);
             nav.appendChild(btn);
         });
         currentSeasonId = config.currentSeason;
         realCurrentSeasonId = config.currentSeason;
+
     } catch (e) { console.error(e); }
 }
 
@@ -66,31 +79,47 @@ function switchSeason(id, name, btn) {
     loadRanking(id);
 }
 
+let lastRankingRequestId = 0;
+
 async function loadRanking(seasonId) {
     const tbody = document.getElementById('leaderboard-body');
     const loading = document.getElementById('loading');
     const podium = document.getElementById('podium-top');
 
-    // CACHE LOCAL
+    const requestId = ++lastRankingRequestId;
+
+    // CACHE LOCAL: Solo cargar si no hay datos nuevos pendientes
     const cached = localStorage.getItem('cachedRanking_' + seasonId);
     if (cached) {
-        allData = JSON.parse(cached);
-        renderTable(allData);
-        renderPodium(allData.slice(0, 3));
-        podium.style.display = 'flex';
-        // Hidratar Twitch inmediatamente con los datos cacheados
-        hydrateTwitch();
+        const cachedData = JSON.parse(cached);
+        if (requestId === lastRankingRequestId) {
+            allData = cachedData;
+            renderTable(allData);
+            renderPodium(allData.slice(0, 3));
+            podium.style.display = 'flex';
+            hydrateTwitch(requestId);
+        }
     }
 
-    if (!allData || allData.length === 0) {
-        tbody.innerHTML = '';
+    // Limpiar vista para nueva carga si no hay cache o para refrescar
+    if (requestId === lastRankingRequestId) {
+        if (!cached) {
+            tbody.innerHTML = '';
+            podium.style.display = 'none';
+        }
         loading.style.display = 'block';
     }
 
     try {
-        const res = await fetch(`/api/ranking?season=${seasonId}`);
-        allData = await res.json();
+        console.log(`📡 Solicitando ranking para Season ${seasonId}...`);
+        // Añadimos timestamp para evitar caché del navegador
+        const res = await fetch(`/api/ranking?season=${seasonId}&_t=${Date.now()}`);
+        const freshData = await res.json();
 
+        // Ignorar si hay una petición más reciente
+        if (requestId !== lastRankingRequestId) return;
+
+        allData = freshData;
         localStorage.setItem('cachedRanking_' + seasonId, JSON.stringify(allData));
 
         selectedToCompare = [];
@@ -103,20 +132,22 @@ async function loadRanking(seasonId) {
         loading.style.display = 'none';
         if (allData.length > 0) podium.style.display = 'flex';
 
-        // Lanzar hidratación de Twitch por separado
-        hydrateTwitch();
+        hydrateTwitch(requestId);
     } catch (e) {
-        if (allData.length === 0) {
+        if (requestId === lastRankingRequestId && (!allData || allData.length === 0)) {
             loading.innerHTML = '<span style="color:#ff6b6b">Error de conexión con la Taberna.</span>';
         }
     }
 }
 
 // Nueva función para cargar Twitch progresivamente
-async function hydrateTwitch() {
+async function hydrateTwitch(requestId) {
     try {
         const res = await fetch('/api/twitch-hydrate');
         const twitchData = await res.json();
+
+        // Ignorar si la petición de ranking cambió
+        if (requestId !== lastRankingRequestId) return;
 
         // Actualizar allData con la info de Twitch
         allData.forEach(p => {

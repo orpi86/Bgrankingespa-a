@@ -84,11 +84,11 @@ body {
 }
 
 .rank-2 .podium-info {
-    bottom: 27px;
+    bottom: 6px;
 }
 
 .rank-3 .podium-info {
-    bottom: 23px;
+    bottom: 6px;
 }
 
 .podium-card:hover .podium-info {
@@ -274,33 +274,55 @@ h1 {
     }
 }
 
+.season-label {
+    font-family: 'Cinzel', serif;
+    color: var(--hs-gold);
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    opacity: 0.8;
+}
+
 .season-nav {
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    gap: 6px;
+    flex-wrap: nowrap;
     justify-content: center;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+}
+
+.season-nav::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
 }
 
 .season-btn {
-    background: rgba(43, 29, 48, 0.6);
+    background: rgba(43, 29, 48, 0.4);
     border: 1px solid var(--glass-border);
-    color: #aaa;
-    padding: 10px 20px;
-    font-family: 'Cinzel', serif;
+    color: #888;
+    padding: 5px 10px;
+    font-family: 'Lato', sans-serif;
+    /* Cleaner for just numbers */
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-size: 0.95rem;
-    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 4px;
     backdrop-filter: blur(5px);
+    white-space: nowrap;
+    min-width: 35px;
 }
 
 .season-btn:hover {
     border-color: var(--hs-gold);
     color: #fff;
     background: rgba(252, 209, 68, 0.1);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
 }
 
 .season-btn.active {
@@ -1444,3 +1466,103 @@ tr:nth-child(n+9) {
 }
 
 /* Podium Avatars removed */
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 20px 10px;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        letter-spacing: 3px;
+    }
+
+    .header-banner {
+        height: 200px;
+        margin-bottom: 10px;
+    }
+
+    .season-nav {
+        gap: 4px;
+        margin-bottom: 20px;
+    }
+
+    .season-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        min-width: 30px;
+    }
+
+    .podium {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .podium-card {
+        width: 100% !important;
+        max-width: 300px;
+        min-height: 380px;
+        transform: scale(1) !important;
+        order: unset !important;
+    }
+
+    .podium-card:hover {
+        transform: translateY(-5px) !important;
+    }
+
+    .podium-name {
+        font-size: 1.2rem;
+    }
+
+    .table-container {
+        border-width: 2px;
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 600px;
+        /* Force scroll */
+    }
+
+    th,
+    td {
+        padding: 10px;
+    }
+
+    .col-rank-es {
+        font-size: 1.1rem;
+    }
+
+    .player-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .col-mmr {
+        font-size: 1rem;
+    }
+
+    /* Modal Mobile */
+    .modal-content {
+        padding: 15px;
+        width: 95%;
+        margin: 5% auto;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .hero-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-info h2 {
+        font-size: 1.5rem;
+    }
+}

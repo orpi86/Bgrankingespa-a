@@ -16,7 +16,7 @@ app.use(cors());
 // Rate limiting para evitar abuso de API
 const apiLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minuto
-    max: 60, // máximo 60 peticiones por minuto
+    max: 300, // máximo 300 peticiones por minuto (Increased for testing)
     message: { error: 'Demasiadas peticiones. Espera un momento.' },
     standardHeaders: true,
     legacyHeaders: false,
@@ -39,10 +39,10 @@ try {
 }
 
 const REGION = 'EU';
-const CURRENT_SEASON_ID = CONFIG.currentSeason;
-const MAX_PAGES_TO_SCAN = 500; // Aumentado a 500 para escaneo profundo
-const CONCURRENT_REQUESTS = 4; // Reducido para evitar rate limiting
-const REQUEST_DELAY = 300;     // Más delay para evitar bloqueos de API
+let CURRENT_SEASON_ID = CONFIG.currentSeason;
+const MAX_PAGES_TO_SCAN = 500;
+const CONCURRENT_REQUESTS = 4;
+const REQUEST_DELAY = 300;
 
 // --- MEMORIA Y PERSISTENCIA ---
 let memoriaCache = {};
@@ -254,38 +254,43 @@ app.get('/api/ranking', async (req, res) => {
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
 
+    // Obtener timestamp de jugadores.json para invalidación de cache
+    let playersMtime = 0;
+    try {
+        const stats = fs.statSync(path.join(__dirname, 'jugadores.json'));
+        playersMtime = stats.mtimeMs;
+    } catch (e) { }
+
     console.log(`📡 Petición recibida para Season ${seasonToScan}`);
 
-    // 0. PARA TEMPORADAS PASADAS: Usar datos históricos (BBDD local) + Backfill On-demand
+    // 0. GESTIÓN DE TEMPORADAS PASADAS
     if (!isCurrentSeason && historicalData.seasons[seasonToScan]) {
         const currentPlayersList = loadPlayers();
         const historyPlayers = historicalData.seasons[seasonToScan];
-        const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
 
+        // Revisar si faltan jugadores nuevos añadidos recientemente a la lista
+        const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
+        // const foundCount = historyPlayers.filter(hp => hp.found).length;
+
+        // Solo re-escanear si faltan jugadores Y no hay uno en curso
         if (missing.length > 0 && !scansInProgress[seasonToScan]) {
-            console.log(`♻️ Detectado que faltan ${missing.length} jugadores en Season ${seasonToScan}. Lanzando re-escaneo en segundo plano...`);
+            console.log(`♻️ Season ${seasonToScan}: Faltan ${missing.length} jugadores. Re-escaneando en background...`);
             scansInProgress[seasonToScan] = true;
             realizarEscaneoInterno(seasonToScan).finally(() => {
                 delete scansInProgress[seasonToScan];
             });
         }
 
-        // Combinar datos históricos con placeholders para los que faltan
+        // Devolver lo que tenemos inmediatamente
         const mergedResults = currentPlayersList.map(p => {
-            const foundInHistory = historyPlayers.find(hp => hp.battleTag === p.battleTag);
-            if (foundInHistory) return foundInHistory;
+            const h = historyPlayers.find(hp => hp.battleTag === p.battleTag);
+            if (h) return h;
             return {
-                battleTag: p.battleTag,
-                rank: null,
-                rating: scansInProgress[seasonToScan] ? 'Actualizando...' : 'Sin datos',
-                found: false,
-                twitchUser: p.twitch || null,
-                isLive: false,
-                spainRank: 999
+                battleTag: p.battleTag, rank: null, rating: 'Sin datos', found: false,
+                twitchUser: p.twitch || null, isLive: false, spainRank: 999
             };
         });
 
-        // Re-ordenar y re-calcular spainRank
         mergedResults.sort((a, b) => {
             if (a.found && !b.found) return -1;
             if (!a.found && b.found) return 1;
@@ -294,200 +299,99 @@ app.get('/api/ranking', async (req, res) => {
         });
         mergedResults.forEach((p, i) => p.spainRank = i + 1);
 
-        console.log(`📚 Sirviendo Season ${seasonToScan} (datos combinados).`);
-        const dataWithAchievements = calcularLogros(mergedResults);
+        const dataWithAchievements = calcularLogros(mergedResults, seasonToScan);
         return res.json(dataWithAchievements);
     }
 
-    // 1. REVISAR MEMORIA RAM & FILE TIMESTAMP
+    // 1. GESTIÓN TEMPORADA ACTUAL (MEMORIA RAM)
     const datosGuardados = memoriaCache[seasonToScan];
-    let usarMemoria = false;
-
-    // Check jugadors.json modification time
-    let playersMtime = 0;
-    try {
-        const stats = fs.statSync(path.join(__dirname, 'jugadores.json'));
-        playersMtime = stats.mtimeMs;
-    } catch (e) { console.error("Error checking players file:", e); }
-
     if (datosGuardados) {
-        // If players file changed, invalidate cache immediately
-        if (datosGuardados.playersMtime !== playersMtime) {
-            console.log("♻️ Detectado cambio en jugadores.json. Invalidando caché.");
-            usarMemoria = false;
+        // Si hay datos, los servimos INMEDIATAMENTE (Estrategia: Stale-While-Revalidate)
+        console.log(`⚡ Sirviendo ${seasonToScan} desde CACHÉ (Stale-While-Revalidate).`);
+        res.json(calcularLogros(datosGuardados.data, seasonToScan));
+
+        // VERIFICACIÓN ASÍNCRONA EN BACKGROUND
+        const cacheExpired = (Date.now() - datosGuardados.timestamp > TIEMPO_CACHE_ACTUAL);
+        const playersChanged = (datosGuardados.playersMtime !== playersMtime);
+
+        if ((cacheExpired || playersChanged) && !scansInProgress[seasonToScan]) {
+            console.log(`♻️ Background Update iniciada para Season ${seasonToScan}...`);
+            scansInProgress[seasonToScan] = true;
+
+            // NO usamos await aquí, dejamos que corra en background
+            realizarEscaneoInterno(seasonToScan)
+                .catch(err => console.error("Error en background update:", err))
+                .finally(() => {
+                    delete scansInProgress[seasonToScan];
+                    console.log(`✅ Background Update completada para Season ${seasonToScan}.`);
+                });
         }
-        else if (!isCurrentSeason) {
-            usarMemoria = true;
-        } else {
-            // FORCE REFRESH: By-pass cache once to fix twitch links
-            // if (Date.now() - datosGuardados.timestamp < TIEMPO_CACHE_ACTUAL) {
-            //     usarMemoria = true;
-            // }
-            usarMemoria = false;
-        }
+        return; // Terminamos la request.
     }
 
-    if (usarMemoria) {
-        console.log(`⚡ Sirviendo desde CACHÉ.`);
-        const dataWithAchievements = calcularLogros(datosGuardados.data);
-        return res.json(dataWithAchievements);
-    }
-
-    // 2. SI NO ESTÁ EN MEMORIA, DESCARGAR
-    console.log(`🌐 Iniciando descarga profunda de Season ${seasonToScan}...`);
-
-    const myPlayersRaw = loadPlayers();
-    let results = myPlayersRaw.map(p => ({
-        battleTag: p.battleTag,
-        twitchUser: p.twitch || null,
-        isLive: false,
-        nameOnly: p.battleTag.split('#')[0].toLowerCase(),
-        fullTag: p.battleTag.toLowerCase(),
-        rank: null,
-        rating: 'Sin datos', // Valor por defecto cuando no se encuentra
-        found: false
-    }));
+    // 2. SI NO ESTÁ EN MEMORIA (Cache vacía), TOCA ESPERAR
+    console.log(`🌐 Cache vacía para Season ${seasonToScan}. Iniciando descarga síncrona...`);
 
     try {
-        for (let i = 1; i <= MAX_PAGES_TO_SCAN; i += CONCURRENT_REQUESTS) {
-            const batchPromises = [];
+        scansInProgress[seasonToScan] = true;
+        await realizarEscaneoInterno(seasonToScan);
 
-            for (let j = i; j < i + CONCURRENT_REQUESTS && j <= MAX_PAGES_TO_SCAN; j++) {
-                batchPromises.push(
-                    axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonToScan}`)
-                        .then(r => r.data)
-                        .catch(() => null)
-                );
-            }
+        const datosRecienCargados = memoriaCache[seasonToScan];
 
-            const batchResponses = await Promise.all(batchPromises);
-            let jugadoresEncontradosEnLote = 0;
-
-            batchResponses.forEach(data => {
-                if (!data || !data.leaderboard || !data.leaderboard.rows) return;
-
-                const rows = data.leaderboard.rows;
-                if (rows.length > 0) jugadoresEncontradosEnLote += rows.length;
-
-                rows.forEach(row => {
-                    // Blizzard usa accountid o battleTag de forma inconsistente
-                    const blizzName = (row.accountid || row.battleTag || "").toString().toLowerCase();
-                    if (!blizzName) return;
-
-                    results.forEach(player => {
-                        if (player.found) return;
-
-                        const targetName = player.nameOnly.toLowerCase();
-                        const targetFull = player.fullTag.toLowerCase();
-
-                        // Match exacto con el nombre o con el tag completo
-                        if (blizzName === targetName || blizzName === targetFull) {
-                            console.log(`🎯 ¡Jugador encontrado!: ${player.battleTag} -> Rank ${row.rank} (${row.rating})`);
-                            player.rank = row.rank;
-                            player.rating = row.rating;
-                            player.found = true;
-                        }
-                    });
-                });
-            });
-
-            // PARADA SEGURA: Si ya encontramos a todos los de la lista, no seguimos escaneando
-            if (results.every(p => p.found)) {
-                console.log("📍 Todos los jugadores encontrados. Parada segura.");
-                break;
-            }
-
-            // Si Blizzard nos devuelve páginas vacías, paramos.
-            if (jugadoresEncontradosEnLote === 0) {
-                console.log(`🛑 Fin de los datos en página ${i}. Parando escaneo.`);
-                break;
-            }
-
-            await wait(REQUEST_DELAY);
+        if (datosRecienCargados) {
+            const dataWithAchievements = calcularLogros(datosRecienCargados.data, seasonToScan);
+            return res.json(dataWithAchievements);
+        } else {
+            throw new Error("No se pudieron obtener datos tras el escaneo.");
         }
-
-        // 3. PROCESAR RESULTADOS
-        let finalResponse = results.map(p => ({
-            battleTag: p.battleTag,
-            rank: p.rank,
-            rating: p.rating,
-            found: p.found,
-            twitchUser: p.twitchUser,
-            isLive: false
-        }));
-
-        finalResponse.sort((a, b) => {
-            if (a.found && !b.found) return -1;
-            if (!a.found && b.found) return 1;
-            if (a.found && b.found) return a.rank - b.rank;
-            return 0;
-        });
-
-        finalResponse.forEach((player, index) => player.spainRank = index + 1);
-
-        // 4. GUARDAR EN CACHÉ Y DISCO
-        memoriaCache[seasonToScan] = {
-            timestamp: Date.now(),
-            playersMtime: playersMtime, // Guardamos timestamp del fichero
-            data: finalResponse
-        };
-        saveCache();
-
-        // Para temporadas PASADAS: Guardar en BBDD histórica permanente
-        if (!isCurrentSeason) {
-            historicalData.seasons[seasonToScan] = finalResponse;
-            saveHistoricalData();
-            console.log(`📚 Season ${seasonToScan} guardada en BBDD histórica (no se descargará de nuevo).`);
-        }
-
-        if (isCurrentSeason) saveHistory(finalResponse);
-
-        // 5. ENVIAR SIN ESPERAR A TWITCH
-        const dataWithAchievements = calcularLogros(finalResponse);
-        res.json(dataWithAchievements);
 
     } catch (error) {
-        console.error("🚨 Error Servidor:", error.message);
-        res.status(500).json({ error: "Error interno" });
+        console.error("🚨 Error Servidor en endpoint:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        delete scansInProgress[seasonToScan];
     }
 });
 
-function calcularLogros(players) {
+function calcularLogros(players, seasonId) {
+    const isCurrent = (parseInt(seasonId) === CURRENT_SEASON_ID);
     return players.map(p => {
-        p.badges = [];
-        const history = historyData[p.battleTag] || [];
+        const player = { ...p }; // Clone to avoid mutating source
+        player.badges = [];
 
-        // Logro: En racha (subiendo MMR)
-        if (history.length >= 2) {
-            const last = history[history.length - 1];
-            const prev = history[history.length - 2];
-            if (last.rating > prev.rating) p.badges.push({ type: 'fire', text: '🔥 En racha' });
+        // Solo mostrar medallas de desempeño si es la temporada actual o si queremos histórico
+        // Por ahora, solo racha y en directo en la actual
+        if (isCurrent) {
+            const history = historyData[player.battleTag] || [];
+            if (history.length >= 2) {
+                const last = history[history.length - 1];
+                const prev = history[history.length - 2];
+                if (last.rating > prev.rating) player.badges.push({ type: 'fire', text: '🔥 En racha' });
+            }
+            if (player.isLive) player.badges.push({ type: 'stream', text: '📺 En Directo' });
         }
 
-        // Logro: Streamer en vivo
-        if (p.isLive) p.badges.push({ type: 'stream', text: '📺 En Directo' });
-
         // Logro: TOP 3 España
-        if (p.spainRank <= 3) p.badges.push({ type: 'gold', text: '🏆 TOP 3' });
+        if (player.spainRank <= 3) player.badges.push({ type: 'gold', text: '🏆 TOP 3' });
 
         // Logro: TOP 10 España
-        else if (p.spainRank <= 10) p.badges.push({ type: 'silver', text: '🥈 TOP 10' });
+        else if (player.spainRank <= 10) player.badges.push({ type: 'silver', text: '🥈 TOP 10' });
 
         // Logro: MMR Alto (8000+)
-        if (typeof p.rating === 'number' && p.rating >= 8000) {
-            p.badges.push({ type: 'elite', text: '⭐ Elite 8k+' });
+        if (typeof player.rating === 'number' && player.rating >= 8000) {
+            player.badges.push({ type: 'elite', text: '⭐ Elite 8k+' });
         }
 
         // Logro: TOP 100 EU
-        if (p.found && p.rank <= 100) {
-            p.badges.push({ type: 'eu', text: '🌍 TOP 100 EU' });
+        if (player.found && player.rank <= 100) {
+            player.badges.push({ type: 'eu', text: '🌍 TOP 100 EU' });
         }
 
         // Logro: TOP 500 EU
-        else if (p.found && p.rank <= 500) {
-            p.badges.push({ type: 'eu', text: '🌍 TOP 500 EU' });
+        else if (player.found && player.rank <= 500) {
+            player.badges.push({ type: 'eu', text: '🌍 TOP 500 EU' });
         }
-        return p;
+        return player;
     });
 }
 
@@ -605,10 +509,12 @@ app.listen(PORT, async () => {
         console.log("✅ Cache actual válida. Usando datos existentes.");
     }
 
-    // 2. GESTIONAR TEMPORADAS PASADAS (Backfill inteligente)
-    await verificarIntegridadTemporadas();
+    // 2. GESTIONAR TEMPORADAS PASADAS (Backfill inteligente en segundo plano)
+    verificarIntegridadTemporadas().then(() => {
+        console.log("✅ Integridad de temporadas pasadas verificada.");
+    });
 
-    console.log("✅ Sistema de Taberna listo y cargado.");
+    console.log("✅ Servidor listo para recibir peticiones.");
 
     // 3. WATCHER PARA JUGADORES.JSON
     let watchTimeout;
@@ -616,12 +522,17 @@ app.listen(PORT, async () => {
         if (eventType === 'change') {
             if (watchTimeout) clearTimeout(watchTimeout);
             watchTimeout = setTimeout(async () => {
-                console.log("♻️ Detectado cambio en jugadores.json. Actualizando datos...");
-                loadPlayers(); // Forzar recarga de lista de jugadores
-                delete memoriaCache[CURRENT_SEASON_ID]; // Invalidar cache actual
-                await verificarIntegridadTemporadas(); // Sincronizar históricos
-                // También escanear temporada actual
+                console.log("♻️ Detectado cambio en jugadores.json. Sincronizando datos...");
+                loadPlayers(); // Recargar lista ram
+
+                // 1. Integridad de historial (Targeted scan para nuevos)
+                await verificarIntegridadTemporadas();
+
+                // 2. Refresh completo Season Actual
+                console.log("🔄 Refrescando Season Actual...");
+                delete memoriaCache[CURRENT_SEASON_ID];
                 await realizarEscaneoInterno(CURRENT_SEASON_ID);
+
                 console.log("✅ Sincronización tras cambio completada.");
             }, 1000);
         }
@@ -637,21 +548,42 @@ app.listen(PORT, async () => {
     const tiempoHastaEscaneo = proximoEscaneo - ahora;
     console.log(`⏰ Próximo escaneo automático programado para las 6:00 AM (en ${Math.round(tiempoHastaEscaneo / 3600000)}h)`);
 
+    // Detectar nueva temporada cada hora
+    setInterval(detectarNuevaTemporada, 60 * 60 * 1000);
+    // Y al iniciar
+    await detectarNuevaTemporada();
+
     setTimeout(async function escaneoProgamado() {
-        console.log("🌅 Ejecutando escaneo diario programado...");
-        for (const season of CONFIG.seasons) {
-            delete memoriaCache[season.id];
-            await realizarEscaneoInterno(season.id);
-        }
+        console.log("🌅 Ejecutando escaneo diario programado (SOLO TEMPORADA ACTUAL)...");
+
+        // Solo escaneamos la actual.
+        delete memoriaCache[CURRENT_SEASON_ID];
+        await realizarEscaneoInterno(CURRENT_SEASON_ID);
+
         // Re-programar para mañana
         setTimeout(escaneoProgamado, 24 * 60 * 60 * 1000);
     }, tiempoHastaEscaneo);
 });
 
 // Función interna para escaneo sin necesidad de request HTTP
-async function realizarEscaneoInterno(seasonId) {
-    const myPlayersRaw = loadPlayers();
-    let results = myPlayersRaw.map(p => ({
+async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, targetPlayers = null) {
+    const isTargeted = Array.isArray(targetPlayers) && targetPlayers.length > 0;
+    const logPrefix = isTargeted ? `[TargetScan S${seasonId}]` : `[FullScan S${seasonId}]`;
+
+    console.log(`${logPrefix} Iniciando. Profundidad: ${maxPages} páginas. Targets: ${isTargeted ? targetPlayers.join(', ') : 'TODOS'}`);
+
+    const allPlayers = loadPlayers();
+    let playersToScan = [];
+
+    if (isTargeted) {
+        // Solo clonamos los jugadores que buscamos
+        playersToScan = allPlayers.filter(p => targetPlayers.includes(p.battleTag)).map(p => ({ ...p }));
+    } else {
+        playersToScan = allPlayers.map(p => ({ ...p }));
+    }
+
+    // Inicializar resultados con los jugadores a escanear
+    let results = playersToScan.map(p => ({
         battleTag: p.battleTag,
         twitchUser: p.twitch || null,
         isLive: false,
@@ -663,20 +595,27 @@ async function realizarEscaneoInterno(seasonId) {
     }));
 
     try {
-        for (let i = 1; i <= MAX_PAGES_TO_SCAN; i += CONCURRENT_REQUESTS) {
+        for (let i = 1; i <= maxPages; i += CONCURRENT_REQUESTS) {
             const batchPromises = [];
-            for (let j = i; j < i + CONCURRENT_REQUESTS && j <= MAX_PAGES_TO_SCAN; j++) {
+            for (let j = i; j < i + CONCURRENT_REQUESTS && j <= maxPages; j++) {
                 batchPromises.push(
-                    axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonId}`)
-                        .then(r => r.data).catch(() => null)
+                    axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonId}`, { timeout: 15000 })
+                        .then(r => r.data)
+                        .catch((err) => {
+                            console.error(`❌ Error Interno en pag ${j} S${seasonId}: ${err.message}`);
+                            return null;
+                        })
                 );
             }
             const batchResponses = await Promise.all(batchPromises);
-            let encontrados = 0;
+            let encontradosEnBatch = 0;
+            let rowsInBatch = 0;
+
             batchResponses.forEach(data => {
                 if (!data || !data.leaderboard || !data.leaderboard.rows) return;
                 const rows = data.leaderboard.rows;
-                if (rows.length > 0) encontrados += rows.length;
+                if (rows.length > 0) rowsInBatch += rows.length;
+
                 rows.forEach(row => {
                     const blizzName = (row.accountid || row.battleTag || "").toString().toLowerCase();
                     if (!blizzName) return;
@@ -687,103 +626,166 @@ async function realizarEscaneoInterno(seasonId) {
                         const targetFull = player.fullTag.toLowerCase();
 
                         if (blizzName === targetName || blizzName === targetFull) {
-                            console.log(`[StartupScan] Encontrado ${player.battleTag} en S${seasonId} (Rank ${row.rank})`);
+                            console.log(`${logPrefix} Encontrado ${player.battleTag} -> Rank ${row.rank}`);
                             player.rank = row.rank;
                             player.rating = row.rating;
                             player.found = true;
+                            encontradosEnBatch++;
                         }
                     });
                 });
             });
 
-            if (results.every(p => p.found)) break;
+            // PARADA 1: Todos los objetivos encontrados
+            if (results.every(p => p.found)) {
+                console.log(`${logPrefix} ✅ Todos los objetivos encontrados. Break.`);
+                break;
+            }
 
-            if (encontrados === 0) break;
-            if (i % 80 === 1) console.log(`[StartupScan] Temporada ${seasonId}: Procesadas ${i} páginas...`);
+            // PARADA 2: Fin de datos
+            if (rowsInBatch === 0) {
+                console.log(`${logPrefix} 🛑 Blizzard no devolvió más filas. Break.`);
+                break;
+            }
+
+            if (i % 80 === 1) console.log(`${logPrefix} Procesadas ${i} páginas...`);
             await wait(REQUEST_DELAY);
         }
 
-        let finalResponse = results.map(p => ({
-            battleTag: p.battleTag, rank: p.rank, rating: p.rating, found: p.found, twitchUser: p.twitchUser, isLive: false
-        }));
+        // FUSIONAR RESULTADOS
+        let finalMergedData = [];
 
-        finalResponse.sort((a, b) => {
+        if (isTargeted) {
+            let previousData = [];
+            if (seasonId === CURRENT_SEASON_ID) {
+                if (memoriaCache[seasonId]) previousData = memoriaCache[seasonId].data;
+            } else {
+                if (historicalData.seasons[seasonId]) previousData = historicalData.seasons[seasonId];
+            }
+
+            // Formatear resultados nuevos
+            const newResultsFormatted = results.map(p => ({
+                battleTag: p.battleTag, rank: p.rank, rating: p.rating, found: p.found, twitchUser: p.twitchUser, isLive: false
+            }));
+
+            // Mapa de nuevos resultados
+            const resultMap = new Map(newResultsFormatted.map(p => [p.battleTag, p]));
+
+            // 1. Mantener antiguos (actualizando si hay coincidencia)
+            finalMergedData = previousData.map(oldP => {
+                if (resultMap.has(oldP.battleTag)) {
+                    const updated = resultMap.get(oldP.battleTag);
+                    resultMap.delete(oldP.battleTag);
+                    return updated;
+                }
+                return oldP;
+            });
+
+            // 2. Añadir los puramente nuevos
+            resultMap.forEach(val => finalMergedData.push(val));
+
+        } else {
+            // Full Scan: sobrescribir
+            finalMergedData = results.map(p => ({
+                battleTag: p.battleTag, rank: p.rank, rating: p.rating, found: p.found, twitchUser: p.twitchUser, isLive: false
+            }));
+        }
+
+        // Re-ranking (siempre re-calcular SpainRank)
+        finalMergedData.sort((a, b) => {
             if (a.found && !b.found) return -1;
             if (!a.found && b.found) return 1;
             if (a.found && b.found) return a.rank - b.rank;
             return 0;
         });
+        finalMergedData.forEach((player, index) => player.spainRank = index + 1);
 
-        finalResponse.forEach((player, index) => player.spainRank = index + 1);
-
-        memoriaCache[seasonId] = { timestamp: Date.now(), data: finalResponse };
+        // Guardar
+        memoriaCache[seasonId] = { timestamp: Date.now(), data: finalMergedData };
         saveCache();
 
-        // Guardar en BBDD histórica para temporadas pasadas
         if (seasonId !== CURRENT_SEASON_ID) {
-            historicalData.seasons[seasonId] = finalResponse;
+            historicalData.seasons[seasonId] = finalMergedData; // También guardamos el merged en historial
             saveHistoricalData();
-            console.log(`📚 Season ${seasonId} guardada en BBDD histórica.`);
+            console.log(`${logPrefix} Datos fusionados y guardados en Histórico.`);
         }
 
-        if (seasonId === CURRENT_SEASON_ID) saveHistory(finalResponse);
-        console.log(`✅ Escaneo de Season ${seasonId} completado con éxito.`);
+        if (seasonId === CURRENT_SEASON_ID) saveHistory(finalMergedData);
+        console.log(`${logPrefix} Completado con éxito.`);
+
     } catch (e) {
-        console.error("🚨 Error en escaneo inicial:", e.message);
+        console.error(`🚨 Error en escaneo (${logPrefix}):`, e.message);
     }
 }
 
 async function verificarIntegridadTemporadas() {
     console.log("🔍 Verificando integridad de temporadas pasadas...");
     const currentPlayersList = loadPlayers();
+    const allBattleTags = currentPlayersList.map(p => p.battleTag);
 
     for (const season of CONFIG.seasons) {
-        if (season.id === CURRENT_SEASON_ID) continue;
+        if (season.id === CURRENT_SEASON_ID) continue; // Skip actual
 
-        let needsScan = false;
-        const exists = !!historicalData.seasons[season.id];
+        const historyPlayers = historicalData.seasons[season.id];
 
-        if (!exists) {
-            console.log(`📜 Season ${season.id} no existe en histórico. Programando escaneo.`);
-            needsScan = true;
-        } else {
-            const historyPlayers = historicalData.seasons[season.id];
-            const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
-
-            if (missing.length > 0) {
-                console.log(`♻️ Season ${season.id}: Faltan ${missing.length} jugadores. Re-escaneando temporada completa.`);
-                needsScan = true;
-            }
+        if (!historyPlayers) {
+            console.log(`📜 Season ${season.id} VACÍA. Iniciando escaneo COMPLETO.`);
+            await realizarEscaneoInterno(season.id);
+            continue;
         }
 
-        if (needsScan) {
-            console.log(`📡 Iniciando Backfill para Season ${season.id}...`);
-            await realizarEscaneoInterno(season.id);
+        const missingTags = allBattleTags.filter(bt => !historyPlayers.some(hp => hp.battleTag === bt));
 
-            const updatedHistory = historicalData.seasons[season.id];
-            if (updatedHistory) {
-                const stillMissing = currentPlayersList.filter(p => !updatedHistory.some(hp => hp.battleTag === p.battleTag));
-                if (stillMissing.length > 0) {
-                    console.warn(`⚠️ Season ${season.id}: Aún faltan ${stillMissing.length} jugadores tras escaneo. Marcando como "Sin datos".`);
-                    stillMissing.forEach(sm => {
-                        updatedHistory.push({
-                            battleTag: sm.battleTag,
-                            rank: null,
-                            rating: 'Sin datos',
-                            found: false,
-                            twitchUser: sm.twitch || null,
-                            isLive: false,
-                            spainRank: 999
-                        });
-                    });
-                    saveHistoricalData();
-                } else {
-                    console.log(`✅ Season ${season.id} completada.`);
-                }
-            }
+        if (missingTags.length > 0) {
+            console.log(`♻️ Season ${season.id}: Detectados ${missingTags.length} jugadores nuevos. Escaneando SOLO a ellos...`);
+            await realizarEscaneoInterno(season.id, MAX_PAGES_TO_SCAN, missingTags);
         }
     }
+    console.log("✅ Integridad verificada.");
 }
 
+async function detectarNuevaTemporada() {
+    console.log("🔍 Buscando cambios de temporada en Blizzard API...");
+    try {
+        // Consultar la página 1 de la temporada actual + 1 para ver si ya hay datos
+        const nextSeasonId = CURRENT_SEASON_ID + 1;
+        const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=1&seasonId=${nextSeasonId}`;
+        const response = await axios.get(url, { timeout: 10000 });
 
+        if (response.data && response.data.leaderboard && response.data.leaderboard.rows && response.data.leaderboard.rows.length > 0) {
+            console.log(`✨ ¡NUEVA TEMPORADA DETECTADA!: Season ${nextSeasonId}`);
 
+            // 1. Antes de cambiar, nos aseguramos de que la temporada que "termina" esté bien cacheada en históricos
+            console.log(`📦 Archivando temporada ${CURRENT_SEASON_ID} en datos históricos...`);
+            await realizarEscaneoInterno(CURRENT_SEASON_ID);
+
+            // 2. Actualizar configuración
+            const oldSeasonName = `Temporada ${CURRENT_SEASON_ID - 5}`; // Siguiendo el mapeo T.12 = ID 17
+            const newSeasonNum = CURRENT_SEASON_ID - 5 + 1;
+
+            CONFIG.currentSeason = nextSeasonId;
+            CONFIG.seasons.unshift({
+                id: nextSeasonId,
+                name: `T. ${newSeasonNum} (Actual)`
+            });
+
+            // Actualizar el nombre de la que era "Actual"
+            const prevSeason = CONFIG.seasons.find(s => s.id === CURRENT_SEASON_ID);
+            if (prevSeason) prevSeason.name = `Temporada ${newSeasonNum - 1}`;
+
+            CURRENT_SEASON_ID = nextSeasonId;
+
+            // 3. Guardar seasons.json
+            fs.writeFileSync(CONFIG_PATH, JSON.stringify(CONFIG, null, 2));
+            console.log("📝 seasons.json actualizado.");
+
+            // 4. Iniciar escaneo de la nueva temporada
+            await realizarEscaneoInterno(nextSeasonId);
+            console.log(`✅ Transición a Season ${nextSeasonId} completada.`);
+        } else {
+            console.log("✅ Sin cambios de temporada detectados.");
+        }
+    } catch (e) {
+        console.error("❌ Error al detectar nueva temporada:", e.message);
+    }
+}

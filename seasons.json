@@ -24,6 +24,26 @@
         {
             "id": 12,
             "name": "Temporada 7"
+        },
+        {
+            "id": 11,
+            "name": "Temporada 6"
+        },
+        {
+            "id": 10,
+            "name": "Temporada 5"
+        },
+        {
+            "id": 9,
+            "name": "Temporada 4"
+        },
+        {
+            "id": 8,
+            "name": "Temporada 3"
+        },
+        {
+            "id": 7,
+            "name": "Temporada 2"
         }
     ]
 }
