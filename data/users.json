@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1",
+    "username": "admin",
+    "password": "$2b$10$qRtPPrTgwfGFexs9mdEAReNCSqHaFXaQ241InW1FdpDlgqUxcEgSG",
+    "role": "admin",
+    "battletag": "Admin#1234",
+    "email": "admin@example.com",
+    "isVerified": true,
+    "banned": false
+  },
+  {
+    "id": 1768190022131,
+    "username": "TestUser_1768190022096",
+    "password": "$2b$10$mWqa3t8BqlnDJv4i/SHBBetRv7Eztg3wFwXCKIFMByl3qpIdmjqZS",
+    "role": "editor",
+    "battleTag": "TestTag#1234",
+    "banned": false,
+    "createdAt": "2026-01-12T03:53:42.131Z",
+    "email": "testuser_1768190022096@example.com",
+    "isVerified": true
+  },
+  {
+    "id": 1768345074618,
+    "username": "Orpi",
+    "password": "$2b$10$VTQENwHb3lIVaC6b5Ya1XeqGt.7/YfMIfq.qenP4bYrG5/L2yRFF.",
+    "role": "admin",
+    "battleTag": "Orpinell#2250",
+    "banned": false,
+    "createdAt": "2026-01-13T22:57:54.618Z",
+    "email": "orpi@example.com",
+    "isVerified": true
+  }
+]

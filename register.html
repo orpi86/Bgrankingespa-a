@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | La Taberna</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/utils.js"></script>
+    <style>
+        .register-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--hs-gold);
+            border-radius: 8px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(252, 209, 68, 0.2);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--hs-gold);
+            font-family: 'Cinzel';
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            background: #222;
+            border: 1px solid #555;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+            background: var(--hs-gold);
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 44px;
+            transition: all 0.3s;
+            font-family: 'Cinzel';
+            font-size: 1.1rem;
+        }
+
+        .btn-register:hover {
+            background: #fee28a;
+            transform: scale(1.02);
+        }
+
+        .login-link {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .login-link a {
+            color: var(--hs-gold);
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+    <main class="content-wrapper">
+        <header>
+            <div class="header-banner"></div>
+            <nav id="main-nav" class="main-nav"></nav>
+        </header>
+
+        <div class="register-container">
+            <h2 style="font-family: 'Cinzel'; color: var(--hs-gold); margin-bottom: 30px;">Registro de Héroe</h2>
+
+            <div class="input-group">
+                <label>Nombre de Usuario</label>
+                <input type="text" id="reg-username" placeholder="Tu nick en la web">
+            </div>
+
+            <div class="input-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="reg-email" placeholder="ejemplo@correo.com">
+            </div>
+
+            <!-- Honeypot Field (Invisible to humans) -->
+            <div style="display:none !important;">
+                <label>No rellenar este campo</label>
+                <input type="text" id="reg-website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" id="reg-password" placeholder="Tu contraseña secreta">
+            </div>
+
+            <div class="input-group">
+                <label>BattleTag (Opcional)</label>
+                <input type="text" id="reg-battletag" placeholder="Ej: Player#1234">
+                <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Vincula tu cuenta para mostrar tu rango en
+                    los foros.</div>
+            </div>
+
+            <button class="btn-register" onclick="register()">Registrarse</button>
+            <p id="reg-error" style="color: #ff6b6b; margin-top: 15px; display: none;"></p>
+
+            <div class="login-link">
+                ¿Ya tienes cuenta? <a href="/admin">Inicia Sesión</a>
+            </div>
+        </div>
+
+    </main>
+    <script src="js/nav.js"></script>
+    <script>
+        // Dynamic Turnstile Initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/config');
+                const config = await res.json();
+                if (config.turnstileSiteKey && window.turnstile) {
+                    turnstile.render('#turnstile-container', {
+                        sitekey: config.turnstileSiteKey,
+                        theme: 'dark',
+                    });
+                }
+            } catch (e) {
+                console.error("Error loading Turnstile config:", e);
+            }
+        });
+
+        async function register() {
+            const u = document.getElementById('reg-username').value;
+            const p = document.getElementById('reg-password').value;
+            const bt = document.getElementById('reg-bt').value;
+            const msg = document.getElementById('reg-msg');
+            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]').value;
+
+            if (!u || !p) {
+                msg.innerText = "Usuario y contraseña requeridos";
+                msg.style.display = 'block';
+                return;
+            }
+
+            if (!turnstileResponse) {
+                msg.innerText = "Por favor, completa la verificación de seguridad.";
+                msg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: u,
+                        password: p,
+                        battleTag: bt,
+                        'cf-turnstile-response': turnstileResponse
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.href = '/admin';
+                } else {
+                    msg.innerText = data.error;
+                    msg.style.display = 'block';
+                }
+            } catch (error) {
+                msg.innerText = "Error de conexión";
+                msg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+
+</html>

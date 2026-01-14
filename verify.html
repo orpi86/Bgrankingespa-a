@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación | La Taberna</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .verify-box {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--hs-gold);
+            border-radius: 8px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(252, 209, 68, 0.2);
+        }
+
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            color: #00ff9d;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .btn-home {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: var(--hs-gold);
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 44px;
+            font-family: 'Cinzel';
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+    <main class="content-wrapper">
+        <div class="verify-box">
+            <div id="status-content">
+                <div class="status-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                <h2>Verificando tu cuenta...</h2>
+                <p>Por favor, espera un momento mientras validamos tu sello de héroe.</p>
+            </div>
+            <a href="/admin" class="btn-home">Volver al Inicio</a>
+        </div>
+    </main>
+    <script src="js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const success = params.get('success');
+            const error = params.get('error');
+            const content = document.getElementById('status-content');
+
+            if (success === 'true') {
+                content.innerHTML = `
+                    <div class="status-icon success"><i class="fa-solid fa-circle-check"></i></div>
+                    <h2 class="success">¡Cuenta Verificada!</h2>
+                    <p>Tu sello de héroe ha sido validado. Ya puedes participar plenamente en La Taberna.</p>
+                `;
+            } else if (error) {
+                content.innerHTML = `
+                    <div class="status-icon error"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <h2 class="error">Error de Verificación</h2>
+                    <p>${decodeURIComponent(error)}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>

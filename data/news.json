@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "Bienvenido a la nueva comunidad",
+    "content": "[img:https://i.gyazo.com/b0999e075a1322904ff72657cc5df49f.png] Pues el foro se transformó en una nueva web con foro y noticias, espero que os registréis, la deis uso, compartáis vuestras partidas y emociones en los foros porque esto es un proyecto para todos, no somos muchos jugadores actualmente pero somos muy grandes. ¡Disfrutad!",
+    "date": "2024-01-12",
+    "author": "admin",
+    "comments": [
+      {
+        "id": 1768190022143,
+        "author": "TestUser_1768190022096",
+        "content": "This is a test comment from verification script.",
+        "date": "2026-01-12T03:53:42.143Z"
+      }
+    ],
+    "lastEdit": "2026-01-14T01:51:53.380Z"
+  }
+]

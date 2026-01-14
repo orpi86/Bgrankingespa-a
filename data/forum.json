@@ -1,0 +1,83 @@
+[
+  {
+    "id": "cat_rules",
+    "title": "Normas",
+    "sections": [
+      {
+        "id": "sec_rules",
+        "title": "Reglas del Foro",
+        "description": "Normas de respeto y convivencia.",
+        "topics": [
+          {
+            "id": 1,
+            "title": "Normas de Respeto Básicas",
+            "author": "admin",
+            "date": "2024-01-12T00:00:00.000Z",
+            "posts": [
+              {
+                "id": 1,
+                "author": "admin",
+                "content": "1. Sed respetuosos con los demás jugadores.\n2. No se permite el spam ni contenido ofensivo.\n3. Postea en la sección correspondiente.",
+                "date": "2024-01-12T00:00:00.000Z"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cat_bg",
+    "title": "Campos de Batalla",
+    "sections": [
+      {
+        "id": "sec_bg_chat",
+        "title": "Chat General",
+        "description": "Habla de todo sobre Battlegrounds.",
+        "topics": []
+      },
+      {
+        "id": "sec_bg_compos",
+        "title": "Compos Favoritas",
+        "description": "Comparte tus mejores estrategias.",
+        "topics": []
+      },
+      {
+        "id": "sec_bg_capturas",
+        "title": "Capturitas",
+        "description": "Muestra tus high-rolls y victorias.",
+        "topics": []
+      },
+      {
+        "id": "sec_bg_videos",
+        "title": "Vídeos/Clips",
+        "description": "Comparte tus clips de Twitch y vídeos de YouTube.",
+        "topics": []
+      },
+      {
+        "id": "sec_bg_sugerencias",
+        "title": "Sugerencias",
+        "description": "¿Cómo mejorarías el juego o la web?",
+        "topics": []
+      }
+    ]
+  },
+  {
+    "id": "cat_offtopic",
+    "title": "Off-topic",
+    "sections": [
+      {
+        "id": "sec_off_chat",
+        "title": "Chat Relax",
+        "description": "Habla de cualquier cosa.",
+        "topics": []
+      },
+      {
+        "id": "sec_off_juegos",
+        "title": "Otros Juegos",
+        "description": "¿A qué más juegas?",
+        "topics": []
+      }
+    ]
+  }
+]
