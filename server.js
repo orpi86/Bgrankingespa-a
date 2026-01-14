@@ -246,6 +246,12 @@ app.get('/api/seasons', (req, res) => {
     res.json(CONFIG);
 });
 
+app.get('/api/config', (req, res) => {
+    res.json({
+        turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || null
+    });
+});
+
 app.get('/api/player-summary', (req, res) => {
     const { player } = req.query;
     if (!player) return res.status(400).json({ error: "Falta el player" });

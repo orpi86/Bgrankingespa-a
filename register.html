@@ -121,6 +121,8 @@
                     los foros.</div>
             </div>
 
+            <div id="turnstile-container" style="margin-bottom: 20px; display: flex; justify-content: center;"></div>
+
             <button class="btn-register" onclick="register()">Registrarse</button>
             <p id="reg-error" style="color: #ff6b6b; margin-top: 15px; display: none;"></p>
 
@@ -150,18 +152,24 @@
 
         async function register() {
             const u = document.getElementById('reg-username').value;
+            const e = document.getElementById('reg-email').value;
             const p = document.getElementById('reg-password').value;
-            const bt = document.getElementById('reg-bt').value;
-            const msg = document.getElementById('reg-msg');
-            const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]').value;
+            const bt = document.getElementById('reg-battletag').value;
+            const w = document.getElementById('reg-website').value;
+            const msg = document.getElementById('reg-error');
 
-            if (!u || !p) {
-                msg.innerText = "Usuario y contraseña requeridos";
+            const turnstileInput = document.querySelector('[name="cf-turnstile-response"]');
+            const turnstileResponse = turnstileInput ? turnstileInput.value : null;
+
+            if (!u || !p || !e) {
+                msg.innerText = "Usuario, email y contraseña requeridos";
                 msg.style.display = 'block';
                 return;
             }
 
-            if (!turnstileResponse) {
+            // If Turnstile is rendered, require it
+            const turnstileContainer = document.getElementById('turnstile-container');
+            if (turnstileContainer.innerHTML !== "" && !turnstileResponse) {
                 msg.innerText = "Por favor, completa la verificación de seguridad.";
                 msg.style.display = 'block';
                 return;
@@ -173,8 +181,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: u,
+                        email: e,
                         password: p,
                         battleTag: bt,
+                        website: w,
                         'cf-turnstile-response': turnstileResponse
                     })
                 });
