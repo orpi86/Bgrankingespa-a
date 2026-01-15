@@ -1,3 +1,5 @@
+console.log(" Admin JS Loaded");
+
 async function checkAuth() {
     const res = await fetch('/api/me');
     const data = await res.json();
@@ -34,7 +36,7 @@ function showPanel(user) {
         roleDisplay.style = "color:#aaa; margin-top:-20px; margin-bottom:20px; font-family:'Cinzel';";
         title.after(roleDisplay);
     }
-    roleDisplay.innerHTML = `Rango: <span style="color:var(--hs-gold)">${user.role.toUpperCase()}</span> ${user.battleTag ? ' • ' + user.battleTag : ''}`;
+    roleDisplay.innerHTML = `Rango: <span style="color:var(--hs-gold)">${user.role.toUpperCase()}</span> ${user.battleTag ? '  ' + user.battleTag : ''}`;
 
     // Fill profile tab
     const pUser = document.getElementById('profile-username');
@@ -70,21 +72,27 @@ function showPanel(user) {
 }
 
 async function login() {
-    const u = document.getElementById('username').value;
-    const p = document.getElementById('password').value;
+    var u = document.getElementById('username').value;
+    var p = document.getElementById('password').value;
+    var err = document.getElementById('login-error');
 
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p })
-    });
+    try {
+        var res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
+        });
 
-    const data = await res.json();
-    if (data.success) {
-        showPanel(data.user);
-    } else {
-        const err = document.getElementById('login-error');
-        err.innerText = data.error;
+        var data = await res.json();
+        if (data.success) {
+            showPanel(data.user);
+        } else {
+            err.innerText = data.error;
+            err.style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Login error:', e);
+        err.innerText = 'Error de conexion con el servidor.';
         err.style.display = 'block';
     }
 }
@@ -110,7 +118,7 @@ async function addPlayer() {
     const data = await res.json();
     if (data.success) {
         msg.style.color = 'green';
-        msg.innerText = `Jugador ${battleTag} añadido correctamente.`;
+        msg.innerText = `Jugador ${battleTag} aadido correctamente.`;
         document.getElementById('player-bt').value = '';
         document.getElementById('player-twitch').value = '';
     } else {
@@ -163,12 +171,12 @@ async function postNews() {
             const text = await res.text();
             console.error("Respuesta no JSON:", text);
             msg.style.color = 'red';
-            msg.innerText = "Error del servidor (no JSON). Código: " + res.status;
+            msg.innerText = "Error del servidor (no JSON). Cdigo: " + res.status;
         }
     } catch (error) {
         console.error("Error postNews:", error);
         msg.style.color = 'red';
-        msg.innerText = "Error de conexión: " + error.message;
+        msg.innerText = "Error de conexin: " + error.message;
     }
 }
 
@@ -185,7 +193,7 @@ function startEditNews(id) {
     document.getElementById('btn-post-news').innerText = "Guardar Cambios";
     document.getElementById('btn-cancel-edit').style.display = 'inline-block';
 
-    // Cargar comentarios para moderación
+    // Cargar comentarios para moderacin
     loadNewsComments(id);
 
     // Scroll to form
@@ -209,7 +217,7 @@ async function loadNewsList() {
             div.innerHTML = `
                 <div class="user-info">
                     <span style="font-weight:bold;">${n.title}</span>
-                    <span class="user-role">${n.date} • por ${n.author}</span>
+                    <span class="user-role">${n.date}  por ${n.author}</span>
                 </div>
                 <div>
                     <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="startEditNews(${n.id})">Editar</button>
@@ -224,7 +232,7 @@ async function loadNewsList() {
 }
 
 async function deleteNews(id) {
-    if (!confirm("¿Seguro que quieres borrar esta noticia?")) return;
+    if (!confirm("Seguro que quieres borrar esta noticia?")) return;
     const res = await fetch(`/api/news/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
@@ -256,7 +264,7 @@ async function deletePlayer() {
     const battleTag = document.getElementById('del-player-bt').value;
     if (!battleTag) return alert("BattleTag requerido");
 
-    if (!confirm(`¿Seguro que quieres eliminar a ${battleTag}? Esto afectará al ranking.`)) return;
+    if (!confirm(`Seguro que quieres eliminar a ${battleTag}? Esto afectar al ranking.`)) return;
 
     const res = await fetch('/api/admin/player', {
         method: 'DELETE',
@@ -316,7 +324,7 @@ async function loadUsers() {
             div.innerHTML = `
                 <div class="user-info">
                     <span style="color: ${u.role === 'admin' ? 'var(--hs-gold)' : '#fff'}">${u.username}</span>
-                    <span class="user-role">${u.role} ${u.battleTag ? '• ' + u.battleTag : ''}</span>
+                    <span class="user-role">${u.role} ${u.battleTag ? ' ' + u.battleTag : ''}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:5px;">
                     ${roleSelect}
@@ -356,13 +364,13 @@ async function changePassword() {
 
     if (newPassword.length < 6) {
         msg.style.color = 'red';
-        msg.innerText = "La nueva contraseña debe tener al menos 6 caracteres.";
+        msg.innerText = "La nueva contrasea debe tener al menos 6 caracteres.";
         return;
     }
 
     if (newPassword !== confirm) {
         msg.style.color = 'red';
-        msg.innerText = "Las nuevas contraseñas no coinciden.";
+        msg.innerText = "Las nuevas contraseas no coinciden.";
         return;
     }
 
@@ -375,17 +383,17 @@ async function changePassword() {
         const data = await res.json();
         if (data.success) {
             msg.style.color = 'green';
-            msg.innerText = "¡Contraseña actualizada con éxito!";
+            msg.innerText = "Contrasea actualizada con xito!";
             document.getElementById('pass-current').value = '';
             document.getElementById('pass-new').value = '';
             document.getElementById('pass-confirm').value = '';
         } else {
             msg.style.color = 'red';
-            msg.innerText = data.error || "Error al cambiar contraseña.";
+            msg.innerText = data.error || "Error al cambiar contrasea.";
         }
     } catch (e) {
         msg.style.color = 'red';
-        msg.innerText = "Error de conexión.";
+        msg.innerText = "Error de conexin.";
     }
 }
 
@@ -423,13 +431,13 @@ async function loadNewsComments(newsId) {
 }
 
 async function deleteNewsComment(newsId, commentId) {
-    if (!confirm("¿Seguro que quieres borrar este comentario?")) return;
+    if (!confirm("Seguro que quieres borrar este comentario?")) return;
     try {
         const res = await fetch(`/api/news/${newsId}/comment/${commentId}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) loadNewsComments(newsId);
         else alert("Error: " + data.error);
-    } catch (e) { alert("Error de conexión"); }
+    } catch (e) { alert("Error de conexin"); }
 }
 
 async function updateBattleTag() {
@@ -438,7 +446,7 @@ async function updateBattleTag() {
 
     if (!battleTag) {
         msg.style.color = 'red';
-        msg.innerText = "Introduce un BattleTag válido.";
+        msg.innerText = "Introduce un BattleTag vlido.";
         return;
     }
 
@@ -451,7 +459,7 @@ async function updateBattleTag() {
         const data = await res.json();
         if (data.success) {
             msg.style.color = 'green';
-            msg.innerText = "¡BattleTag actualizado!";
+            msg.innerText = "BattleTag actualizado!";
             document.getElementById('profile-battletag').innerText = data.battleTag;
             // Opcional: recargar auth para actualizar todo el UI
             checkAuth();
@@ -459,11 +467,14 @@ async function updateBattleTag() {
             msg.style.color = 'red';
             msg.innerText = data.error;
         }
+    } catch (e) {
+        msg.style.color = 'red';
+        msg.innerText = 'Error de conexion';
     }
 }
 
 async function adminResetPassword(userId, username) {
-    const newPassword = prompt(`Introduce la nueva contraseña para ${username}:`, 'cambiame123');
+    const newPassword = prompt(`Introduce la nueva contrasea para ${username}:`, 'cambiame123');
     if (!newPassword) return;
 
     if (newPassword.length < 6) return alert("Debe tener al menos 6 caracteres.");
@@ -476,11 +487,11 @@ async function adminResetPassword(userId, username) {
         });
         const data = await res.json();
         if (data.success) {
-            alert(`¡Contraseña de ${username} actualizada con éxito!`);
+            alert(`Contrasea de ${username} actualizada con xito!`);
         } else {
             alert("Error: " + data.error);
         }
-    } catch (e) { alert("Error de conexión"); }
+    } catch (e) { alert("Error de conexin"); }
 }
 
 document.addEventListener('DOMContentLoaded', checkAuth);
