@@ -659,8 +659,8 @@ app.post('/api/login', async (req, res) => {
 
     req.session.user = {
         username: user.username,
-        role: user.role,
-        id: user._id, // Use MongoDB _id
+        role: user.role || 'user',
+        id: user._id || user.id, // Compatibilidad Mongo vs JSON
         battleTag: user.battleTag || null
     };
     res.json({ success: true, user: req.session.user });
@@ -718,7 +718,7 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     let newUser;
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         newUser = await User.create({
             username,
             email: email.toLowerCase(),
@@ -863,7 +863,7 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
 app.delete('/api/news/:newsId/comment/:commentId', isMod, async (req, res) => {
     const { newsId, commentId } = req.params;
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const news = await News.findById(newsId);
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
         news.comments = news.comments.filter(c => c._id.toString() !== commentId);
@@ -897,7 +897,7 @@ app.post('/api/user/change-password', isAuthenticated, async (req, res) => {
     const userId = req.session.user.id;
 
     let user;
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         user = await User.findById(userId);
     } else {
         const users = loadJson(USERS_PATH);
