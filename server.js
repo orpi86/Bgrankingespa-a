@@ -1270,8 +1270,8 @@ app.listen(PORT, async () => {
         (Date.now() - memoriaCache[CURRENT_SEASON_ID].timestamp < TIEMPO_CACHE_ACTUAL);
 
     if (!cacheValida) {
-        console.log("⚡ Cache actual vacía o expirada. Escaneando Season Actual...");
-        await realizarEscaneoInterno(CURRENT_SEASON_ID);
+        console.log("⚡ Cache actual vacía o expirada. Escaneando Season Actual en background...");
+        realizarEscaneoInterno(CURRENT_SEASON_ID).catch(e => console.error("❌ Error en escaneo inicial:", e.message));
     } else {
         console.log("✅ Cache actual válida. Usando datos existentes.");
     }
@@ -1317,8 +1317,8 @@ app.listen(PORT, async () => {
 
     // Detectar nueva temporada cada hora
     setInterval(detectarNuevaTemporada, 60 * 60 * 1000);
-    // Y al iniciar
-    await detectarNuevaTemporada();
+    // Y al iniciar (en background)
+    detectarNuevaTemporada().catch(e => console.error("❌ Error detectando temporada inicial:", e.message));
 
     setTimeout(async function escaneoProgamado() {
         console.log("🌅 Ejecutando escaneo diario programado (SOLO TEMPORADA ACTUAL)...");
