@@ -1381,7 +1381,10 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
             const batchPromises = [];
             for (let j = i; j < i + CONCURRENT_REQUESTS && j <= maxPages; j++) {
                 batchPromises.push(
-                    axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonId}`, { timeout: 15000 })
+                    axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonId}`, {
+                        timeout: 15000,
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+                    })
                         .then(r => r.data)
                         .catch((err) => {
                             console.error(`❌ Error Interno en pag ${j} S${seasonId}: ${err.message}`);
@@ -1532,7 +1535,10 @@ async function detectarNuevaTemporada() {
         // Consultar la página 1 de la temporada actual + 1 para ver si ya hay datos
         const nextSeasonId = CURRENT_SEASON_ID + 1;
         const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=1&seasonId=${nextSeasonId}`;
-        const response = await axios.get(url, { timeout: 10000 });
+        const response = await axios.get(url, {
+            timeout: 10000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+        });
 
         if (response.data && response.data.leaderboard && response.data.leaderboard.rows && response.data.leaderboard.rows.length > 0) {
             console.log(`✨ ¡NUEVA TEMPORADA DETECTADA!: Season ${nextSeasonId}`);
