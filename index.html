@@ -34,38 +34,77 @@
             max-width: 950px;
             margin: 0 auto;
             padding: 20px;
+            color: #eee;
+            position: relative;
+            z-index: 10;
+        }
+
+        .news-header {
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            color: var(--hs-gold);
+            margin-bottom: 40px;
+            font-size: 3rem;
         }
 
         .news-card {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--hs-gold);
+            background: rgba(27, 22, 38, 0.7);
+            border: 1px solid var(--glass-border);
             border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .news-card:hover {
+            border-color: var(--hs-gold);
+            background: rgba(43, 29, 48, 0.5);
+            transform: scale(1.005);
         }
 
         .news-title {
             font-family: 'Cinzel', serif;
             color: var(--hs-gold);
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            cursor: pointer;
         }
 
         .news-meta {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            font-style: italic;
+            color: #777;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
         }
 
         .news-content {
             color: #ddd;
             line-height: 1.6;
-            font-size: 1.1rem;
+            font-size: 1rem;
             white-space: pre-wrap;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .news-preview {
+            color: #aaa;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .news-expand-btn {
+            background: none;
+            border: none;
+            color: var(--hs-gold);
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .news-expand-btn:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -78,8 +117,13 @@
             <nav id="main-nav" class="main-nav"></nav>
         </header>
 
-        <div class="news-container" id="news-feed">
-            <div style="text-align:center; padding:50px;">Cargando últimas noticias...</div>
+        <div class="news-container">
+            <h1 class="news-header">
+                <i class="fa-solid fa-newspaper"></i> Últimas Noticias
+            </h1>
+            <div id="news-feed">
+                <div style="text-align:center; padding:50px;">Cargando últimas noticias...</div>
+            </div>
         </div>
 
     </main>

@@ -92,13 +92,16 @@ async function postComment(newsId) {
 // Add styles
 const nStyle = document.createElement('style');
 nStyle.innerHTML = `
-    .comments-section { margin-top: 25px; border-top: 1px solid #444; padding-top: 15px; }
-    .comments-section h4 { color: #aaa; margin-bottom: 15px; font-size: 1rem; }
-    .comment { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+    .comments-section { margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
+    .comments-section h4 { color: #aaa; margin-bottom: 15px; font-size: 0.95rem; }
+    .comment { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #333; }
+    .comment:hover { border-color: var(--hs-gold); background: rgba(255,255,255,0.02); }
     .comment-author { color: var(--hs-gold); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
-    .comment-text { color: #ddd; font-size: 0.95rem; }
+    .comment-text { color: #ccc; font-size: 0.9rem; }
     .comment-input-area { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .comment-input-area textarea { background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 4px; resize: vertical; }
-    .comment-input-area button { align-self: flex-end; background: var(--hs-gold); border: none; padding: 8px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+    .comment-input-area textarea { background: #1a1520; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 6px; resize: vertical; font-family: inherit; }
+    .comment-input-area textarea:focus { border-color: var(--hs-gold); outline: none; }
+    .comment-input-area button { align-self: flex-end; background: var(--hs-gold); color: #000; border: none; padding: 10px 25px; font-weight: bold; cursor: pointer; border-radius: 6px; font-family: 'Cinzel'; }
+    .comment-input-area button:hover { transform: scale(1.02); }
 `;
 document.head.appendChild(nStyle);
