@@ -532,13 +532,18 @@ h1 {
 .table-container {
     width: 100%;
     max-width: 950px;
-    background: rgba(27, 22, 38, 0.9);
-    border: 3px solid var(--hs-gold-dim);
-    border-radius: 15px;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(252, 230, 68, 0.05);
+    background: rgba(27, 22, 38, 0.7);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
     overflow: hidden;
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(10px);
     position: relative;
+    transition: all 0.3s;
+}
+
+.table-container:hover {
+    border-color: var(--hs-gold);
 }
 
 .table-container::before {

@@ -47,9 +47,11 @@ function renderCategories() {
         cat.sections.forEach(sec => {
             const secItem = document.createElement('div');
             secItem.className = 'section-item';
+            secItem.style.cursor = 'pointer';
+            secItem.onclick = () => openSection(sec.id);
             secItem.innerHTML = `
                 <div class="section-info">
-                    <a href="#" class="section-title" onclick="openSection('${sec.id}')">${sec.title}</a>
+                    <span class="section-title">${sec.title}</span>
                     <div class="section-desc">${sec.description}</div>
                 </div>
                 <div class="section-stats">${sec.topics.length} temas</div>
@@ -89,11 +91,13 @@ function openSection(id) {
     section.topics.forEach(t => {
         const item = document.createElement('div');
         item.className = 'topic-item';
+        item.style.cursor = 'pointer';
+        item.onclick = () => openTopic(t.id, t.title);
         const date = new Date(t.date).toLocaleDateString();
         item.innerHTML = `
             <div>
-                <a href="#" class="topic-title" onclick="openTopic(${t.id}, '${t.title.replace(/'/g, "\\'")}')">${t.title}</a>
-                <div class="topic-meta">Por ${t.author} • ${date}</div>
+                <span class="topic-title">${t.title}</span>
+                <div class="topic-meta">Por ${t.author} - ${date}</div>
             </div>
             <div style="color:#666;">${t.posts.length} respuestas</div>
         `;

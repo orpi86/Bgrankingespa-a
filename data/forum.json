@@ -1,32 +1,5 @@
 [
     {
-        "id": "cat_rules",
-        "title": "Normas",
-        "sections": [
-            {
-                "id": "sec_rules",
-                "title": "Reglas del Foro",
-                "description": "Normas de respeto y convivencia.",
-                "topics": [
-                    {
-                        "id": 1,
-                        "title": "Normas de Respeto Básicas",
-                        "author": "admin",
-                        "date": "2024-01-12T00:00:00.000Z",
-                        "posts": [
-                            {
-                                "id": 1,
-                                "author": "admin",
-                                "content": "1. Sed respetuosos con los demás jugadores.\n2. No se permite el spam ni contenido ofensivo.\n3. Postea en la sección correspondiente.",
-                                "date": "2024-01-12T00:00:00.000Z"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    },
-    {
         "id": "cat_bg",
         "title": "Campos de Batalla",
         "sections": [
