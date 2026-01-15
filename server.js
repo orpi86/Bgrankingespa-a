@@ -181,7 +181,7 @@ const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 let playersCache = { mtime: 0, data: [] };
 
 const loadPlayers = async () => {
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         try {
             const players = await Player.find();
             return players.map(p => ({ battleTag: p.battleTag, twitch: p.twitch }));
@@ -222,7 +222,7 @@ const loadPlayers = async () => {
 async function ensurePlayerInRanking(battleTag) {
     if (!battleTag) return;
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         try {
             const exists = await Player.findOne({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
             if (!exists) {
@@ -644,7 +644,7 @@ app.get('/api/populate-history', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     let user;
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
     } else {
         const users = loadJson(USERS_PATH);
@@ -697,7 +697,7 @@ app.post('/api/register', async (req, res) => {
         return res.status(400).json({ error: 'Formato BattleTag inválido (Ej: Nombre#1234)' });
     }
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const existing = await User.findOne({
             $or: [
                 { username: { $regex: new RegExp(`^${username}$`, 'i') } },
@@ -763,7 +763,7 @@ app.post('/api/register', async (req, res) => {
 // --- NEWS API ---
 
 app.get('/api/news', async (req, res) => {
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const news = await News.find().sort({ date: -1 });
         res.json(news);
     } else {
@@ -774,7 +774,7 @@ app.get('/api/news', async (req, res) => {
 
 app.post('/api/news', isEditor, async (req, res) => {
     const { title, content } = req.body;
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const newEntry = await News.create({
             title,
             content,
@@ -801,7 +801,7 @@ app.put('/api/news/:id', isEditor, async (req, res) => {
     const newsId = req.params.id;
     const { title, content } = req.body;
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const news = await News.findById(newsId);
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
         news.title = title || news.title;
@@ -829,7 +829,7 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: 'Comentario vacío' });
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const news = await News.findById(newsId);
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
 
@@ -952,7 +952,7 @@ app.post('/api/user/update-battletag', isAuthenticated, async (req, res) => {
 
 app.delete('/api/news/:id', isEditor, async (req, res) => {
     const newsId = req.params.id;
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         await News.findByIdAndDelete(newsId);
         res.json({ success: true });
     } else {
@@ -967,7 +967,7 @@ app.delete('/api/news/:id', isEditor, async (req, res) => {
 // --- FORUM API ---
 
 app.get('/api/forum', async (req, res) => {
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const forum = await Forum.find();
         res.json(forum);
     } else {
@@ -980,7 +980,7 @@ app.post('/api/forum', isAuthenticated, async (req, res) => {
     const { title, content, sectionId } = req.body;
     if (!sectionId) return res.status(400).json({ error: 'sectionId es requerido' });
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const forumCat = await Forum.findOne({ "sections.id": sectionId });
         if (!forumCat) return res.status(404).json({ error: 'Sección no encontrada' });
 
@@ -1032,7 +1032,7 @@ app.post('/api/forum/topic/:topicId/post', isAuthenticated, async (req, res) => 
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: 'Mensaje vacío' });
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const forumCat = await Forum.findOne({ "sections.topics._id": topicId });
         if (!forumCat) return res.status(404).json({ error: 'Tema no encontrado' });
 
@@ -1081,7 +1081,7 @@ app.post('/api/forum/topic/:topicId/post', isAuthenticated, async (req, res) => 
 app.delete('/api/forum/:id', isMod, async (req, res) => {
     const topicId = req.params.id;
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const forumCat = await Forum.findOne({ "sections.topics._id": topicId });
         if (!forumCat) return res.status(404).json({ error: 'Tema no encontrado' });
 
@@ -1126,7 +1126,7 @@ app.post('/api/admin/add-player', isAdmin, async (req, res) => {
     const { battleTag, twitch } = req.body;
     if (!battleTag) return res.status(400).json({ error: 'BattleTag es obligatorio' });
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const exists = await Player.findOne({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
         if (exists) return res.status(400).json({ error: 'El jugador ya existe' });
         const newPlayer = await Player.create({ battleTag, twitch: twitch || null });
@@ -1245,7 +1245,7 @@ app.delete('/api/admin/player', isAdmin, async (req, res) => {
     const { battleTag } = req.body;
     if (!battleTag) return res.status(400).json({ error: 'BattleTag requerido' });
 
-    if (MONGODB_URI) {
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
         try {
             const result = await Player.findOneAndDelete({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
             if (!result) return res.status(404).json({ error: 'Jugador no encontrado' });
@@ -1305,7 +1305,7 @@ app.listen(PORT, async () => {
             if (watchTimeout) clearTimeout(watchTimeout);
             watchTimeout = setTimeout(async () => {
                 console.log("♻️ Detectado cambio en jugadores.json. Sincronizando datos...");
-                loadPlayers(); // Recargar lista ram
+                await loadPlayers(); // Recargar lista ram
 
                 // 1. Integridad de historial (Targeted scan para nuevos)
                 await verificarIntegridadTemporadas();
