@@ -45,12 +45,27 @@ app.use(express.static(__dirname));
 // --- CONEXIÓN MONGODB ---
 const MONGODB_URI = process.env.MONGODB_URI;
 if (MONGODB_URI) {
-    mongoose.connect(MONGODB_URI)
+    mongoose.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000, // No esperar más de 5s si falla
+        socketTimeoutMS: 45000,
+    })
         .then(() => console.log("🚀 Conectado a MongoDB Atlas"))
-        .catch(err => console.error("❌ Error conectando a MongoDB:", err));
+        .catch(err => {
+            console.error("❌ Error conectando a MongoDB:", err.message);
+            console.log("⚠️ Fallback: Usando archivos JSON locales por error de conexión.");
+        });
 } else {
     console.warn("⚠️ MONGODB_URI no detectada. Usando JSON (Modo temporal)");
 }
+
+// Global Error Handling to prevent crashes from bringing down the service without logs
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
 
 // --- CONFIGURACIÓN & ESTADO ---
 const CONFIG_PATH = path.join(__dirname, 'seasons.json');
