@@ -11,7 +11,7 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 const crypto = require('crypto');
 const mongoose = require('mongoose');
-const { User, News, Forum } = require('./models');
+const { User, News, Forum, Player } = require('./models');
 
 const app = express();
 app.set('trust proxy', 1); // Confiar en el proxy de Render para express-rate-limit
@@ -358,7 +358,7 @@ app.get('/api/twitch-hydrate', async (req, res) => {
         return res.json(twitchHydrationCache.data);
     }
 
-    const playersList = loadPlayers();
+    const playersList = await loadPlayers();
     const dataWithTwitch = await actualizarTwitchLive(playersList);
     const hydration = dataWithTwitch.map(p => ({
         battleTag: p.battleTag,
@@ -1250,7 +1250,7 @@ app.delete('/api/admin/player', isAdmin, async (req, res) => {
         if (players.length < initLen) {
             try {
                 fs.writeFileSync(PLAYERS_PATH, JSON.stringify(players, null, 2));
-                loadPlayers(); // Refrescar cache local
+                await loadPlayers(); // Refrescar cache local
                 res.json({ success: true });
             } catch (e) {
                 res.status(500).json({ error: 'Error guardando cambios' });
@@ -1339,7 +1339,7 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
 
     console.log(`${logPrefix} Iniciando. Profundidad: ${maxPages} páginas. Targets: ${isTargeted ? targetPlayers.join(', ') : 'TODOS'}`);
 
-    const allPlayers = loadPlayers();
+    const allPlayers = await loadPlayers();
     let playersToScan = [];
 
     if (isTargeted) {
@@ -1487,7 +1487,7 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
 
 async function verificarIntegridadTemporadas() {
     console.log("🔍 Verificando integridad de temporadas pasadas...");
-    const currentPlayersList = loadPlayers();
+    const currentPlayersList = await loadPlayers();
     const allBattleTags = currentPlayersList.map(p => p.battleTag);
 
     for (const season of CONFIG.seasons) {
