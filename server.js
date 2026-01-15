@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const crypto = require('crypto');
+const mongoose = require('mongoose');
+const { User, News, Forum } = require('./models');
 
 const app = express();
 app.set('trust proxy', 1); // Confiar en el proxy de Render para express-rate-limit
@@ -39,6 +41,16 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 
 app.use(express.static(__dirname));
+
+// --- CONEXIÓN MONGODB ---
+const MONGODB_URI = process.env.MONGODB_URI;
+if (MONGODB_URI) {
+    mongoose.connect(MONGODB_URI)
+        .then(() => console.log("🚀 Conectado a MongoDB Atlas"))
+        .catch(err => console.error("❌ Error conectando a MongoDB:", err));
+} else {
+    console.warn("⚠️ MONGODB_URI no detectada. Usando JSON (Modo temporal)");
+}
 
 // --- CONFIGURACIÓN & ESTADO ---
 const CONFIG_PATH = path.join(__dirname, 'seasons.json');
@@ -153,17 +165,27 @@ const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 // --- FUNCIONES ---
 let playersCache = { mtime: 0, data: [] };
 
-const loadPlayers = () => {
+const loadPlayers = async () => {
+    if (MONGODB_URI) {
+        try {
+            const players = await Player.find();
+            return players.map(p => ({ battleTag: p.battleTag, twitch: p.twitch }));
+        } catch (e) {
+            console.error("❌ Error leyendo jugadores de MongoDB:", e.message);
+        }
+    }
+
+    // Fallback to JSON
     try {
         const filePath = path.join(__dirname, 'jugadores.json');
-        const stats = fs.statSync(filePath);
+        if (!fs.existsSync(filePath)) return [];
 
+        const stats = fs.statSync(filePath);
         if (playersCache.mtime === stats.mtimeMs) {
             return playersCache.data;
         }
 
         const players = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        // Deduplicar por battleTag
         const unique = [];
         const seen = new Set();
         players.forEach(p => {
@@ -181,6 +203,39 @@ const loadPlayers = () => {
         return playersCache.data || [];
     }
 };
+
+async function ensurePlayerInRanking(battleTag) {
+    if (!battleTag) return;
+
+    if (MONGODB_URI) {
+        try {
+            const exists = await Player.findOne({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
+            if (!exists) {
+                await Player.create({ battleTag, twitch: null });
+                console.log(`✅ Jugador auto-añadido a MongoDB: ${battleTag}`);
+            }
+            return;
+        } catch (e) {
+            console.error("Error en ensurePlayerInRanking (Mongo):", e.message);
+        }
+    }
+
+    // Fallback to JSON
+    try {
+        let players = [];
+        if (fs.existsSync(PLAYERS_PATH)) {
+            players = JSON.parse(fs.readFileSync(PLAYERS_PATH, 'utf8'));
+        }
+        const exists = players.some(p => p.battleTag.toLowerCase() === battleTag.toLowerCase());
+        if (!exists) {
+            players.push({ battleTag, twitch: null });
+            fs.writeFileSync(PLAYERS_PATH, JSON.stringify(players, null, 2));
+            console.log(`✅ Jugador auto-añadido al ranking JSON: ${battleTag}`);
+        }
+    } catch (e) {
+        console.error("Error en ensurePlayerInRanking (JSON):", e.message);
+    }
+}
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -331,7 +386,7 @@ app.get('/api/ranking', async (req, res) => {
 
     // 0. GESTIÓN DE TEMPORADAS PASADAS
     if (!isCurrentSeason && historicalData.seasons[seasonToScan]) {
-        const currentPlayersList = loadPlayers();
+        const currentPlayersList = await loadPlayers();
         const historyPlayers = historicalData.seasons[seasonToScan];
 
         // Revisar si faltan jugadores nuevos añadidos recientemente a la lista
@@ -573,8 +628,13 @@ app.get('/api/populate-history', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    const users = loadJson(USERS_PATH);
-    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    let user;
+    if (MONGODB_URI) {
+        user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+    } else {
+        const users = loadJson(USERS_PATH);
+        user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    }
 
     if (!user) return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     if (user.banned) return res.status(403).json({ error: 'Usuario baneado' });
@@ -585,8 +645,8 @@ app.post('/api/login', async (req, res) => {
     req.session.user = {
         username: user.username,
         role: user.role,
-        id: user.id,
-        battleTag: user.battleTag || user.battletag || null
+        id: user._id, // Use MongoDB _id
+        battleTag: user.battleTag || null
     };
     res.json({ success: true, user: req.session.user });
 });
@@ -622,116 +682,196 @@ app.post('/api/register', async (req, res) => {
         return res.status(400).json({ error: 'Formato BattleTag inválido (Ej: Nombre#1234)' });
     }
 
-    const users = loadJson(USERS_PATH);
-    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-        return res.status(400).json({ error: 'El usuario ya existe' });
-    }
-    if (users.some(u => u.email && u.email.toLowerCase() === email.toLowerCase())) {
-        return res.status(400).json({ error: 'El email ya está registrado' });
+    if (MONGODB_URI) {
+        const existing = await User.findOne({
+            $or: [
+                { username: { $regex: new RegExp(`^${username}$`, 'i') } },
+                { email: email.toLowerCase() }
+            ]
+        });
+        if (existing) return res.status(400).json({ error: 'El usuario o email ya existe' });
+    } else {
+        const users = loadJson(USERS_PATH);
+        if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+            return res.status(400).json({ error: 'El usuario ya existe' });
+        }
+        if (users.some(u => u.email && u.email.toLowerCase() === email.toLowerCase())) {
+            return res.status(400).json({ error: 'El email ya está registrado' });
+        }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = {
-        id: Date.now(),
-        username,
-        email,
-        password: hashedPassword,
-        role: 'user',
-        battleTag: battleTag || null,
-        banned: false,
-        isVerified: true, // No real verification link needed for now
-        createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    saveJson(USERS_PATH, users);
+    let newUser;
+    if (MONGODB_URI) {
+        newUser = await User.create({
+            username,
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            role: 'user',
+            battleTag: battleTag || null,
+            isVerified: true
+        });
+    } else {
+        const users = loadJson(USERS_PATH);
+        newUser = {
+            id: Date.now(),
+            username,
+            email,
+            password: hashedPassword,
+            role: 'user',
+            battleTag: battleTag || null,
+            banned: false,
+            isVerified: true,
+            createdAt: new Date().toISOString()
+        };
+        users.push(newUser);
+        saveJson(USERS_PATH, users);
+    }
 
     // Auto-login
-    req.session.user = { username: newUser.username, role: newUser.role, id: newUser.id, battleTag: newUser.battleTag };
+    req.session.user = {
+        username: newUser.username,
+        role: newUser.role,
+        id: newUser._id || newUser.id,
+        battleTag: newUser.battleTag
+    };
+
+    // Auto-add to ranking if BattleTag provided
+    if (newUser.battleTag) {
+        ensurePlayerInRanking(newUser.battleTag);
+    }
+
     res.json({ success: true, user: req.session.user });
 });
 
 // --- NEWS API ---
 
-app.get('/api/news', (req, res) => {
-    const news = loadJson(NEWS_PATH);
-    res.json(news.sort((a, b) => new Date(b.date) - new Date(a.date)));
+app.get('/api/news', async (req, res) => {
+    if (MONGODB_URI) {
+        const news = await News.find().sort({ date: -1 });
+        res.json(news);
+    } else {
+        const news = loadJson(NEWS_PATH);
+        res.json(news.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    }
 });
 
-app.post('/api/news', isEditor, (req, res) => {
+app.post('/api/news', isEditor, async (req, res) => {
     const { title, content } = req.body;
-    const news = loadJson(NEWS_PATH);
-    const newEntry = {
-        id: Date.now(),
-        title,
-        content,
-        date: new Date().toISOString().split('T')[0],
-        author: req.session.user.username
-    };
-    news.unshift(newEntry);
-    saveJson(NEWS_PATH, news);
-    res.json({ success: true, news: newEntry });
+    if (MONGODB_URI) {
+        const newEntry = await News.create({
+            title,
+            content,
+            author: req.session.user.username,
+            date: new Date()
+        });
+        res.json({ success: true, news: newEntry });
+    } else {
+        const news = loadJson(NEWS_PATH);
+        const newEntry = {
+            id: Date.now(),
+            title,
+            content,
+            date: new Date().toISOString().split('T')[0],
+            author: req.session.user.username
+        };
+        news.unshift(newEntry);
+        saveJson(NEWS_PATH, news);
+        res.json({ success: true, news: newEntry });
+    }
 });
 
-app.put('/api/news/:id', isEditor, (req, res) => {
-    const id = parseInt(req.params.id);
+app.put('/api/news/:id', isEditor, async (req, res) => {
+    const newsId = req.params.id;
     const { title, content } = req.body;
-    const news = loadJson(NEWS_PATH);
-    const index = news.findIndex(n => n.id === id);
 
-    if (index === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
+    if (MONGODB_URI) {
+        const news = await News.findById(newsId);
+        if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
+        news.title = title || news.title;
+        news.content = content || news.content;
+        news.lastEdit = new Date();
+        await news.save();
+        res.json({ success: true, news });
+    } else {
+        const id = parseInt(newsId);
+        const newsList = loadJson(NEWS_PATH);
+        const index = newsList.findIndex(n => n.id === id);
+        if (index === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
 
-    news[index].title = title || news[index].title;
-    news[index].content = content || news[index].content;
-    news[index].lastEdit = new Date().toISOString();
+        newsList[index].title = title || newsList[index].title;
+        newsList[index].content = content || newsList[index].content;
+        newsList[index].lastEdit = new Date().toISOString();
 
-    saveJson(NEWS_PATH, news);
-    res.json({ success: true, news: news[index] });
+        saveJson(NEWS_PATH, newsList);
+        res.json({ success: true, news: newsList[index] });
+    }
 });
 
-app.post('/api/news/:id/comment', isAuthenticated, (req, res) => {
-    const newsId = parseInt(req.params.id);
+app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
+    const newsId = req.params.id; // Puede ser String (Mongo) o Number (JSON)
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: 'Comentario vacío' });
 
-    const newsList = loadJson(NEWS_PATH);
-    const itemIndex = newsList.findIndex(n => n.id === newsId);
+    if (MONGODB_URI) {
+        const news = await News.findById(newsId);
+        if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
 
-    if (itemIndex === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
+        const newComment = {
+            author: req.session.user.username,
+            content,
+            date: new Date()
+        };
+        news.comments.push(newComment);
+        await news.save();
+        res.json({ success: true, comment: newComment });
+    } else {
+        const nid = parseInt(newsId);
+        const newsList = loadJson(NEWS_PATH);
+        const itemIndex = newsList.findIndex(n => n.id === nid);
+        if (itemIndex === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
 
-    if (!newsList[itemIndex].comments) newsList[itemIndex].comments = [];
-
-    const newComment = {
-        id: Date.now(),
-        author: req.session.user.username,
-        content,
-        date: new Date().toISOString()
-    };
-
-    newsList[itemIndex].comments.push(newComment);
-    saveJson(NEWS_PATH, newsList);
-    res.json({ success: true, comment: newComment });
+        if (!newsList[itemIndex].comments) newsList[itemIndex].comments = [];
+        const newComment = {
+            id: Date.now(),
+            author: req.session.user.username,
+            content,
+            date: new Date().toISOString()
+        };
+        newsList[itemIndex].comments.push(newComment);
+        saveJson(NEWS_PATH, newsList);
+        res.json({ success: true, comment: newComment });
+    }
 });
 
-app.delete('/api/news/:newsId/comment/:commentId', isMod, (req, res) => {
-    const newsId = parseInt(req.params.newsId);
-    const commentId = parseInt(req.params.commentId);
-    const newsList = loadJson(NEWS_PATH);
-    const newsIndex = newsList.findIndex(n => n.id === newsId);
+app.delete('/api/news/:newsId/comment/:commentId', isMod, async (req, res) => {
+    const { newsId, commentId } = req.params;
 
-    if (newsIndex === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
-
-    const initialLen = newsList[newsIndex].comments ? newsList[newsIndex].comments.length : 0;
-    if (newsList[newsIndex].comments) {
-        newsList[newsIndex].comments = newsList[newsIndex].comments.filter(c => c.id !== commentId);
-    }
-
-    if (newsList[newsIndex].comments && newsList[newsIndex].comments.length < initialLen) {
-        saveJson(NEWS_PATH, newsList);
+    if (MONGODB_URI) {
+        const news = await News.findById(newsId);
+        if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
+        news.comments = news.comments.filter(c => c._id.toString() !== commentId);
+        await news.save();
         res.json({ success: true });
     } else {
-        res.status(404).json({ error: 'Comentario no encontrado' });
+        const nid = parseInt(newsId);
+        const cid = parseInt(commentId);
+        const newsList = loadJson(NEWS_PATH);
+        const newsIndex = newsList.findIndex(n => n.id === nid);
+        if (newsIndex === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
+
+        const initialLen = newsList[newsIndex].comments ? newsList[newsIndex].comments.length : 0;
+        if (newsList[newsIndex].comments) {
+            newsList[newsIndex].comments = newsList[newsIndex].comments.filter(c => c.id !== cid);
+        }
+
+        if (newsList[newsIndex].comments && newsList[newsIndex].comments.length < initialLen) {
+            saveJson(NEWS_PATH, newsList);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Comentario no encontrado' });
+        }
     }
 });
 
@@ -740,8 +880,14 @@ app.delete('/api/news/:newsId/comment/:commentId', isMod, (req, res) => {
 app.post('/api/user/change-password', isAuthenticated, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const userId = req.session.user.id;
-    const users = loadJson(USERS_PATH);
-    const user = users.find(u => u.id === userId);
+
+    let user;
+    if (MONGODB_URI) {
+        user = await User.findById(userId);
+    } else {
+        const users = loadJson(USERS_PATH);
+        user = users.find(u => u.id === userId);
+    }
 
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
@@ -751,7 +897,14 @@ app.post('/api/user/change-password', isAuthenticated, async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
 
-    saveJson(USERS_PATH, users);
+    if (MONGODB_URI) {
+        await user.save();
+    } else {
+        const users = loadJson(USERS_PATH);
+        const idx = users.findIndex(u => u.id === userId);
+        users[idx].password = hashedPassword;
+        saveJson(USERS_PATH, users);
+    }
     res.json({ success: true, message: 'Contraseña actualizada correctamente' });
 });
 
@@ -760,220 +913,351 @@ app.post('/api/user/update-battletag', isAuthenticated, async (req, res) => {
     if (!battleTag) return res.status(400).json({ error: 'BattleTag es obligatorio' });
 
     const userId = req.session.user.id;
-    const users = loadJson(USERS_PATH);
-    const user = users.find(u => u.id === userId);
 
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (MONGODB_URI) {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+        user.battleTag = battleTag;
+        await user.save();
+    } else {
+        const users = loadJson(USERS_PATH);
+        const user = users.find(u => u.id === userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+        user.battleTag = battleTag;
+        saveJson(USERS_PATH, users);
+    }
 
-    user.battleTag = battleTag;
-    req.session.user.battleTag = battleTag; // Update session too
+    req.session.user.battleTag = battleTag; // Update session
 
-    saveJson(USERS_PATH, users);
+    // Auto-add to ranking
+    ensurePlayerInRanking(battleTag);
+
     res.json({ success: true, message: 'BattleTag actualizado correctamente', battleTag });
 });
 
-app.delete('/api/news/:id', isEditor, (req, res) => {
-    const id = parseInt(req.params.id);
-    let news = loadJson(NEWS_PATH);
-    news = news.filter(n => n.id !== id);
-    saveJson(NEWS_PATH, news);
-    res.json({ success: true });
+app.delete('/api/news/:id', isEditor, async (req, res) => {
+    const newsId = req.params.id;
+    if (MONGODB_URI) {
+        await News.findByIdAndDelete(newsId);
+        res.json({ success: true });
+    } else {
+        const id = parseInt(newsId);
+        let news = loadJson(NEWS_PATH);
+        news = news.filter(n => n.id !== id);
+        saveJson(NEWS_PATH, news);
+        res.json({ success: true });
+    }
 });
 
 // --- FORUM API ---
 
-app.get('/api/forum', (req, res) => {
-    const forum = loadJson(FORUM_PATH);
-    res.json(forum);
+app.get('/api/forum', async (req, res) => {
+    if (MONGODB_URI) {
+        const forum = await Forum.find();
+        res.json(forum);
+    } else {
+        const forum = loadJson(FORUM_PATH);
+        res.json(forum);
+    }
 });
 
-app.post('/api/forum', isAuthenticated, (req, res) => {
+app.post('/api/forum', isAuthenticated, async (req, res) => {
     const { title, content, sectionId } = req.body;
     if (!sectionId) return res.status(400).json({ error: 'sectionId es requerido' });
 
-    const forum = loadJson(FORUM_PATH);
-    let section = null;
+    if (MONGODB_URI) {
+        const forumCat = await Forum.findOne({ "sections.id": sectionId });
+        if (!forumCat) return res.status(404).json({ error: 'Sección no encontrada' });
 
-    // Find section in hierarchy
-    for (let cat of forum) {
-        section = cat.sections.find(s => s.id === sectionId);
-        if (section) break;
-    }
+        const section = forumCat.sections.id(sectionId) || forumCat.sections.find(s => s.id === sectionId);
+        const newTopic = {
+            title,
+            author: req.session.user.username,
+            date: new Date(),
+            posts: [{
+                author: req.session.user.username,
+                content,
+                date: new Date()
+            }]
+        };
+        section.topics.push(newTopic);
+        await forumCat.save();
+        res.json({ success: true, topic: newTopic });
+    } else {
+        const forum = loadJson(FORUM_PATH);
+        let section = null;
+        for (let cat of forum) {
+            section = cat.sections.find(s => s.id === sectionId);
+            if (section) break;
+        }
+        if (!section) return res.status(404).json({ error: 'Sección no encontrada' });
 
-    if (!section) return res.status(404).json({ error: 'Sección no encontrada' });
-
-    const newTopic = {
-        id: Date.now(),
-        title,
-        author: req.session.user.username,
-        date: new Date().toISOString(),
-        posts: [
-            {
+        const newTopic = {
+            id: Date.now(),
+            title,
+            author: req.session.user.username,
+            date: new Date().toISOString(),
+            posts: [{
                 id: Date.now() + 1,
                 author: req.session.user.username,
                 content,
                 date: new Date().toISOString()
-            }
-        ],
-        lastActivity: new Date().toISOString()
-    };
+            }]
+        };
 
-    section.topics.unshift(newTopic);
-    saveJson(FORUM_PATH, forum);
-    res.json({ success: true, topic: newTopic });
+        if (!section.topics) section.topics = [];
+        section.topics.push(newTopic);
+        saveJson(FORUM_PATH, forum);
+        res.json({ success: true, topic: newTopic });
+    }
 });
 
-app.post('/api/forum/:id/reply', isAuthenticated, (req, res) => {
-    const topicId = parseInt(req.params.id);
+app.post('/api/forum/topic/:topicId/post', isAuthenticated, async (req, res) => {
+    const { topicId } = req.params;
     const { content } = req.body;
-    const forum = loadJson(FORUM_PATH);
+    if (!content) return res.status(400).json({ error: 'Mensaje vacío' });
 
-    let topic = null;
-    let foundSection = null;
+    if (MONGODB_URI) {
+        const forumCat = await Forum.findOne({ "sections.topics._id": topicId });
+        if (!forumCat) return res.status(404).json({ error: 'Tema no encontrado' });
 
-    for (let cat of forum) {
-        for (let sec of cat.sections) {
-            topic = sec.topics.find(t => t.id === topicId);
-            if (topic) {
-                foundSection = sec;
-                break;
-            }
+        let foundTopic = null;
+        for (const sec of forumCat.sections) {
+            foundTopic = sec.topics.id(topicId);
+            if (foundTopic) break;
         }
-        if (topic) break;
-    }
 
-    if (topic) {
+        const newPost = {
+            author: req.session.user.username,
+            content,
+            date: new Date()
+        };
+        foundTopic.posts.push(newPost);
+        await forumCat.save();
+        res.json({ success: true, post: newPost });
+    } else {
+        const tid = parseInt(topicId);
+        const forum = loadJson(FORUM_PATH);
+        let foundTopic = null;
+
+        for (let cat of forum) {
+            for (let sec of cat.sections) {
+                foundTopic = sec.topics.find(t => t.id === tid);
+                if (foundTopic) break;
+            }
+            if (foundTopic) break;
+        }
+
+        if (!foundTopic) return res.status(404).json({ error: 'Tema no encontrado' });
+
         const newPost = {
             id: Date.now(),
             author: req.session.user.username,
             content,
             date: new Date().toISOString()
         };
-        topic.posts.push(newPost);
-        topic.lastActivity = new Date().toISOString();
+
+        foundTopic.posts.push(newPost);
         saveJson(FORUM_PATH, forum);
         res.json({ success: true, post: newPost });
-    } else {
-        res.status(404).json({ error: 'Tema no encontrado' });
     }
 });
 
-app.delete('/api/forum/:id', isMod, (req, res) => {
-    const id = parseInt(req.params.id);
-    const forum = loadJson(FORUM_PATH);
-    let deleted = false;
+app.delete('/api/forum/:id', isMod, async (req, res) => {
+    const topicId = req.params.id;
 
-    for (let cat of forum) {
-        for (let sec of cat.sections) {
-            const index = sec.topics.findIndex(t => t.id === id);
-            if (index !== -1) {
-                sec.topics.splice(index, 1);
-                deleted = true;
+    if (MONGODB_URI) {
+        const forumCat = await Forum.findOne({ "sections.topics._id": topicId });
+        if (!forumCat) return res.status(404).json({ error: 'Tema no encontrado' });
+
+        for (const sec of forumCat.sections) {
+            const topic = sec.topics.id(topicId);
+            if (topic) {
+                topic.remove();
                 break;
             }
         }
-        if (deleted) break;
-    }
-
-    if (deleted) {
-        saveJson(FORUM_PATH, forum);
+        await forumCat.save();
         res.json({ success: true });
     } else {
-        res.status(404).json({ error: 'Tema no encontrado' });
+        const tid = parseInt(topicId);
+        const forum = loadJson(FORUM_PATH);
+        let deleted = false;
+
+        for (let cat of forum) {
+            for (let sec of cat.sections) {
+                const index = sec.topics.findIndex(t => t.id === tid);
+                if (index !== -1) {
+                    sec.topics.splice(index, 1);
+                    deleted = true;
+                    break;
+                }
+            }
+            if (deleted) break;
+        }
+
+        if (deleted) {
+            saveJson(FORUM_PATH, forum);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Tema no encontrado' });
+        }
     }
 });
 
 // --- ADMIN PLAYER MANAGMENT ---
 
-app.post('/api/admin/add-player', isAdmin, (req, res) => {
+app.post('/api/admin/add-player', isAdmin, async (req, res) => {
     const { battleTag, twitch } = req.body;
     if (!battleTag) return res.status(400).json({ error: 'BattleTag es obligatorio' });
 
-    const players = loadPlayers(); // Uses internal cache logic or reads file
-    // Ideally we should read raw file to be safe when writing
-    let rawPlayers = [];
-    try {
-        rawPlayers = JSON.parse(fs.readFileSync(PLAYERS_PATH, 'utf8'));
-    } catch (e) { rawPlayers = []; }
+    if (MONGODB_URI) {
+        const exists = await Player.findOne({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
+        if (exists) return res.status(400).json({ error: 'El jugador ya existe' });
+        const newPlayer = await Player.create({ battleTag, twitch: twitch || null });
+        return res.json({ success: true, player: newPlayer });
+    } else {
+        let rawPlayers = [];
+        try {
+            rawPlayers = JSON.parse(fs.readFileSync(PLAYERS_PATH, 'utf8'));
+        } catch (e) { rawPlayers = []; }
 
-    const exists = rawPlayers.some(p => p.battleTag.toLowerCase() === battleTag.toLowerCase());
-    if (exists) return res.status(400).json({ error: 'El jugador ya existe' });
+        const exists = rawPlayers.some(p => p.battleTag.toLowerCase() === battleTag.toLowerCase());
+        if (exists) return res.status(400).json({ error: 'El jugador ya existe' });
 
-    const newPlayer = { battleTag, twitch: twitch || null };
-    rawPlayers.push(newPlayer);
-
-    try {
+        const newPlayer = { battleTag, twitch: twitch || null };
+        rawPlayers.push(newPlayer);
         fs.writeFileSync(PLAYERS_PATH, JSON.stringify(rawPlayers, null, 2));
         res.json({ success: true, player: newPlayer });
-    } catch (e) {
-        res.status(500).json({ success: false, error: 'Error guardando en disco' });
     }
-
 });
 
-app.get('/api/admin/users', isAdmin, (req, res) => {
-    const users = loadJson(USERS_PATH);
-    // Return safe data
-    const safeUsers = users.map(u => ({ id: u.id, username: u.username, role: u.role, battleTag: u.battleTag, banned: u.banned }));
-    res.json(safeUsers);
+app.get('/api/admin/users', isAdmin, async (req, res) => {
+    if (MONGODB_URI) {
+        const users = await User.find();
+        const safeUsers = users.map(u => ({
+            id: u._id,
+            username: u.username,
+            role: u.role,
+            battleTag: u.battleTag,
+            banned: u.banned
+        }));
+        res.json(safeUsers);
+    } else {
+        const users = loadJson(USERS_PATH);
+        const safeUsers = users.map(u => ({ id: u.id, username: u.username, role: u.role, battleTag: u.battleTag, banned: u.banned }));
+        res.json(safeUsers);
+    }
 });
 
-app.post('/api/admin/ban', isAdmin, (req, res) => {
+app.post('/api/admin/ban', isAdmin, async (req, res) => {
     const { userId, ban } = req.body; // ban: true/false
-    const users = loadJson(USERS_PATH);
-    const user = users.find(u => u.id === userId);
 
-    if (user) {
-        // Prevent banning super admin if needed, strict check for 'admin' role
+    if (MONGODB_URI) {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
         if (user.username === 'admin' && ban) return res.status(403).json({ error: 'No puedes banear al admin principal' });
-
         user.banned = ban;
-        saveJson(USERS_PATH, users);
+        await user.save();
         res.json({ success: true });
     } else {
-        res.status(404).json({ error: 'Usuario no encontrado' });
+        const users = loadJson(USERS_PATH);
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            if (user.username === 'admin' && ban) return res.status(403).json({ error: 'No puedes banear al admin principal' });
+            user.banned = ban;
+            saveJson(USERS_PATH, users);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        }
     }
 });
 
-app.post('/api/admin/change-role', isAdmin, (req, res) => {
+app.post('/api/admin/change-role', isAdmin, async (req, res) => {
     const { userId, role } = req.body;
     const validRoles = ['user', 'mod', 'editor', 'admin'];
     if (!validRoles.includes(role)) return res.status(400).json({ error: 'Rol inválido' });
 
-    const users = loadJson(USERS_PATH);
-    const user = users.find(u => u.id === userId);
-
-    if (user) {
+    if (MONGODB_URI) {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
         if (user.username === 'admin') return res.status(403).json({ error: 'No puedes cambiar el rol al admin principal' });
         user.role = role;
-        saveJson(USERS_PATH, users);
+        await user.save();
         res.json({ success: true });
     } else {
-        res.status(404).json({ error: 'Usuario no encontrado' });
+        const users = loadJson(USERS_PATH);
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            if (user.username === 'admin') return res.status(403).json({ error: 'No puedes cambiar el rol al admin principal' });
+            user.role = role;
+            saveJson(USERS_PATH, users);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        }
     }
 });
 
-app.delete('/api/admin/player', isAdmin, (req, res) => {
+app.post('/api/admin/reset-password', isAdmin, async (req, res) => {
+    const { userId, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'Contraseña demasiado corta (min 6)' });
+
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    if (MONGODB_URI) {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+        user.password = hashedPassword;
+        await user.save();
+        res.json({ success: true });
+    } else {
+        const users = loadJson(USERS_PATH);
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            user.password = hashedPassword;
+            saveJson(USERS_PATH, users);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+    }
+});
+
+app.delete('/api/admin/player', isAdmin, async (req, res) => {
     const { battleTag } = req.body;
-    let players = [];
-    try {
-        players = JSON.parse(fs.readFileSync(PLAYERS_PATH, 'utf8'));
-    } catch (e) { return res.status(500).json({ error: 'Error DB' }); }
+    if (!battleTag) return res.status(400).json({ error: 'BattleTag requerido' });
 
-    const initLen = players.length;
-    players = players.filter(p => p.battleTag.toLowerCase() !== battleTag.toLowerCase());
-
-    if (players.length < initLen) {
+    if (MONGODB_URI) {
         try {
-            fs.writeFileSync(PLAYERS_PATH, JSON.stringify(players, null, 2));
-            // También limpiar de memoria cache para que se refleje
-            loadPlayers();
+            const result = await Player.findOneAndDelete({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
+            if (!result) return res.status(404).json({ error: 'Jugador no encontrado' });
             res.json({ success: true });
         } catch (e) {
-            res.status(500).json({ error: 'Error guardando cambios' });
+            res.status(500).json({ error: 'Error en la base de datos' });
         }
     } else {
-        res.status(404).json({ error: 'Jugador no encontrado' });
+        let players = [];
+        try {
+            players = JSON.parse(fs.readFileSync(PLAYERS_PATH, 'utf8'));
+        } catch (e) { return res.status(500).json({ error: 'Error DB' }); }
+
+        const initLen = players.length;
+        players = players.filter(p => p.battleTag.toLowerCase() !== battleTag.toLowerCase());
+
+        if (players.length < initLen) {
+            try {
+                fs.writeFileSync(PLAYERS_PATH, JSON.stringify(players, null, 2));
+                loadPlayers(); // Refrescar cache local
+                res.json({ success: true });
+            } catch (e) {
+                res.status(500).json({ error: 'Error guardando cambios' });
+            }
+        } else {
+            res.status(404).json({ error: 'Jugador no encontrado' });
+        }
     }
 });
 

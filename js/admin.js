@@ -318,8 +318,9 @@ async function loadUsers() {
                     <span style="color: ${u.role === 'admin' ? 'var(--hs-gold)' : '#fff'}">${u.username}</span>
                     <span class="user-role">${u.role} ${u.battleTag ? '• ' + u.battleTag : ''}</span>
                 </div>
-                <div style="display:flex; align-items:center;">
+                <div style="display:flex; align-items:center; gap:5px;">
                     ${roleSelect}
+                    <button class="btn-action" style="padding:2px 6px; font-size:0.7rem; background:#555;" onclick="adminResetPassword('${u.id}', '${u.username}')">Reset Pass</button>
                     ${u.role !== 'admin' ? bannedBtn : ''}
                 </div>
             `;
@@ -458,10 +459,28 @@ async function updateBattleTag() {
             msg.style.color = 'red';
             msg.innerText = data.error;
         }
-    } catch (e) {
-        msg.style.color = 'red';
-        msg.innerText = "Error de conexión.";
     }
+}
+
+async function adminResetPassword(userId, username) {
+    const newPassword = prompt(`Introduce la nueva contraseña para ${username}:`, 'cambiame123');
+    if (!newPassword) return;
+
+    if (newPassword.length < 6) return alert("Debe tener al menos 6 caracteres.");
+
+    try {
+        const res = await fetch('/api/admin/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, newPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(`¡Contraseña de ${username} actualizada con éxito!`);
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (e) { alert("Error de conexión"); }
 }
 
 document.addEventListener('DOMContentLoaded', checkAuth);

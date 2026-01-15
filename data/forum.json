@@ -1,83 +1,282 @@
 [
-  {
-    "id": "cat_rules",
-    "title": "Normas",
-    "sections": [
-      {
-        "id": "sec_rules",
-        "title": "Reglas del Foro",
-        "description": "Normas de respeto y convivencia.",
-        "topics": [
-          {
-            "id": 1,
-            "title": "Normas de Respeto Básicas",
-            "author": "admin",
-            "date": "2024-01-12T00:00:00.000Z",
-            "posts": [
-              {
-                "id": 1,
-                "author": "admin",
-                "content": "1. Sed respetuosos con los demás jugadores.\n2. No se permite el spam ni contenido ofensivo.\n3. Postea en la sección correspondiente.",
-                "date": "2024-01-12T00:00:00.000Z"
-              }
-            ]
-          }
+    {
+        "id": "cat_rules",
+        "title": "Normas",
+        "sections": [
+            {
+                "id": "sec_rules",
+                "title": "Reglas del Foro",
+                "description": "Normas de respeto y convivencia.",
+                "topics": [
+                    {
+                        "id": 1,
+                        "title": "Normas de Respeto Básicas",
+                        "author": "admin",
+                        "date": "2024-01-12T00:00:00.000Z",
+                        "posts": [
+                            {
+                                "id": 1,
+                                "author": "admin",
+                                "content": "1. Sed respetuosos con los demás jugadores.\n2. No se permite el spam ni contenido ofensivo.\n3. Postea en la sección correspondiente.",
+                                "date": "2024-01-12T00:00:00.000Z"
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  },
-  {
-    "id": "cat_bg",
-    "title": "Campos de Batalla",
-    "sections": [
-      {
-        "id": "sec_bg_chat",
-        "title": "Chat General",
-        "description": "Habla de todo sobre Battlegrounds.",
-        "topics": []
-      },
-      {
-        "id": "sec_bg_compos",
-        "title": "Compos Favoritas",
-        "description": "Comparte tus mejores estrategias.",
-        "topics": []
-      },
-      {
-        "id": "sec_bg_capturas",
-        "title": "Capturitas",
-        "description": "Muestra tus high-rolls y victorias.",
-        "topics": []
-      },
-      {
-        "id": "sec_bg_videos",
-        "title": "Vídeos/Clips",
-        "description": "Comparte tus clips de Twitch y vídeos de YouTube.",
-        "topics": []
-      },
-      {
-        "id": "sec_bg_sugerencias",
-        "title": "Sugerencias",
-        "description": "¿Cómo mejorarías el juego o la web?",
-        "topics": []
-      }
-    ]
-  },
-  {
-    "id": "cat_offtopic",
-    "title": "Off-topic",
-    "sections": [
-      {
-        "id": "sec_off_chat",
-        "title": "Chat Relax",
-        "description": "Habla de cualquier cosa.",
-        "topics": []
-      },
-      {
-        "id": "sec_off_juegos",
-        "title": "Otros Juegos",
-        "description": "¿A qué más juegas?",
-        "topics": []
-      }
-    ]
-  }
+    },
+    {
+        "id": "cat_bg",
+        "title": "Campos de Batalla",
+        "sections": [
+            {
+                "id": "sec_bg_chat",
+                "title": "Chat General",
+                "description": "Habla de todo sobre Battlegrounds.",
+                "topics": [
+                    {
+                        "id": 1768406224616,
+                        "title": "Ficha mas eroticamente atractiva",
+                        "author": "Gloxii_",
+                        "date": "2026-01-14T15:57:04.616Z",
+                        "posts": [
+                            {
+                                "id": 1768406224617,
+                                "author": "Gloxii_",
+                                "content": "Me gustaría que me dijerais que ficha os molaria mas tener cerquita.\n\n[img:https://hearthstone.wiki.gg/images/thumb/BG24_022_Battlegrounds.png]",
+                                "date": "2026-01-14T15:57:04.616Z"
+                            },
+                            {
+                                "id": 1768409785686,
+                                "author": "Spyrozgz",
+                                "content": "[img:https://hearthstone.wiki.gg/images/thumb/BG22_001_Battlegrounds.png/300px-BG22_001_Battlegrounds.png?557829]",
+                                "date": "2026-01-14T16:56:25.686Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T16:56:25.686Z"
+                    },
+                    {
+                        "id": 1768389465326,
+                        "title": "Embolados si, Embolados no.",
+                        "author": "olduigh",
+                        "date": "2026-01-14T11:17:45.326Z",
+                        "posts": [
+                            {
+                                "id": 1768389465327,
+                                "author": "olduigh",
+                                "content": "A favor de los embolados o en contra de los embolados?",
+                                "date": "2026-01-14T11:17:45.326Z"
+                            },
+                            {
+                                "id": 1768391272096,
+                                "author": "Spyrozgz",
+                                "content": "En contra",
+                                "date": "2026-01-14T11:47:52.096Z"
+                            },
+                            {
+                                "id": 1768391441332,
+                                "author": "olduigh",
+                                "content": "Se puede saber porque?",
+                                "date": "2026-01-14T11:50:41.332Z"
+                            },
+                            {
+                                "id": 1768391648120,
+                                "author": "yerolo",
+                                "content": "porque no es justo para la gente que se curra las partidas, jugando embolados piensas un 90% menos las partidas",
+                                "date": "2026-01-14T11:54:08.120Z"
+                            },
+                            {
+                                "id": 1768403027672,
+                                "author": "Orpi",
+                                "content": "nunca",
+                                "date": "2026-01-14T15:03:47.672Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T15:03:47.672Z"
+                    },
+                    {
+                        "id": 1768388956421,
+                        "title": "El Mejor jugador de españa...",
+                        "author": "Espyrozgz",
+                        "date": "2026-01-14T11:09:16.421Z",
+                        "posts": [
+                            {
+                                "id": 1768388956422,
+                                "author": "Espyrozgz",
+                                "content": "[img:https://gyazo.com/1e6f0e85b0251b6a1bec5b63f0ab83c9]",
+                                "date": "2026-01-14T11:09:16.421Z"
+                            },
+                            {
+                                "id": 1768388975803,
+                                "author": "Espyrozgz",
+                                "content": "[img:https://i.gyazo.com/1e6f0e85b0251b6a1bec5b63f0ab83c9.png]",
+                                "date": "2026-01-14T11:09:35.803Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T11:09:35.803Z"
+                    },
+                    {
+                        "id": 1768388847073,
+                        "title": "Vamos al mamitas?",
+                        "author": "Espyrozgz",
+                        "date": "2026-01-14T11:07:27.073Z",
+                        "posts": [
+                            {
+                                "id": 1768388847074,
+                                "author": "Espyrozgz",
+                                "content": "Vamos al mamitas?",
+                                "date": "2026-01-14T11:07:27.073Z"
+                            },
+                            {
+                                "id": 1768388964273,
+                                "author": "olduigh",
+                                "content": "siempre vamos JAJAJAJA",
+                                "date": "2026-01-14T11:09:24.273Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T11:09:24.273Z"
+                    }
+                ]
+            },
+            {
+                "id": "sec_bg_compos",
+                "title": "Compos Favoritas",
+                "description": "Comparte tus mejores estrategias.",
+                "topics": [
+                    {
+                        "id": 1768388838886,
+                        "title": "Nagas bien guarros 6 resets",
+                        "author": "Orpi",
+                        "date": "2026-01-14T11:07:18.886Z",
+                        "posts": [
+                            {
+                                "id": 1768388838887,
+                                "author": "Orpi",
+                                "content": "[img:https://i.gyazo.com/f06cc18d88680749e2158728422998b2.png]",
+                                "date": "2026-01-14T11:07:18.886Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T11:07:18.886Z"
+                    }
+                ]
+            },
+            {
+                "id": "sec_bg_capturas",
+                "title": "Capturitas",
+                "description": "Muestra tus high-rolls y victorias.",
+                "topics": []
+            },
+            {
+                "id": "sec_bg_videos",
+                "title": "Vídeos/Clips",
+                "description": "Comparte tus clips de Twitch y vídeos de YouTube.",
+                "topics": [
+                    {
+                        "id": 1768483067561,
+                        "title": "Murky comp",
+                        "author": "LuciaNotFound",
+                        "date": "2026-01-15T13:17:47.561Z",
+                        "posts": [
+                            {
+                                "id": 1768483067562,
+                                "author": "LuciaNotFound",
+                                "content": "[yt:https://youtu.be/VmSQzYQvVd4]",
+                                "date": "2026-01-15T13:17:47.561Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-15T13:17:47.561Z"
+                    },
+                    {
+                        "id": 1768432902946,
+                        "title": "Kuosito entrenando a la comunidad",
+                        "author": "Gloxii_",
+                        "date": "2026-01-14T23:21:42.946Z",
+                        "posts": [
+                            {
+                                "id": 1768432902947,
+                                "author": "Gloxii_",
+                                "content": "[yt:https://www.youtube.com/watch?v=RhEAYKs7akg]",
+                                "date": "2026-01-14T23:21:42.946Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T23:21:42.947Z"
+                    },
+                    {
+                        "id": 1768389070027,
+                        "title": "Cómo transicionar de forma bonita 🤗",
+                        "author": "LuciaNotFound",
+                        "date": "2026-01-14T11:11:10.027Z",
+                        "posts": [
+                            {
+                                "id": 1768389070028,
+                                "author": "LuciaNotFound",
+                                "content": "[yt:https://youtu.be/UkHqvUETLSc]",
+                                "date": "2026-01-14T11:11:10.027Z"
+                            },
+                            {
+                                "id": 1768391315506,
+                                "author": "Spyrozgz",
+                                "content": "Oleeeee",
+                                "date": "2026-01-14T11:48:35.506Z"
+                            },
+                            {
+                                "id": 1768418630458,
+                                "author": "Orpi",
+                                "content": "Ni el awelo vendio toda la mesa asi de rápido.",
+                                "date": "2026-01-14T19:23:50.458Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T19:23:50.458Z"
+                    }
+                ]
+            },
+            {
+                "id": "sec_bg_sugerencias",
+                "title": "Sugerencias",
+                "description": "¿Cómo mejorarías el juego o la web?",
+                "topics": [
+                    {
+                        "id": 1768389380116,
+                        "title": "Nombre del ranking.",
+                        "author": "kuosito",
+                        "date": "2026-01-14T11:16:20.116Z",
+                        "posts": [
+                            {
+                                "id": 1768389380117,
+                                "author": "kuosito",
+                                "content": "Buenas, quería proponer que la sección del ranking se llamara \"Kuosito y sus acompañantes\", un saludo.",
+                                "date": "2026-01-14T11:16:20.116Z"
+                            },
+                            {
+                                "id": 1768405290517,
+                                "author": "Espyrozgz",
+                                "content": "[img:https://i.gyazo.com/1e6f0e85b0251b6a1bec5b63f0ab83c9.png]",
+                                "date": "2026-01-14T15:41:30.517Z"
+                            }
+                        ],
+                        "lastActivity": "2026-01-14T15:41:30.517Z"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "cat_offtopic",
+        "title": "Off-topic",
+        "sections": [
+            {
+                "id": "sec_off_chat",
+                "title": "Chat Relax",
+                "description": "Habla de cualquier cosa.",
+                "topics": []
+            },
+            {
+                "id": "sec_off_juegos",
+                "title": "Otros Juegos",
+                "description": "¿A qué más juegas?",
+                "topics": []
+            }
+        ]
+    }
 ]

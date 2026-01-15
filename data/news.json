@@ -1,18 +1,30 @@
 [
-  {
-    "id": 1,
-    "title": "Bienvenido a la nueva comunidad",
-    "content": "[img:https://i.gyazo.com/b0999e075a1322904ff72657cc5df49f.png] Pues el foro se transformó en una nueva web con foro y noticias, espero que os registréis, la deis uso, compartáis vuestras partidas y emociones en los foros porque esto es un proyecto para todos, no somos muchos jugadores actualmente pero somos muy grandes. ¡Disfrutad!",
-    "date": "2024-01-12",
-    "author": "admin",
-    "comments": [
-      {
-        "id": 1768190022143,
-        "author": "TestUser_1768190022096",
-        "content": "This is a test comment from verification script.",
-        "date": "2026-01-12T03:53:42.143Z"
-      }
-    ],
-    "lastEdit": "2026-01-14T01:51:53.380Z"
-  }
+    {
+        "id": 1,
+        "title": "Bienvenido a la nueva comunidad",
+        "content": "[img:https://i.gyazo.com/b0999e075a1322904ff72657cc5df49f.png] Pues el foro se transformó en una nueva web con foro y noticias, espero que os registréis, la deis uso, compartáis vuestras partidas y emociones en los foros porque esto es un proyecto para todos, no somos muchos jugadores actualmente pero somos muy grandes. ¡Disfrutad!",
+        "date": "2024-01-12",
+        "author": "admin",
+        "comments": [
+            {
+                "id": 1768388741762,
+                "author": "Spyrozgz",
+                "content": "Hola a todos!!!!",
+                "date": "2026-01-14T11:05:41.762Z"
+            },
+            {
+                "id": 1768433641621,
+                "author": "FAF1",
+                "content": "OPAAAAAAAAAAA!",
+                "date": "2026-01-14T23:34:01.621Z"
+            },
+            {
+                "id": 1768485339860,
+                "author": "Gotor",
+                "content": "Opa!!!\n",
+                "date": "2026-01-15T13:55:39.860Z"
+            }
+        ],
+        "lastEdit": "2026-01-14T01:51:53.380Z"
+    }
 ]

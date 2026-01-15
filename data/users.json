@@ -1,34 +1,125 @@
 [
-  {
-    "id": "1",
-    "username": "admin",
-    "password": "$2b$10$qRtPPrTgwfGFexs9mdEAReNCSqHaFXaQ241InW1FdpDlgqUxcEgSG",
-    "role": "admin",
-    "battletag": "Admin#1234",
-    "email": "admin@example.com",
-    "isVerified": true,
-    "banned": false
-  },
-  {
-    "id": 1768190022131,
-    "username": "TestUser_1768190022096",
-    "password": "$2b$10$mWqa3t8BqlnDJv4i/SHBBetRv7Eztg3wFwXCKIFMByl3qpIdmjqZS",
-    "role": "editor",
-    "battleTag": "TestTag#1234",
-    "banned": false,
-    "createdAt": "2026-01-12T03:53:42.131Z",
-    "email": "testuser_1768190022096@example.com",
-    "isVerified": true
-  },
-  {
-    "id": 1768345074618,
-    "username": "Orpi",
-    "password": "$2b$10$VTQENwHb3lIVaC6b5Ya1XeqGt.7/YfMIfq.qenP4bYrG5/L2yRFF.",
-    "role": "admin",
-    "battleTag": "Orpinell#2250",
-    "banned": false,
-    "createdAt": "2026-01-13T22:57:54.618Z",
-    "email": "orpi@example.com",
-    "isVerified": true
-  }
+    {
+        "id": 1768345074618,
+        "username": "Orpi",
+        "password": "$2b$10$VTQENwHb3lIVaC6b5Ya1XeqGt.7/YfMIfq.qenP4bYrG5/L2yRFF.",
+        "role": "admin",
+        "battleTag": "Orpinell#2250",
+        "banned": false,
+        "createdAt": "2026-01-13T22:57:54.618Z",
+        "email": "orpi@example.com",
+        "isVerified": true
+    },
+    {
+        "id": 1768388704795,
+        "username": "Spyrozgz",
+        "role": "mod",
+        "battleTag": null,
+        "banned": false
+    },
+    {
+        "id": 1768388786492,
+        "username": "olduigh",
+        "role": "user",
+        "battleTag": "Kelf#2525",
+        "banned": false
+    },
+    {
+        "id": 1768388815497,
+        "username": "Espyrozgz",
+        "role": "user",
+        "battleTag": null,
+        "banned": false
+    },
+    {
+        "id": 1768388825391,
+        "username": "LuciaNotFound",
+        "role": "editor",
+        "battleTag": null,
+        "banned": false
+    },
+    {
+        "id": 1768388830899,
+        "username": "Doponch17",
+        "role": "user",
+        "battleTag": "Doponch17FC#2200",
+        "banned": false
+    },
+    {
+        "id": 1768389191796,
+        "username": "kuosito",
+        "role": "user",
+        "battleTag": "KuositoVélez#2154",
+        "banned": false
+    },
+    {
+        "id": 1768390807203,
+        "username": "CarryPotter",
+        "role": "user",
+        "battleTag": "CarryPotter#2745",
+        "banned": false
+    },
+    {
+        "id": 1768391473702,
+        "username": "yerolo",
+        "role": "user",
+        "battleTag": "yerolo#2226",
+        "banned": false
+    },
+    {
+        "id": 1768392687804,
+        "username": "Migán ",
+        "role": "user",
+        "battleTag": null,
+        "banned": false
+    },
+    {
+        "id": 1768395834502,
+        "username": "AntoZ31",
+        "role": "user",
+        "battleTag": "AntoZ31#1133",
+        "banned": false
+    },
+    {
+        "id": 1768401241004,
+        "username": "SagaSentenciado",
+        "role": "user",
+        "battleTag": "Sentenciado#21853",
+        "banned": false
+    },
+    {
+        "id": 1768405326102,
+        "username": "Gloxii_",
+        "role": "user",
+        "battleTag": "Gloxinia#21342",
+        "banned": false
+    },
+    {
+        "id": 1768405811003,
+        "username": "Puerco",
+        "role": "user",
+        "battleTag": "Puerco#21159",
+        "banned": false
+    },
+    {
+        "id": 1768413435291,
+        "username": "Gotor",
+        "role": "user",
+        "battleTag": "GOTOR8#2419",
+        "banned": false
+    },
+    {
+        "id": 1768433592201,
+        "username": "FAF1",
+        "role": "user",
+        "battleTag": "F4F1#21351",
+        "banned": false
+    },
+    {
+        "id": 1768467714902,
+        "username": "ViesK",
+        "role": "user",
+        "battleTag": "Viesca010#2669",
+        "banned": false
+    }
 ]
