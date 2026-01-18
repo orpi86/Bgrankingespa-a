@@ -838,6 +838,7 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
             content,
             date: new Date()
         };
+        if (!news.comments) news.comments = [];
         news.comments.push(newComment);
         await news.save();
         res.json({ success: true, comment: newComment });

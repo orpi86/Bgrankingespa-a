@@ -25,7 +25,7 @@ const newsSchema = new mongoose.Schema({
     author: String,
     date: { type: Date, default: Date.now },
     lastEdit: Date,
-    comments: [commentSchema]
+    comments: { type: [commentSchema], default: [] }
 });
 
 // --- FORUM SCHEMA ---
