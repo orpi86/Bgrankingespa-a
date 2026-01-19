@@ -874,7 +874,18 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
 
         // Usar findOne con $or para soportar items antiguos (id number) y nuevos (Mongo _id)
         // Intentar parsear a número si es posible para búsqueda legacy, o string para _id
-        const query = [{ _id: newsId.match(/^[0-9a-fA-F]{24}$/) ? newsId : null }, { id: newsId }].filter(q => q._id || q.id);
+        const query = [];
+        // Si parece ObjectId válido
+        if (mongoose.Types.ObjectId.isValid(newsId)) {
+            query.push({ _id: newsId });
+        }
+        // Si parece un número entero (Legacy ID)
+        if (/^\d+$/.test(newsId)) {
+            query.push({ id: parseInt(newsId) });
+        }
+
+        if (query.length === 0) return res.status(404).json({ error: 'ID inválido' });
+
         const news = await News.findOne({ $or: query });
 
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
