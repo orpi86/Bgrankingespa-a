@@ -37,7 +37,7 @@ async function loadNews() {
                 const canEdit = user && (user.role === 'admin' || user.username === c.author);
                 // Use c.id or c._id
                 const cid = c.id || c._id;
-                const editBtn = canEdit ? `<button class="btn-action" onclick="editComment(${item.id}, '${cid}', this)" style="float:right; font-size:0.65rem; margin-left:5px;">✏️</button>` : '';
+                const editBtn = canEdit ? `<button class="btn-action" onclick="editComment('${item.id || item._id}', '${cid}', this)" style="float:right; font-size:0.65rem; margin-left:5px;">✏️</button>` : '';
 
                 return `
                 <div class="comment">
@@ -52,17 +52,25 @@ async function loadNews() {
             const commentForm = user ? `
                 <div class="comment-input-area">
                     <div style="margin-bottom:5px; display:flex; gap:5px;">
-                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${item.id}', 'img')"><i class="fa-solid fa-image"></i> +Img</button>
-                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${item.id}', 'yt')"><i class="fa-brands fa-youtube"></i> +YT</button>
-                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem; background:#9146ff;" onclick="insertMedia('comment-text-${item.id}', 'tw')"><i class="fa-brands fa-twitch"></i> +Twitch</button>
+                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${item.id || item._id}', 'img')"><i class="fa-solid fa-image"></i> +Img</button>
+                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${item.id || item._id}', 'yt')"><i class="fa-brands fa-youtube"></i> +YT</button>
+                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem; background:#9146ff;" onclick="insertMedia('comment-text-${item.id || item._id}', 'tw')"><i class="fa-brands fa-twitch"></i> +Twitch</button>
                     </div>
-                    <textarea id="comment-text-${item.id}" rows="2" placeholder="Escribe un comentario..."></textarea>
-                    <button onclick="postComment(${item.id})">Enviar</button>
+                    <textarea id="comment-text-${item.id || item._id}" rows="2" placeholder="Escribe un comentario..."></textarea>
+                    <button onclick="postComment('${item.id || item._id}')">Enviar</button>
                 </div>
-            ` : `<div style="margin-top:15px; font-style:italic; color:#888;"><a href="/admin" style="color:var(--hs-gold);">Inicia sesión</a> para comentar.</div>`;
+            ` : `<div style="margin-top:15px; font-style:italic; color:#888;"><a href="/login" style="color:var(--hs-gold);">Inicia sesión</a> para comentar.</div>`;
 
             card.innerHTML = `
-                <div class="news-title">${item.title}</div>
+                <div class="news-title">
+                    ${item.title}
+                    ${user && (user.role === 'admin' || user.role === 'editor') ? `
+                        <div style="float:right;">
+                            <button onclick="editNews('${item.id || item._id}')" style="background:none; border:none; cursor:pointer;" title="Editar">✏️</button>
+                            <button onclick="deleteNews('${item.id || item._id}')" style="background:none; border:none; cursor:pointer;" title="Borrar">🗑️</button>
+                        </div>
+                    ` : ''}
+                </div>
                 <div class="news-meta">Publicado el ${date} por ${item.author}</div>
                 <div class="news-content">${parseMedia(item.content)}</div>
                 
@@ -116,6 +124,34 @@ async function editComment(newsId, commentId, btn) {
         } else {
             alert("Error: " + data.error);
         }
+    } catch (e) { console.error(e); }
+}
+
+
+
+async function deleteNews(id) {
+    if (!confirm("¿Seguro que quieres borrar esta noticia?")) return;
+    try {
+        const res = await fetch(`/api/news/${id}`, { method: 'DELETE' });
+        if (res.ok) loadNews();
+        else alert("Error al borrar");
+    } catch (e) { console.error(e); }
+}
+
+async function editNews(id) {
+    const newTitle = prompt("Nuevo Título (dejar vacío para no cambiar):");
+    const newContent = prompt("Nuevo Contenido (dejar vacío para no cambiar):");
+
+    if (!newTitle && !newContent) return;
+
+    try {
+        const res = await fetch(`/api/news/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, content: newContent })
+        });
+        if (res.ok) loadNews();
+        else alert("Error al editar");
     } catch (e) { console.error(e); }
 }
 

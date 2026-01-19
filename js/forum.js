@@ -154,7 +154,12 @@ function renderPosts(posts) {
         // Check ownership (p.author vs currentUser.username)
         // Note: p.id might be numeric or mongo object.
         const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.username === p.author);
-        const editBtn = canEdit ? `<button class="btn-action" onclick="editPost('${p.id || p._id}', this)" style="float:right; font-size:0.7rem;">✏️ Editar</button>` : '';
+        const editBtn = canEdit ? `
+            <div style="float:right;">
+                <button class="btn-action" onclick="editPost('${p.id || p._id}', this)" style="font-size:0.7rem;">✏️ Editar</button>
+                <button class="btn-action" onclick="deletePost('${p.id || p._id}')" style="font-size:0.7rem; color:red; margin-left:5px;">🗑️ Borrar</button>
+            </div>
+        ` : '';
 
         div.innerHTML = `
             <div class="post-header">
@@ -190,6 +195,18 @@ async function editPost(postId, btn) {
         } else {
             alert("Error: " + data.error);
         }
+    } catch (e) { console.error(e); }
+}
+
+async function deletePost(postId) {
+    if (!confirm("¿Seguro que quieres borrar este mensaje?")) return;
+    try {
+        const res = await fetch(`/api/forum/post/${postId}`, { method: 'DELETE' });
+        if (res.ok) {
+            await loadForum();
+            const topic = findTopic(currentTopicId);
+            if (topic) renderPosts(topic.posts);
+        } else alert("Error al borrar");
     } catch (e) { console.error(e); }
 }
 

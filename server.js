@@ -603,7 +603,8 @@ async function actualizarTwitchLive(playersList) {
 app.get('/ranking', (req, res) => { res.sendFile(path.join(__dirname, 'ranking.html')); });
 app.get('/news', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); }); // index is News now
 app.get('/forum', (req, res) => { res.sendFile(path.join(__dirname, 'forum.html')); });
-app.get('/admin', (req, res) => { res.sendFile(path.join(__dirname, 'admin.html')); });
+app.get('/login', (req, res) => { res.sendFile(path.join(__dirname, 'login.html')); });
+app.get('/admin', (req, res) => { res.redirect('/login'); });
 
 app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
@@ -832,6 +833,30 @@ app.put('/api/news/:id', isEditor, async (req, res) => {
     }
 });
 
+
+app.delete('/api/news/:id', isEditor, async (req, res) => {
+    const newsId = req.params.id;
+
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
+        // Try id (number) or _id (ObjectId)
+        const news = await News.findOneAndDelete({ $or: [{ id: newsId }, { _id: newsId }] }).catch(() => null)
+            || await News.findByIdAndDelete(newsId).catch(() => null);
+
+        if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
+        res.json({ success: true });
+    } else {
+        const id = parseInt(newsId);
+        let newsList = loadJson(NEWS_PATH);
+        const originalLen = newsList.length;
+        newsList = newsList.filter(n => n.id !== id);
+
+        if (newsList.length === originalLen) return res.status(404).json({ error: 'Noticia no encontrada' });
+
+        saveJson(NEWS_PATH, newsList);
+        res.json({ success: true });
+    }
+});
+
 app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
     const newsId = req.params.id; // Puede ser String (Mongo) o Number (JSON)
     const { content } = req.body;
@@ -999,19 +1024,7 @@ app.post('/api/user/update-battletag', isAuthenticated, async (req, res) => {
     res.json({ success: true, message: 'BattleTag actualizado correctamente', battleTag });
 });
 
-app.delete('/api/news/:id', isEditor, async (req, res) => {
-    const newsId = req.params.id;
-    if (MONGODB_URI && mongoose.connection.readyState === 1) {
-        await News.findByIdAndDelete(newsId);
-        res.json({ success: true });
-    } else {
-        const id = parseInt(newsId);
-        let news = loadJson(NEWS_PATH);
-        news = news.filter(n => n.id !== id);
-        saveJson(NEWS_PATH, news);
-        res.json({ success: true });
-    }
-});
+
 
 // --- FORUM API ---
 
@@ -1180,6 +1193,69 @@ app.put('/api/forum/post/:postId', isAuthenticated, async (req, res) => {
                             return res.status(403).json({ error: 'No tienes permiso' });
                         }
                         post.content = content;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+
+        if (found) {
+            saveJson(FORUM_PATH, forum);
+            res.json({ success: true, post: { content } });
+        } else {
+            res.status(404).json({ error: 'Post no encontrado' });
+        }
+    }
+});
+
+app.delete('/api/forum/post/:postId', isAuthenticated, async (req, res) => {
+    const { postId } = req.params;
+
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
+        const cats = await Forum.find();
+        let found = false;
+
+        for (let cat of cats) {
+            for (let sec of cat.sections) {
+                for (let topic of sec.topics) {
+                    // Check for post by _id or id
+                    const postIndex = topic.posts.findIndex(p => (p._id && p._id.toString() === postId) || p.id == postId);
+                    if (postIndex !== -1) {
+                        const post = topic.posts[postIndex];
+                        if (post.author !== req.session.user.username && req.session.user.role !== 'admin') {
+                            return res.status(403).json({ error: 'No tienes permiso' });
+                        }
+                        topic.posts.splice(postIndex, 1);
+                        await cat.save();
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+        if (found) res.json({ success: true });
+        else res.status(404).json({ error: 'Post no encontrado' });
+
+    } else {
+        const pid = parseInt(postId);
+        const forum = loadJson(FORUM_PATH);
+        let found = false;
+
+        for (let cat of forum) {
+            for (let sec of cat.sections) {
+                for (let topic of sec.topics) {
+                    const postIndex = topic.posts.findIndex(p => p.id == pid || p.id == postId);
+                    if (postIndex !== -1) {
+                        const post = topic.posts[postIndex];
+                        if (post.author !== req.session.user.username && req.session.user.role !== 'admin') {
+                            return res.status(403).json({ error: 'No tienes permiso' });
+                        }
+                        topic.posts.splice(postIndex, 1);
                         found = true;
                         break;
                     }
@@ -1697,3 +1773,14 @@ async function detectarNuevaTemporada() {
         console.error("❌ Error al detectar nueva temporada:", e.message);
     }
 }
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`🚀 Servidor en puerto ${process.env.PORT || 3000}`);
+    // Start background checks
+    verificarIntegridadTemporadas();
+    detectarNuevaTemporada();
+});
+
+// Periodic checks
+setInterval(verificarIntegridadTemporadas, 12 * 60 * 60 * 1000); // 12h
+setInterval(detectarNuevaTemporada, 60 * 60 * 1000); // 1h

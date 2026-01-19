@@ -1,6 +1,6 @@
 {
   "description": "Datos históricos de temporadas 7-11",
-  "lastUpdate": "2026-01-14",
+  "lastUpdate": "2026-01-15",
   "seasons": {
     "7": [
       {
@@ -497,6 +497,33 @@
         "twitchUser": "kali_shinrei",
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "8": [
@@ -994,6 +1021,33 @@
         "twitchUser": "kali_shinrei",
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "9": [
@@ -1491,6 +1545,33 @@
         "twitchUser": "kali_shinrei",
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "10": [
@@ -1988,6 +2069,33 @@
         "twitchUser": "kali_shinrei",
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "11": [
@@ -2485,6 +2593,33 @@
         "twitchUser": "kali_shinrei",
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "12": [
@@ -3249,6 +3384,33 @@
         "twitchUser": null,
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "13": [
@@ -3618,13 +3780,22 @@
         ]
       },
       {
+        "battleTag": "Bregok#2128",
+        "rank": 3237,
+        "rating": 8806,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 20
+      },
+      {
         "battleTag": "Nauseabundo#2654",
         "rank": 3866,
         "rating": 8656,
         "found": true,
         "twitchUser": "nauseabundo",
         "isLive": false,
-        "spainRank": 20,
+        "spainRank": 21,
         "badges": [
           {
             "type": "elite",
@@ -3639,7 +3810,7 @@
         "found": true,
         "twitchUser": "spyrozgz",
         "isLive": false,
-        "spainRank": 21,
+        "spainRank": 22,
         "badges": [
           {
             "type": "elite",
@@ -3654,7 +3825,7 @@
         "found": true,
         "twitchUser": "CarryPotterGaming",
         "isLive": false,
-        "spainRank": 22,
+        "spainRank": 23,
         "badges": [
           {
             "type": "elite",
@@ -3669,7 +3840,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 23,
+        "spainRank": 24,
         "badges": [
           {
             "type": "elite",
@@ -3684,7 +3855,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 24,
+        "spainRank": 25,
         "badges": [
           {
             "type": "elite",
@@ -3699,7 +3870,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 25,
+        "spainRank": 26,
         "badges": [
           {
             "type": "elite",
@@ -3714,7 +3885,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 26,
+        "spainRank": 27,
         "badges": [
           {
             "type": "elite",
@@ -3729,7 +3900,7 @@
         "found": true,
         "twitchUser": "lucianotfound",
         "isLive": false,
-        "spainRank": 27,
+        "spainRank": 28,
         "badges": [
           {
             "type": "elite",
@@ -3744,20 +3915,10 @@
         "found": false,
         "twitchUser": "nidelpa",
         "isLive": false,
-        "spainRank": 28
+        "spainRank": 29
       },
       {
         "battleTag": "REJI#21819",
-        "rank": null,
-        "rating": "Sin datos",
-        "found": false,
-        "twitchUser": null,
-        "isLive": false,
-        "spainRank": 29,
-        "badges": []
-      },
-      {
-        "battleTag": "Iceqb#11674",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3767,7 +3928,7 @@
         "badges": []
       },
       {
-        "battleTag": "racsody#2786",
+        "battleTag": "Iceqb#11674",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3777,7 +3938,7 @@
         "badges": []
       },
       {
-        "battleTag": "Spawn#2651",
+        "battleTag": "racsody#2786",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3787,7 +3948,7 @@
         "badges": []
       },
       {
-        "battleTag": "Ichiban#21474",
+        "battleTag": "Spawn#2651",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3797,7 +3958,7 @@
         "badges": []
       },
       {
-        "battleTag": "Migán#2259",
+        "battleTag": "Ichiban#21474",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3807,7 +3968,7 @@
         "badges": []
       },
       {
-        "battleTag": "felcon#2376",
+        "battleTag": "Migán#2259",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3817,7 +3978,7 @@
         "badges": []
       },
       {
-        "battleTag": "ericgb#2414",
+        "battleTag": "felcon#2376",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3827,7 +3988,7 @@
         "badges": []
       },
       {
-        "battleTag": "CuttinoYes#2395",
+        "battleTag": "ericgb#2414",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3837,7 +3998,7 @@
         "badges": []
       },
       {
-        "battleTag": "Cristuki#2386",
+        "battleTag": "CuttinoYes#2395",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3847,7 +4008,7 @@
         "badges": []
       },
       {
-        "battleTag": "Juli#21586",
+        "battleTag": "Cristuki#2386",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3857,7 +4018,7 @@
         "badges": []
       },
       {
-        "battleTag": "huventuri#1756",
+        "battleTag": "Juli#21586",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3867,7 +4028,7 @@
         "badges": []
       },
       {
-        "battleTag": "JUANEN1210#21397",
+        "battleTag": "huventuri#1756",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -3877,13 +4038,23 @@
         "badges": []
       },
       {
+        "battleTag": "JUANEN1210#21397",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 42,
+        "badges": []
+      },
+      {
         "battleTag": "iRadek#2969",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
         "twitchUser": "iradek_",
         "isLive": false,
-        "spainRank": 42,
+        "spainRank": 43,
         "badges": []
       },
       {
@@ -3893,7 +4064,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 43,
+        "spainRank": 44,
         "badges": []
       },
       {
@@ -3903,7 +4074,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 44,
+        "spainRank": 45,
         "badges": []
       },
       {
@@ -3913,7 +4084,7 @@
         "found": false,
         "twitchUser": "paanita13",
         "isLive": false,
-        "spainRank": 45,
+        "spainRank": 46,
         "badges": []
       },
       {
@@ -3923,7 +4094,7 @@
         "found": false,
         "twitchUser": "gloxii_",
         "isLive": false,
-        "spainRank": 46,
+        "spainRank": 47,
         "badges": []
       },
       {
@@ -3933,7 +4104,7 @@
         "found": false,
         "twitchUser": "rial_kbros",
         "isLive": false,
-        "spainRank": 47,
+        "spainRank": 48,
         "badges": []
       },
       {
@@ -3943,7 +4114,7 @@
         "found": false,
         "twitchUser": "gore_legio",
         "isLive": false,
-        "spainRank": 48,
+        "spainRank": 49,
         "badges": []
       },
       {
@@ -3953,7 +4124,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 49,
+        "spainRank": 50,
         "badges": []
       },
       {
@@ -3963,7 +4134,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 50,
+        "spainRank": 51,
         "badges": []
       },
       {
@@ -3973,7 +4144,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 51,
+        "spainRank": 52,
         "badges": []
       },
       {
@@ -3983,7 +4154,7 @@
         "found": false,
         "twitchUser": "rober_hs",
         "isLive": false,
-        "spainRank": 52,
+        "spainRank": 53,
         "badges": []
       },
       {
@@ -3993,7 +4164,7 @@
         "found": false,
         "twitchUser": "anto_z31",
         "isLive": false,
-        "spainRank": 53,
+        "spainRank": 54,
         "badges": []
       },
       {
@@ -4003,7 +4174,7 @@
         "found": false,
         "twitchUser": "kali_shinrei",
         "isLive": false,
-        "spainRank": 54,
+        "spainRank": 55,
         "badges": []
       },
       {
@@ -4013,7 +4184,25 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 55
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "14": [
@@ -4772,6 +4961,33 @@
         "twitchUser": null,
         "isLive": false,
         "spainRank": 55
+      },
+      {
+        "battleTag": "Puerco#21159",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "15": [
@@ -5088,13 +5304,22 @@
         ]
       },
       {
+        "battleTag": "Puerco#21159",
+        "rank": 2691,
+        "rating": 8600,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
         "battleTag": "AyozeAlzado#2974",
         "rank": 2734,
         "rating": 8590,
         "found": true,
         "twitchUser": "ayozealzado",
         "isLive": false,
-        "spainRank": 17,
+        "spainRank": 18,
         "badges": [
           {
             "type": "elite",
@@ -5109,7 +5334,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 18,
+        "spainRank": 19,
         "badges": [
           {
             "type": "elite",
@@ -5124,7 +5349,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 19,
+        "spainRank": 20,
         "badges": [
           {
             "type": "elite",
@@ -5139,7 +5364,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 20,
+        "spainRank": 21,
         "badges": [
           {
             "type": "elite",
@@ -5154,7 +5379,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 21,
+        "spainRank": 22,
         "badges": [
           {
             "type": "elite",
@@ -5169,7 +5394,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 22,
+        "spainRank": 23,
         "badges": [
           {
             "type": "elite",
@@ -5184,7 +5409,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 23,
+        "spainRank": 24,
         "badges": [
           {
             "type": "elite",
@@ -5199,7 +5424,7 @@
         "found": true,
         "twitchUser": "spyrozgz",
         "isLive": false,
-        "spainRank": 24,
+        "spainRank": 25,
         "badges": [
           {
             "type": "elite",
@@ -5214,7 +5439,7 @@
         "found": true,
         "twitchUser": "CarryPotterGaming",
         "isLive": false,
-        "spainRank": 25,
+        "spainRank": 26,
         "badges": [
           {
             "type": "elite",
@@ -5229,7 +5454,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 26,
+        "spainRank": 27,
         "badges": [
           {
             "type": "elite",
@@ -5244,7 +5469,7 @@
         "found": true,
         "twitchUser": "yerolo_97",
         "isLive": false,
-        "spainRank": 27,
+        "spainRank": 28,
         "badges": [
           {
             "type": "elite",
@@ -5259,7 +5484,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 28,
+        "spainRank": 29,
         "badges": [
           {
             "type": "elite",
@@ -5274,7 +5499,7 @@
         "found": false,
         "twitchUser": "silviauntz",
         "isLive": false,
-        "spainRank": 29,
+        "spainRank": 30,
         "badges": []
       },
       {
@@ -5284,7 +5509,7 @@
         "found": false,
         "twitchUser": "nidelpa",
         "isLive": false,
-        "spainRank": 30,
+        "spainRank": 31,
         "badges": []
       },
       {
@@ -5294,7 +5519,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 31,
+        "spainRank": 32,
         "badges": []
       },
       {
@@ -5304,7 +5529,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 32,
+        "spainRank": 33,
         "badges": []
       },
       {
@@ -5314,7 +5539,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 33,
+        "spainRank": 34,
         "badges": []
       },
       {
@@ -5324,7 +5549,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 34,
+        "spainRank": 35,
         "badges": []
       },
       {
@@ -5334,7 +5559,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 35,
+        "spainRank": 36,
         "badges": []
       },
       {
@@ -5344,7 +5569,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 36,
+        "spainRank": 37,
         "badges": []
       },
       {
@@ -5354,7 +5579,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 37,
+        "spainRank": 38,
         "badges": []
       },
       {
@@ -5364,7 +5589,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 38,
+        "spainRank": 39,
         "badges": []
       },
       {
@@ -5374,7 +5599,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 39,
+        "spainRank": 40,
         "badges": []
       },
       {
@@ -5384,7 +5609,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 40,
+        "spainRank": 41,
         "badges": []
       },
       {
@@ -5394,7 +5619,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 41,
+        "spainRank": 42,
         "badges": []
       },
       {
@@ -5404,7 +5629,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 42,
+        "spainRank": 43,
         "badges": []
       },
       {
@@ -5414,7 +5639,7 @@
         "found": false,
         "twitchUser": "iradek_",
         "isLive": false,
-        "spainRank": 43,
+        "spainRank": 44,
         "badges": []
       },
       {
@@ -5424,7 +5649,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 44,
+        "spainRank": 45,
         "badges": []
       },
       {
@@ -5434,7 +5659,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 45,
+        "spainRank": 46,
         "badges": []
       },
       {
@@ -5444,7 +5669,7 @@
         "found": false,
         "twitchUser": "paanita13",
         "isLive": false,
-        "spainRank": 46,
+        "spainRank": 47,
         "badges": []
       },
       {
@@ -5454,7 +5679,7 @@
         "found": false,
         "twitchUser": "gloxii_",
         "isLive": false,
-        "spainRank": 47,
+        "spainRank": 48,
         "badges": []
       },
       {
@@ -5464,7 +5689,7 @@
         "found": false,
         "twitchUser": "rial_kbros",
         "isLive": false,
-        "spainRank": 48,
+        "spainRank": 49,
         "badges": []
       },
       {
@@ -5474,7 +5699,7 @@
         "found": false,
         "twitchUser": "gore_legio",
         "isLive": false,
-        "spainRank": 49,
+        "spainRank": 50,
         "badges": []
       },
       {
@@ -5484,7 +5709,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 50,
+        "spainRank": 51,
         "badges": []
       },
       {
@@ -5494,7 +5719,7 @@
         "found": false,
         "twitchUser": "rober_hs",
         "isLive": false,
-        "spainRank": 51,
+        "spainRank": 52,
         "badges": []
       },
       {
@@ -5504,7 +5729,7 @@
         "found": false,
         "twitchUser": "tormento22",
         "isLive": false,
-        "spainRank": 52,
+        "spainRank": 53,
         "badges": []
       },
       {
@@ -5514,7 +5739,7 @@
         "found": false,
         "twitchUser": "anto_z31",
         "isLive": false,
-        "spainRank": 53,
+        "spainRank": 54,
         "badges": []
       },
       {
@@ -5524,7 +5749,7 @@
         "found": false,
         "twitchUser": "kali_shinrei",
         "isLive": false,
-        "spainRank": 54,
+        "spainRank": 55,
         "badges": []
       },
       {
@@ -5534,7 +5759,25 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 55
+        "spainRank": 56
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 57
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
       }
     ],
     "16": [
@@ -5863,13 +6106,22 @@
         ]
       },
       {
+        "battleTag": "Puerco#21159",
+        "rank": 1218,
+        "rating": 9653,
+        "found": true,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 17
+      },
+      {
         "battleTag": "brutt#2576",
         "rank": 1259,
         "rating": 9614,
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 17,
+        "spainRank": 18,
         "badges": [
           {
             "type": "elite",
@@ -5884,7 +6136,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 18,
+        "spainRank": 19,
         "badges": [
           {
             "type": "elite",
@@ -5899,7 +6151,7 @@
         "found": true,
         "twitchUser": "CarryPotterGaming",
         "isLive": false,
-        "spainRank": 19,
+        "spainRank": 20,
         "badges": [
           {
             "type": "elite",
@@ -5914,7 +6166,7 @@
         "found": true,
         "twitchUser": "ayozealzado",
         "isLive": false,
-        "spainRank": 20,
+        "spainRank": 21,
         "badges": [
           {
             "type": "elite",
@@ -5929,7 +6181,7 @@
         "found": true,
         "twitchUser": "yerolo_97",
         "isLive": false,
-        "spainRank": 21,
+        "spainRank": 22,
         "badges": [
           {
             "type": "elite",
@@ -5944,7 +6196,7 @@
         "found": true,
         "twitchUser": "spyrozgz",
         "isLive": false,
-        "spainRank": 22,
+        "spainRank": 23,
         "badges": [
           {
             "type": "elite",
@@ -5959,7 +6211,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 23,
+        "spainRank": 24,
         "badges": [
           {
             "type": "elite",
@@ -5974,7 +6226,7 @@
         "found": true,
         "twitchUser": "nauseabundo",
         "isLive": false,
-        "spainRank": 24,
+        "spainRank": 25,
         "badges": [
           {
             "type": "elite",
@@ -5989,7 +6241,7 @@
         "found": true,
         "twitchUser": "silviauntz",
         "isLive": false,
-        "spainRank": 25,
+        "spainRank": 26,
         "badges": [
           {
             "type": "elite",
@@ -6004,7 +6256,7 @@
         "found": true,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 26,
+        "spainRank": 27,
         "badges": [
           {
             "type": "elite",
@@ -6019,7 +6271,7 @@
         "found": true,
         "twitchUser": "orpi86",
         "isLive": false,
-        "spainRank": 27,
+        "spainRank": 28,
         "badges": [
           {
             "type": "elite",
@@ -6034,7 +6286,7 @@
         "found": true,
         "twitchUser": "tormento22",
         "isLive": false,
-        "spainRank": 28,
+        "spainRank": 29,
         "badges": [
           {
             "type": "elite",
@@ -6049,20 +6301,10 @@
         "found": true,
         "twitchUser": "nidelpa",
         "isLive": false,
-        "spainRank": 29
+        "spainRank": 30
       },
       {
         "battleTag": "REJI#21819",
-        "rank": null,
-        "rating": "Sin datos",
-        "found": false,
-        "twitchUser": null,
-        "isLive": false,
-        "spainRank": 30,
-        "badges": []
-      },
-      {
-        "battleTag": "Iceqb#11674",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6072,7 +6314,7 @@
         "badges": []
       },
       {
-        "battleTag": "racsody#2786",
+        "battleTag": "Iceqb#11674",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6082,7 +6324,7 @@
         "badges": []
       },
       {
-        "battleTag": "Migán#2259",
+        "battleTag": "racsody#2786",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6092,7 +6334,7 @@
         "badges": []
       },
       {
-        "battleTag": "felcon#2376",
+        "battleTag": "Migán#2259",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6102,7 +6344,7 @@
         "badges": []
       },
       {
-        "battleTag": "ericgb#2414",
+        "battleTag": "felcon#2376",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6112,7 +6354,7 @@
         "badges": []
       },
       {
-        "battleTag": "kaito1412#2484",
+        "battleTag": "ericgb#2414",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6122,7 +6364,7 @@
         "badges": []
       },
       {
-        "battleTag": "CuttinoYes#2395",
+        "battleTag": "kaito1412#2484",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6132,7 +6374,7 @@
         "badges": []
       },
       {
-        "battleTag": "Cristuki#2386",
+        "battleTag": "CuttinoYes#2395",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6142,7 +6384,7 @@
         "badges": []
       },
       {
-        "battleTag": "Juli#21586",
+        "battleTag": "Cristuki#2386",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
@@ -6152,13 +6394,23 @@
         "badges": []
       },
       {
+        "battleTag": "Juli#21586",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 40,
+        "badges": []
+      },
+      {
         "battleTag": "iRadek#2969",
         "rank": null,
         "rating": "Sin datos",
         "found": false,
         "twitchUser": "iradek_",
         "isLive": false,
-        "spainRank": 40,
+        "spainRank": 41,
         "badges": []
       },
       {
@@ -6168,7 +6420,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 41,
+        "spainRank": 42,
         "badges": []
       },
       {
@@ -6178,7 +6430,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 42,
+        "spainRank": 43,
         "badges": []
       },
       {
@@ -6188,7 +6440,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 43,
+        "spainRank": 44,
         "badges": []
       },
       {
@@ -6198,7 +6450,7 @@
         "found": false,
         "twitchUser": "paanita13",
         "isLive": false,
-        "spainRank": 44,
+        "spainRank": 45,
         "badges": []
       },
       {
@@ -6208,7 +6460,7 @@
         "found": false,
         "twitchUser": "gloxii_",
         "isLive": false,
-        "spainRank": 45,
+        "spainRank": 46,
         "badges": []
       },
       {
@@ -6218,7 +6470,7 @@
         "found": false,
         "twitchUser": "rial_kbros",
         "isLive": false,
-        "spainRank": 46,
+        "spainRank": 47,
         "badges": []
       },
       {
@@ -6228,7 +6480,7 @@
         "found": false,
         "twitchUser": "gore_legio",
         "isLive": false,
-        "spainRank": 47,
+        "spainRank": 48,
         "badges": []
       },
       {
@@ -6238,7 +6490,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 48,
+        "spainRank": 49,
         "badges": []
       },
       {
@@ -6248,7 +6500,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 49,
+        "spainRank": 50,
         "badges": []
       },
       {
@@ -6258,7 +6510,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 50,
+        "spainRank": 51,
         "badges": []
       },
       {
@@ -6268,7 +6520,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 51,
+        "spainRank": 52,
         "badges": []
       },
       {
@@ -6278,7 +6530,7 @@
         "found": false,
         "twitchUser": "rober_hs",
         "isLive": false,
-        "spainRank": 52,
+        "spainRank": 53,
         "badges": []
       },
       {
@@ -6288,7 +6540,7 @@
         "found": false,
         "twitchUser": "anto_z31",
         "isLive": false,
-        "spainRank": 53,
+        "spainRank": 54,
         "badges": []
       },
       {
@@ -6298,7 +6550,7 @@
         "found": false,
         "twitchUser": "kali_shinrei",
         "isLive": false,
-        "spainRank": 54,
+        "spainRank": 55,
         "badges": []
       },
       {
@@ -6308,7 +6560,7 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 55
+        "spainRank": 56
       },
       {
         "battleTag": "Hibadino#2533",
@@ -6317,7 +6569,25 @@
         "found": false,
         "twitchUser": null,
         "isLive": false,
-        "spainRank": 56
+        "spainRank": 57
+      },
+      {
+        "battleTag": "Bregok#2128",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 58
+      },
+      {
+        "battleTag": "wisswood#2981",
+        "rank": null,
+        "rating": "Sin datos",
+        "found": false,
+        "twitchUser": null,
+        "isLive": false,
+        "spainRank": 59
       }
     ]
   }

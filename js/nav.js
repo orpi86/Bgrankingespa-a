@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let authLinks = '';
     if (user) {
         authLinks = `
-            <a href="/admin" class="nav-link"><i class="fa-solid fa-circle-user"></i> Mi Perfil</a>
+            <a href="/login" class="nav-link"><i class="fa-solid fa-circle-user"></i> Mi Perfil</a>
             <span style="color:var(--hs-gold); padding:5px 15px; font-family:'Cinzel'; display:flex; align-items:center; gap:5px;">
                 ${user.username}
             </span>
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
     } else {
         authLinks = `
-            <a href="/admin" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
+            <a href="/login" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
             <a href="/register.html" class="nav-link"><i class="fa-solid fa-user-plus"></i> Registro</a>
         `;
     }

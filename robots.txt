@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Excluir páginas privadas de administración
-Disallow: /admin.html
+Disallow: /login.html
 Disallow: /login.html
 Disallow: /register.html
 Disallow: /api/
