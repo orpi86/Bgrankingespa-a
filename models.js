@@ -14,12 +14,14 @@ const userSchema = new mongoose.Schema({
 
 // --- NEWS SCHEMA ---
 const commentSchema = new mongoose.Schema({
+    id: Number, // Preserving original ID type
     author: String,
     content: String,
     date: { type: Date, default: Date.now }
 });
 
 const newsSchema = new mongoose.Schema({
+    id: Number, // Preserving original ID type
     title: { type: String, required: true },
     content: { type: String, required: true },
     author: String,
@@ -30,12 +32,14 @@ const newsSchema = new mongoose.Schema({
 
 // --- FORUM SCHEMA ---
 const postSchema = new mongoose.Schema({
+    id: Number,
     author: String,
     content: String,
     date: { type: Date, default: Date.now }
 });
 
 const topicSchema = new mongoose.Schema({
+    id: Number,
     title: String,
     author: String,
     date: { type: Date, default: Date.now },

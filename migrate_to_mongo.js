@@ -22,6 +22,19 @@ async function migrate() {
         await mongoose.connect(MONGODB_URI);
         console.log("✅ Conectado a MongoDB");
 
+        // CLEAN UP OPTION (To fix schema issues)
+        // Uncomment to wipe DB and request cleanly:
+        // await User.deleteMany({}); await News.deleteMany({}); await Forum.deleteMany({}); await Player.deleteMany({});
+        // console.log("🧹 Base de datos limpiada para re-migración.");
+
+        // Instead of full wipe, let's try to update logic or warn. 
+        // For the user's specific case (missing IDs), a wipe of specific collections (Forum/News) is best if they want to restore from JSON.
+        // Let's wipe Forum and News to ensure they get recreated with IDs.
+        await Forum.deleteMany({});
+        await News.deleteMany({});
+        console.log("🧹 Colecciones Forum y News limpiadas para corregir IDs.");
+
+
         // --- MIGRAR USUARIOS ---
         if (fs.existsSync(USERS_PATH)) {
             const users = JSON.parse(fs.readFileSync(USERS_PATH, 'utf8'));
@@ -64,6 +77,20 @@ async function migrate() {
                 if (!exists) {
                     await Player.create(p);
                     console.log(`🎮 Jugador migrado: ${p.battleTag}`);
+                }
+            }
+        }
+
+        // --- MIGRAR FORO ---
+        if (fs.existsSync(FORUM_PATH)) {
+            const forumData = JSON.parse(fs.readFileSync(FORUM_PATH, 'utf8'));
+            for (const cat of forumData) {
+                const exists = await Forum.findOne({ id: cat.id });
+                if (!exists) {
+                    await Forum.create(cat);
+                    console.log(`🗣️ Categoría de foro migrada: ${cat.title}`);
+                } else {
+                    console.log(`⚠️ Categoría ya existe: ${cat.title}`);
                 }
             }
         }

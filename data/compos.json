@@ -1,0 +1,182 @@
+[
+    {
+        "id": "undead-sticky",
+        "name": "Sticky Deathrattle Undead",
+        "tier": "S",
+        "key_cards": [
+            {
+                "name": "Handless Forsaken",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG25_010.png"
+            },
+            {
+                "name": "Cadaver Caretaker",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_013.png"
+            },
+            {
+                "name": "Anub'arak, Nerubian King",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG25_007.png"
+            },
+            {
+                "name": "Champion of the Primus",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG27_029.png"
+            }
+        ],
+        "description": "Spamea 'Reborn' en tus unidades clave y buffa su ataque permanentemente con Anub'arak. Escala muy bien desde mid-game.",
+        "avg_placement": 2.8
+    },
+    {
+        "id": "demons-eating",
+        "name": "Demon Eating (Shop Buff)",
+        "tier": "S",
+        "key_cards": [
+            {
+                "name": "Insatiable Ur'zul",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG21_004.png"
+            },
+            {
+                "name": "Famished Felbat",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG21_005.png"
+            },
+            {
+                "name": "Felfire Conjurer",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_160.png"
+            },
+            {
+                "name": "Shadowdancer",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG29_872.png"
+            }
+        ],
+        "description": "Consume la taberna para crecer. Usa hechizos de taberna con Felfire Conjurer y apila stats masivos con el Felbat al final del turno.",
+        "avg_placement": 3.1
+    },
+    {
+        "id": "beasts-self-damage",
+        "name": "Self-Damage Beasts",
+        "tier": "A",
+        "key_cards": [
+            {
+                "name": "Trigore the Lasher",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_192.png"
+            },
+            {
+                "name": "Iridescent Skyblazer",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG29_845.png"
+            },
+            {
+                "name": "Octosari, Wrap God",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_804.png"
+            }
+        ],
+        "description": "Aprovecha el daño a tus propios esbirros para escalar permanentemente con Skyblazer y Trigore.",
+        "avg_placement": 3.9
+    },
+    {
+        "id": "mechs-automaton",
+        "name": "Mechs (Automaton)",
+        "tier": "A",
+        "key_cards": [
+            {
+                "name": "Ancestral Automaton",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG28_903.png"
+            },
+            {
+                "name": "Kangor's Apprentice",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BGS_012.png"
+            },
+            {
+                "name": "Utility Drone",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_052.png"
+            }
+        ],
+        "description": "Multiplica tus Ancestral Automatons con Kangor. Utiliza Reborn y Divine Shield para maximizar sus activaciones.",
+        "avg_placement": 4.0
+    },
+    {
+        "id": "quilboar-gems",
+        "name": "Quilboar (Blood Gems)",
+        "tier": "A",
+        "key_cards": [
+            {
+                "name": "Pokey Thornmantle",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG28_409.png"
+            },
+            {
+                "name": "Charlga",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG20_303.png"
+            },
+            {
+                "name": "Drakkari Enchanter",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/ICC_029.png"
+            }
+        ],
+        "description": "Escala tus Gemas de Sangre lo antes posible con Pokey y usa Charlga para buffar toda tu mesa cada turno.",
+        "avg_placement": 4.2
+    },
+    {
+        "id": "naga-deep-blue",
+        "name": "Naga (Deep Blue)",
+        "tier": "B",
+        "key_cards": [
+            {
+                "name": "Deep Blue Crooner",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_503.png"
+            },
+            {
+                "name": "Zesty Shaker",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_505.png"
+            },
+            {
+                "name": "Lava Lurker",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG23_009.png"
+            },
+            {
+                "name": "Shell Whistler",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_502.png"
+            }
+        ],
+        "description": "Ciclo de hechizos clásico. Deep Blue Crooner escala infitamente, y Zesty Shaker duplica los beneficios.",
+        "avg_placement": 4.5
+    },
+    {
+        "id": "pirates-tethys",
+        "name": "Pirates (Tethys APM)",
+        "tier": "B",
+        "key_cards": [
+            {
+                "name": "Admiral Tethys",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_766.png"
+            },
+            {
+                "name": "Peggy Sturdybone",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BGS_119.png"
+            },
+            {
+                "name": "Record Smuggler",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG26_812.png"
+            }
+        ],
+        "description": "Requiere jugar muchas cartas por turno. Tethys te da economía infinita si eres rápido.",
+        "avg_placement": 4.6
+    },
+    {
+        "id": "elementals-azerite",
+        "name": "Elementals (Azerite)",
+        "tier": "C",
+        "key_cards": [
+            {
+                "name": "Living Azerite",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG28_703.png"
+            },
+            {
+                "name": "Lava Lurker",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BG23_009.png"
+            },
+            {
+                "name": "Wildfire Elemental",
+                "image": "https://art.hearthstonejson.com/v1/render/latest/enUS/512x/BGS_126.png"
+            }
+        ],
+        "description": "Depende de jugar muchos hechizos de taberna para buffar a todos tus elementales con Living Azerite.",
+        "avg_placement": 5.1
+    }
+]

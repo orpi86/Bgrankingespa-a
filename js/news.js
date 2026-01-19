@@ -32,12 +32,22 @@ async function loadNews() {
             });
 
             // Comments HTML
-            const commentsHtml = (item.comments || []).map(c => `
+            const commentsHtml = (item.comments || []).map(c => {
+                // Check ownership
+                const canEdit = user && (user.role === 'admin' || user.username === c.author);
+                // Use c.id or c._id
+                const cid = c.id || c._id;
+                const editBtn = canEdit ? `<button class="btn-action" onclick="editComment(${item.id}, '${cid}', this)" style="float:right; font-size:0.65rem; margin-left:5px;">✏️</button>` : '';
+
+                return `
                 <div class="comment">
-                    <div class="comment-author">${c.author} <span style="color:#666; font-size:0.8rem;">${new Date(c.date).toLocaleString()}</span></div>
-                    <div class="comment-text">${parseMedia(c.content)}</div>
+                    <div class="comment-author">
+                        ${c.author} <span style="color:#666; font-size:0.8rem;">${new Date(c.date).toLocaleString()}</span>
+                        ${editBtn}
+                    </div>
+                    <div class="comment-text" id="comment-content-${cid}">${parseMedia(c.content)}</div>
                 </div>
-            `).join('');
+            `}).join('');
 
             const commentForm = user ? `
                 <div class="comment-input-area">
@@ -83,6 +93,26 @@ async function postComment(newsId) {
         const data = await res.json();
         if (data.success) {
             loadNews(); // Reload to show new comment
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function editComment(newsId, commentId, btn) {
+    const currentContent = document.getElementById(`comment-content-${commentId}`).innerText;
+    const newContent = prompt("Edita tu comentario:", currentContent);
+    if (newContent === null || newContent === currentContent) return;
+
+    try {
+        const res = await fetch(`/api/news/${newsId}/comment/${commentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: newContent })
+        });
+        const data = await res.json();
+        if (data.success) {
+            loadNews();
         } else {
             alert("Error: " + data.error);
         }

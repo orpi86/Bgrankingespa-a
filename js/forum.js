@@ -4,8 +4,17 @@ let currentTopicId = null;
 let currentSectionId = null;
 let forumData = [];
 
+let currentUser = null;
+
 async function loadForum() {
     try {
+        // Fetch User first
+        try {
+            const auth = await fetch('/api/me');
+            const authData = await auth.json();
+            currentUser = authData.user;
+        } catch (e) { }
+
         const res = await fetch('/api/forum');
         forumData = await res.json();
         renderCategories();
@@ -141,15 +150,47 @@ function renderPosts(posts) {
         const div = document.createElement('div');
         div.className = 'post-card';
         const date = new Date(p.date).toLocaleString();
+
+        // Check ownership (p.author vs currentUser.username)
+        // Note: p.id might be numeric or mongo object.
+        const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.username === p.author);
+        const editBtn = canEdit ? `<button class="btn-action" onclick="editPost('${p.id || p._id}', this)" style="float:right; font-size:0.7rem;">✏️ Editar</button>` : '';
+
         div.innerHTML = `
             <div class="post-header">
-                <span class="post-author">${p.author}</span>
-                <span>${date}</span>
+                <div>
+                    <span class="post-author">${p.author}</span>
+                    <span>${date}</span>
+                </div>
+                ${editBtn}
             </div>
-            <div class="post-content">${parseMedia(p.content)}</div>
+            <div class="post-content" id="post-content-${p.id || p._id}">${parseMedia(p.content)}</div>
         `;
         container.appendChild(div);
     });
+}
+
+async function editPost(postId, btn) {
+    const currentContent = document.getElementById(`post-content-${postId}`).innerText; // Simplified
+    const newContent = prompt("Edita tu mensaje:", currentContent);
+    if (newContent === null || newContent === currentContent) return;
+
+    try {
+        const res = await fetch(`/api/forum/post/${postId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: newContent })
+        });
+        const data = await res.json();
+        if (data.success) {
+            await loadForum();
+            // Refresh view
+            const topic = findTopic(currentTopicId);
+            if (topic) renderPosts(topic.posts);
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (e) { console.error(e); }
 }
 
 function showTopicList() {
@@ -189,7 +230,7 @@ async function submitReply() {
     const content = document.getElementById('reply-content').value;
     if (!content) return;
 
-    const res = await fetch(`/api/forum/${currentTopicId}/reply`, {
+    const res = await fetch(`/api/forum/topic/${currentTopicId}/post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })

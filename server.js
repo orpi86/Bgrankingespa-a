@@ -269,7 +269,15 @@ const DATA_DIR = path.join(__dirname, 'data');
 const USERS_PATH = path.join(DATA_DIR, 'users.json');
 const NEWS_PATH = path.join(DATA_DIR, 'news.json');
 const FORUM_PATH = path.join(DATA_DIR, 'forum.json');
+const COMPOS_PATH = path.join(DATA_DIR, 'compos.json');
 const PLAYERS_PATH = path.join(__dirname, 'jugadores.json');
+
+// ...
+
+// --- COMPOS API ---
+
+
+
 
 function loadJson(path) {
     try {
@@ -830,10 +838,12 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
     if (!content) return res.status(400).json({ error: 'Comentario vacío' });
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
-        const news = await News.findById(newsId);
+        // Usar findOne({id: ...}) porque usamos IDs numéricos custom
+        const news = await News.findOne({ id: newsId });
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
 
         const newComment = {
+            id: Date.now(), // Añadir ID también para coherencia
             author: req.session.user.username,
             content,
             date: new Date()
@@ -857,7 +867,45 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
         };
         newsList[itemIndex].comments.push(newComment);
         saveJson(NEWS_PATH, newsList);
-        res.json({ success: true, comment: newComment });
+    }
+});
+
+app.put('/api/news/:newsId/comment/:commentId', isAuthenticated, async (req, res) => {
+    const { newsId, commentId } = req.params;
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'Comentario vacío' });
+
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
+        const news = await News.findOne({ id: newsId });
+        if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
+
+        const comment = news.comments.find(c => (c._id && c._id.toString() === commentId) || c.id == commentId);
+        if (!comment) return res.status(404).json({ error: 'Comentario no encontrado' });
+
+        if (comment.author !== req.session.user.username && req.session.user.role !== 'admin') {
+            return res.status(403).json({ error: 'No tienes permiso' });
+        }
+
+        comment.content = content;
+        await news.save();
+        res.json({ success: true, comment });
+    } else {
+        const nid = parseInt(newsId);
+        const cid = parseInt(commentId);
+        const newsList = loadJson(NEWS_PATH);
+        const itemIndex = newsList.findIndex(n => n.id === nid);
+        if (itemIndex === -1) return res.status(404).json({ error: 'Noticia no encontrada' });
+
+        const comment = newsList[itemIndex].comments.find(c => c.id === cid);
+        if (!comment) return res.status(404).json({ error: 'Comentario no encontrado' });
+
+        if (comment.author !== req.session.user.username && req.session.user.role !== 'admin') {
+            return res.status(403).json({ error: 'No tienes permiso' });
+        }
+
+        comment.content = content;
+        saveJson(NEWS_PATH, newsList);
+        res.json({ success: true, comment });
     }
 });
 
@@ -1034,12 +1082,13 @@ app.post('/api/forum/topic/:topicId/post', isAuthenticated, async (req, res) => 
     if (!content) return res.status(400).json({ error: 'Mensaje vacío' });
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
-        const forumCat = await Forum.findOne({ "sections.topics._id": topicId });
+        // Buscar topic por su ID numérico dentro de las secciones
+        const forumCat = await Forum.findOne({ "sections.topics.id": topicId });
         if (!forumCat) return res.status(404).json({ error: 'Tema no encontrado' });
 
         let foundTopic = null;
         for (const sec of forumCat.sections) {
-            foundTopic = sec.topics.id(topicId);
+            foundTopic = sec.topics.find(t => t.id == topicId); // == para permitir string/number match
             if (foundTopic) break;
         }
 
@@ -1076,6 +1125,76 @@ app.post('/api/forum/topic/:topicId/post', isAuthenticated, async (req, res) => 
         foundTopic.posts.push(newPost);
         saveJson(FORUM_PATH, forum);
         res.json({ success: true, post: newPost });
+    }
+});
+
+app.put('/api/forum/post/:postId', isAuthenticated, async (req, res) => {
+    const { postId } = req.params;
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'Contenido vacío' });
+
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
+        // En mongo los subdocumentos tienen _id, pero en local tienen id number.
+        // Buscar el post en TODAS las secciones/topics
+        const cats = await Forum.find();
+        let found = false;
+
+        for (let cat of cats) {
+            for (let sec of cat.sections) {
+                for (let topic of sec.topics) {
+                    // Intentar buscar por _id si es mongo puro o id si es migrado
+                    // Como migramos conservando id, puede que tengamos ambos.
+                    // El frontend manda el _id si está disponible, o el id number.
+                    // Vamos a asumir que postId puede se cualquiera.
+
+                    const post = topic.posts.find(p => (p._id && p._id.toString() === postId) || p.id == postId);
+                    if (post) {
+                        if (post.author !== req.session.user.username && req.session.user.role !== 'admin') {
+                            return res.status(403).json({ error: 'No tienes permiso' });
+                        }
+                        post.content = content;
+                        found = true;
+                        await cat.save();
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+
+        if (found) res.json({ success: true });
+        else res.status(404).json({ error: 'Post no encontrado' });
+
+    } else {
+        const pid = parseInt(postId); // JSON usa IDs numéricos
+        const forum = loadJson(FORUM_PATH);
+        let found = false;
+
+        for (let cat of forum) {
+            for (let sec of cat.sections) {
+                for (let topic of sec.topics) {
+                    const post = topic.posts.find(p => p.id === pid);
+                    if (post) {
+                        if (post.author !== req.session.user.username && req.session.user.role !== 'admin') {
+                            return res.status(403).json({ error: 'No tienes permiso' });
+                        }
+                        post.content = content;
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+        }
+
+        if (found) {
+            saveJson(FORUM_PATH, forum);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: 'Post no encontrado' });
+        }
     }
 });
 
