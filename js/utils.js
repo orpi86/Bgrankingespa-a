@@ -7,7 +7,7 @@ function parseMedia(content) {
 
     // Convert [img:url] to <img> tags
     let parsed = content.replace(/\[img:(https?:\/\/[^\]]+)\]/gi, (match, url) => {
-        return `<div class="media-container"><img src="${url}" alt="Imagen del usuario" class="embedded-img"></div>`;
+        return `<div class="media-container"><img src="${url}" alt="Imagen del usuario" class="embedded-img" loading="lazy"></div>`;
     });
 
     // Convert [yt:url] to YouTube iframes
@@ -20,7 +20,7 @@ function parseMedia(content) {
         }
 
         if (videoId) {
-            return `<div class="media-container"><iframe class="embedded-video" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`;
+            return `<div class="media-container"><iframe class="embedded-video" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
         }
         return match;
     });
@@ -38,7 +38,7 @@ function parseMedia(content) {
             // Note: Replace parent with your actual domain in production (e.g. &parent=bg-ranking.es)
             // For local dev, 'localhost' is usually fine if specified, or omit for auto-detection in some cases
             const parent = window.location.hostname;
-            return `<div class="media-container"><iframe class="embedded-video" src="https://clips.twitch.tv/embed?clip=${clipSlug}&parent=${parent}" frameborder="0" allowfullscreen></iframe></div>`;
+            return `<div class="media-container"><iframe class="embedded-video" src="https://clips.twitch.tv/embed?clip=${clipSlug}&parent=${parent}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
         }
         return match;
     });

@@ -67,8 +67,9 @@ style.innerHTML = `
         max-width: 950px;
         backdrop-filter: blur(15px);
         box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(252, 230, 68, 0.05);
-        position: relative;
-        z-index: 100;
+        position: sticky;
+        top: 20px;
+        z-index: 1000;
     }
     .main-nav::before {
         content: "";

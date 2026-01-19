@@ -11,6 +11,12 @@
     --duel-red: #ff4500;
 }
 
+/* Accessibility Focus */
+:focus-visible {
+    outline: 2px solid var(--hs-gold);
+    outline-offset: 2px;
+}
+
 * {
     box-sizing: border-box;
 }
