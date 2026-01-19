@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     role: { type: String, default: 'user' },
     battleTag: { type: String },
+    twitch: { type: String, default: null },
     banned: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now }

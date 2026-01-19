@@ -159,7 +159,8 @@
                             <div class="user-info" style="font-family:'Cinzel';">
                                 <strong>Usuario:</strong> <span id="profile-username">---</span><br>
                                 <strong>Rango:</strong> <span id="profile-role">---</span><br>
-                                <strong>BattleTag:</strong> <span id="profile-battletag">---</span>
+                                <strong>BattleTag:</strong> <span id="profile-battletag">---</span><br>
+                                <strong>Twitch:</strong> <span id="profile-twitch">---</span>
                             </div>
                         </div>
 
@@ -214,11 +215,19 @@
 
                     <div class="panel-section" style="border-color: #ff6b6b;">
                         <h3 style="color:#ff6b6b; border-color:#ff6b6b;">Eliminar Jugador</h3>
-                        <div class="form-group">
-                            <label>BattleTag a eliminar</label>
-                            <input type="text" id="del-player-bt" placeholder="Ej: Trolls#1234">
+                        <div class="input-group">
+                            <label>BattleTag</label>
+                            <input type="text" id="new-battletag" placeholder="Player#1234">
+                            <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Vincula para aparecer en los
+                                rankings.</div>
                         </div>
-                        <button class="btn-action" style="background:#ff4444;" onclick="deletePlayer()">Eliminar
+
+                        <div class="input-group">
+                            <label>Canal de Twitch (Opcional)</label>
+                            <input type="text" id="new-twitch" placeholder="TuUsuarioTwitch">
+                            <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Se usará para mostrar si estás
+                                en directo.</div>
+                        </div> <button class="btn-action" style="background:#ff4444;" onclick="deletePlayer()">Eliminar
                             Jugador</button>
                     </div>
                 </div>

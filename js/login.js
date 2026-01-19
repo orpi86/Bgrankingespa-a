@@ -42,10 +42,12 @@ function showPanel(user) {
     const pUser = document.getElementById('profile-username');
     const pRole = document.getElementById('profile-role');
     const pBT = document.getElementById('profile-battletag');
+    const pTwitch = document.getElementById('profile-twitch');
 
     if (pUser) pUser.innerText = user.username;
     if (pRole) pRole.innerText = user.role;
     if (pBT) pBT.innerText = user.battleTag || 'No vinculado';
+    if (pTwitch) pTwitch.innerHTML = user.twitch ? `<a href="https://twitch.tv/${user.twitch}" target="_blank" style="color:#9146ff; text-decoration:none;">${user.twitch}</a>` : 'No vinculado';
 
     // Hide tabs based on roles
     const tabNews = document.querySelector('[onclick="switchTab(\'tab-news\')"]');
@@ -442,11 +444,12 @@ async function deleteNewsComment(newsId, commentId) {
 
 async function updateBattleTag() {
     const battleTag = document.getElementById('new-battletag').value;
+    const twitch = document.getElementById('new-twitch').value;
     const msg = document.getElementById('bt-msg');
 
-    if (!battleTag) {
+    if (!battleTag && !twitch) {
         msg.style.color = 'red';
-        msg.innerText = "Introduce un BattleTag vlido.";
+        msg.innerText = "Introduce un BattleTag o Canal de Twitch.";
         return;
     }
 
@@ -454,14 +457,15 @@ async function updateBattleTag() {
         const res = await fetch('/api/user/update-battletag', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ battleTag })
+            body: JSON.stringify({ battleTag, twitch })
         });
         const data = await res.json();
         if (data.success) {
             msg.style.color = 'green';
-            msg.innerText = "BattleTag actualizado!";
-            document.getElementById('profile-battletag').innerText = data.battleTag;
-            // Opcional: recargar auth para actualizar todo el UI
+            msg.innerText = "Perfil actualizado!";
+            document.getElementById('profile-battletag').innerText = data.battleTag || 'No vinculado';
+            // Opcional: mostrar twitch tambien si existiera elemento UI
+            // Recargar auth para asegurar
             checkAuth();
         } else {
             msg.style.color = 'red';

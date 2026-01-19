@@ -219,15 +219,19 @@ const loadPlayers = async () => {
     }
 };
 
-async function ensurePlayerInRanking(battleTag) {
+async function ensurePlayerInRanking(battleTag, twitch = null) {
     if (!battleTag) return;
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
         try {
-            const exists = await Player.findOne({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
-            if (!exists) {
-                await Player.create({ battleTag, twitch: null });
-                console.log(`✅ Jugador auto-añadido a MongoDB: ${battleTag}`);
+            const player = await Player.findOne({ battleTag: { $regex: new RegExp(`^${battleTag}$`, 'i') } });
+            if (!player) {
+                await Player.create({ battleTag, twitch });
+                console.log(`✅ Jugador auto-añadido a MongoDB: ${battleTag} (Twitch: ${twitch})`);
+            } else if (twitch && player.twitch !== twitch) {
+                player.twitch = twitch;
+                await player.save();
+                console.log(`🔄 Twitch actualizado para ${battleTag}: ${twitch}`);
             }
             return;
         } catch (e) {
@@ -241,11 +245,15 @@ async function ensurePlayerInRanking(battleTag) {
         if (fs.existsSync(PLAYERS_PATH)) {
             players = JSON.parse(fs.readFileSync(PLAYERS_PATH, 'utf8'));
         }
-        const exists = players.some(p => p.battleTag.toLowerCase() === battleTag.toLowerCase());
-        if (!exists) {
-            players.push({ battleTag, twitch: null });
+        const index = players.findIndex(p => p.battleTag.toLowerCase() === battleTag.toLowerCase());
+        if (index === -1) {
+            players.push({ battleTag, twitch });
             fs.writeFileSync(PLAYERS_PATH, JSON.stringify(players, null, 2));
             console.log(`✅ Jugador auto-añadido al ranking JSON: ${battleTag}`);
+        } else if (twitch && players[index].twitch !== twitch) {
+            players[index].twitch = twitch;
+            fs.writeFileSync(PLAYERS_PATH, JSON.stringify(players, null, 2));
+            console.log(`🔄 Twitch actualizado JSON para ${battleTag}`);
         }
     } catch (e) {
         console.error("Error en ensurePlayerInRanking (JSON):", e.message);
@@ -863,8 +871,12 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
     if (!content) return res.status(400).json({ error: 'Comentario vacío' });
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
-        // Usar findOne({id: ...}) porque usamos IDs numéricos custom
-        const news = await News.findOne({ id: newsId });
+
+        // Usar findOne con $or para soportar items antiguos (id number) y nuevos (Mongo _id)
+        // Intentar parsear a número si es posible para búsqueda legacy, o string para _id
+        const query = [{ _id: newsId.match(/^[0-9a-fA-F]{24}$/) ? newsId : null }, { id: newsId }].filter(q => q._id || q.id);
+        const news = await News.findOne({ $or: query });
+
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
 
         const newComment = {
@@ -998,30 +1010,42 @@ app.post('/api/user/change-password', isAuthenticated, async (req, res) => {
 });
 
 app.post('/api/user/update-battletag', isAuthenticated, async (req, res) => {
-    const { battleTag } = req.body;
-    if (!battleTag) return res.status(400).json({ error: 'BattleTag es obligatorio' });
+    const { battleTag, twitch } = req.body;
+    // BattleTag es opcional si solo actualiza Twitch, pero idealmente pedimos BT siempre que se toque el perfil
+    // Para simplificar, permitimos actualizar si al menos uno está presente
+    if (!battleTag && !twitch) return res.status(400).json({ error: 'Nada que actualizar' });
 
     const userId = req.session.user.id;
 
     if (MONGODB_URI) {
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-        user.battleTag = battleTag;
+        if (battleTag) user.battleTag = battleTag;
+        if (twitch !== undefined) user.twitch = twitch; // Permite borrar si se manda null/empty, pero undefined no toca
         await user.save();
     } else {
         const users = loadJson(USERS_PATH);
         const user = users.find(u => u.id === userId);
         if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-        user.battleTag = battleTag;
+        if (battleTag) user.battleTag = battleTag;
+        if (twitch !== undefined) user.twitch = twitch;
         saveJson(USERS_PATH, users);
     }
 
-    req.session.user.battleTag = battleTag; // Update session
+    // Update session
+    if (battleTag) req.session.user.battleTag = battleTag;
+    if (twitch !== undefined) req.session.user.twitch = twitch;
 
-    // Auto-add to ranking
-    ensurePlayerInRanking(battleTag);
+    // Auto-add/update ranking
+    // Si hay batletag (o ya lo tenia), sincronizar
+    const finalBT = battleTag || req.session.user.battleTag;
+    const finalTwitch = twitch !== undefined ? twitch : req.session.user.twitch;
 
-    res.json({ success: true, message: 'BattleTag actualizado correctamente', battleTag });
+    if (finalBT) {
+        ensurePlayerInRanking(finalBT, finalTwitch);
+    }
+
+    res.json({ success: true, message: 'Perfil actualizado correctamente', battleTag: finalBT, twitch: finalTwitch });
 });
 
 
