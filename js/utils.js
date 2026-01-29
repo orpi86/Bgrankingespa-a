@@ -3,15 +3,15 @@ function parseMedia(content) {
 
     // Pre-process: Remove newlines and extra spaces between tags [img:...], [yt:...], [tw:...] 
     // to prevent <br> injection between side-by-side elements
-    let processed = content.replace(/(\]|\))\s*\n\s*(\[)/g, '$1$2');
+    let text = content.replace(/(\]|\))\s*\n\s*(\[)/g, '$1$2');
 
-    // Convert [img:url] to <img> tags
-    let parsed = processed.replace(/\[img:(https?:\/\/[^\]]+)\]/gi, (match, url) => {
+    // 1. Convert [img:url] to <img> tags
+    text = text.replace(/\[img:(https?:\/\/[^\]]+)\]/gi, (match, url) => {
         return `<div class="media-container"><img src="${url}" alt="Imagen del usuario" class="embedded-img" loading="lazy"></div>`;
     });
 
-    // Convert [yt:url] to YouTube iframes
-    parsed = parsed.replace(/\[yt:(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[^\]]+)\]/gi, (match, url) => {
+    // 2. Convert [yt:url] to YouTube iframes
+    text = text.replace(/\[yt:(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[^\]]+)\]/gi, (match, url) => {
         let videoId = '';
         if (url.includes('v=')) {
             videoId = url.split('v=')[1].split('&')[0];
@@ -25,8 +25,8 @@ function parseMedia(content) {
         return match;
     });
 
-    // Convert [tw:url] to Twitch Clips iframes
-    parsed = parsed.replace(/\[tw:(https?:\/\/(?:www\.)?(?:twitch\.tv\/[^\/]+\/clip\/|clips\.twitch\.tv\/)[^\]]+)\]/gi, (match, url) => {
+    // 3. Convert [tw:url] to Twitch Clips iframes
+    text = text.replace(/\[tw:(https?:\/\/(?:www\.)?(?:twitch\.tv\/[^\/]+\/clip\/|clips\.twitch\.tv\/)[^\]]+)\]/gi, (match, url) => {
         let clipSlug = '';
         if (url.includes('clips.twitch.tv/')) {
             clipSlug = url.split('clips.twitch.tv/')[1].split('?')[0];
@@ -35,16 +35,25 @@ function parseMedia(content) {
         }
 
         if (clipSlug) {
-            // Note: Replace parent with your actual domain in production (e.g. &parent=bg-ranking.es)
-            // For local dev, 'localhost' is usually fine if specified, or omit for auto-detection in some cases
             const parent = window.location.hostname;
             return `<div class="media-container"><iframe class="embedded-video" src="https://clips.twitch.tv/embed?clip=${clipSlug}&parent=${parent}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
         }
         return match;
     });
 
-    // Basic line breaks
-    return parsed.replace(/\n/g, '<br>');
+    // 4. Global Linkify: Convert remaining URLs to clickable links
+    // Solo linkificamos texto que NO esté ya dentro de una etiqueta HTML (como un src="")
+    const parts = text.split(/(<[^>]+>)/g);
+    text = parts.map(part => {
+        if (part.startsWith('<')) return part;
+        // Regex para URLs: https?://... (evitando caracteres de puntuación finales comunes como .,)
+        return part.replace(/(https?:\/\/[^\s<]+[^.,\s<])/gi, (url) => {
+            return `<a href="${url}" target="_blank" class="hs-link">${url}</a>`;
+        });
+    }).join('');
+
+    // 5. Basic line breaks
+    return text.replace(/\n/g, '<br>');
 }
 
 function insertMedia(id, type) {
@@ -98,6 +107,9 @@ utilsStyle.innerHTML = `
     .embedded-img:hover { transform: scale(1.02); border-color: #fff; }
     .embedded-video { width: 100%; aspect-ratio: 16 / 9; max-width: 800px; border-radius: 8px; border: 1px solid var(--hs-gold); margin: 0 auto; display: block; }
     
+    .hs-link { color: var(--hs-gold); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s; word-break: break-all; }
+    .hs-link:hover { border-bottom-color: var(--hs-gold); filter: brightness(1.2); text-shadow: 0 0 5px var(--hs-gold); }
+
     @media (min-width: 768px) {
         /* If two media items are next to each other, show them side-by-side */
         .media-container:has(+ .media-container),
