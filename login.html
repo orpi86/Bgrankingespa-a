@@ -29,31 +29,56 @@
         }
 
         .login-box {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(27, 22, 38, 0.75) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
             padding: 40px;
-            border: 1px solid var(--hs-gold);
-            border-radius: 8px;
-            max-width: 400px;
-            margin: 50px auto;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 16px !important;
+            max-width: 420px;
+            margin: 80px auto;
             text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
         }
 
         .login-box input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            background: #222;
-            border: 1px solid #444;
-            color: #fff;
+            padding: 12px 15px !important;
+            margin-bottom: 20px !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(252, 209, 68, 0.15) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+            transition: all 0.3s;
+        }
+
+        .login-box input:focus {
+            border-color: var(--hs-gold) !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+            box-shadow: 0 0 15px rgba(252, 209, 68, 0.1) !important;
+            outline: none;
         }
 
         .login-box button {
             width: 100%;
-            padding: 10px;
-            background: var(--hs-gold);
-            border: none;
+            padding: 14px !important;
+            background: linear-gradient(135deg, var(--hs-gold), #b38600) !important;
+            border: none !important;
             font-weight: bold;
             cursor: pointer;
+            border-radius: 8px !important;
+            color: #000 !important;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-box button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(252, 209, 68, 0.3);
+            filter: brightness(1.1);
         }
 
         .admin-panel {

@@ -1590,6 +1590,10 @@ app.listen(PORT, async () => {
     const tiempoHastaEscaneo = proximoEscaneo - ahora;
     console.log(`⏰ Próximo escaneo automático programado para las 6:00 AM (en ${Math.round(tiempoHastaEscaneo / 3600000)}h)`);
 
+    // --- AUTOMATIZACIÓN DE NOTICIAS ---
+    setInterval(fetchBlizzardNews, 6 * 60 * 60 * 1000); // Cada 6 horas
+    setTimeout(fetchBlizzardNews, 5000); // Primer escaneo a los 5 segundos de arrancar
+
     // Detectar nueva temporada cada hora
     setInterval(detectarNuevaTemporada, 60 * 60 * 1000);
     // Y al iniciar (en background)
@@ -1606,6 +1610,144 @@ app.listen(PORT, async () => {
         setTimeout(escaneoProgamado, 24 * 60 * 60 * 1000);
     }, tiempoHastaEscaneo);
 });
+
+async function fetchBlizzardNews() {
+    console.log("📰 Buscando noticias en Blizzard (es-es)...");
+    try {
+        const url = 'https://hearthstone.blizzard.com/es-es/news';
+        const response = await axios.get(url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
+            timeout: 15000
+        });
+
+        const html = response.data;
+        // Blizzard suele inyectar las noticias en stickyBlogList o INITIAL_STATE
+        let newsItems = [];
+
+        const stickyMatch = html.match(/var\s+stickyBlogList\s*=\s*(\[.*?\]);/);
+        if (stickyMatch) {
+            try {
+                newsItems = JSON.parse(stickyMatch[1]);
+                console.log(`✅ Encontradas ${newsItems.length} noticias en stickyBlogList`);
+            } catch (e) { console.error("Error parseando stickyBlogList"); }
+        }
+
+        if (newsItems.length === 0) {
+            const stateMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({.*?});/);
+            if (stateMatch) {
+                try {
+                    const state = JSON.parse(stateMatch[1]);
+                    if (state.news && state.news.blogList) {
+                        newsItems = state.news.blogList;
+                        console.log(`✅ Encontradas ${newsItems.length} noticias en INITIAL_STATE`);
+                    }
+                } catch (e) { console.error("Error parseando INITIAL_STATE"); }
+            }
+        }
+
+        // Si no funciona el JSON, intentamos un regex más rústico sobre el HTML
+        if (newsItems.length === 0) {
+            // Regex básico para encontrar bloques de noticias si el JSON falla
+            const cardRegex = /<a[^>]*href=["']([^"']+\/news\/(\d+))["'][^>]*>.*?<h[23][^>]*>(.*?)<\/h[23]>.*?<img[^>]*src=["']([^"']+)["']/gs;
+            let m;
+            while ((m = cardRegex.exec(html)) !== null) {
+                newsItems.push({
+                    id: m[2],
+                    title: m[3].trim(),
+                    url: m[1].startsWith('http') ? m[1] : `https://hearthstone.blizzard.com${m[1]}`,
+                    thumbnail: m[4]
+                });
+            }
+        }
+
+        if (newsItems.length === 0) return console.log("⚠️ No se encontraron noticias en el formato esperado.");
+
+        // Cargar noticias actuales para evitar duplicados
+        let currentNews = [];
+        if (MONGODB_URI && mongoose.connection.readyState === 1) {
+            currentNews = await News.find({});
+        } else {
+            currentNews = loadJson(NEWS_PATH);
+        }
+
+        const keywords = ["campos de batalla", "battlegrounds", "parche", "actualización", "bg"];
+        let addedCount = 0;
+
+        for (const item of newsItems) {
+            const title = (item.title || "").toLowerCase();
+            const isBG = keywords.some(k => title.includes(k));
+
+            if (!isBG) continue;
+
+            // Verificar duplicado por título (aproximado) o URL si la tenemos
+            const exists = currentNews.some(n => n.title.toLowerCase() === item.title.toLowerCase());
+            if (exists) continue;
+
+            // Crear nueva noticia
+            const newId = Date.now() + addedCount;
+            const blogUrl = item.defaultUrl || item.url || `https://hearthstone.blizzard.com/es-es/news/${item.id}`;
+            const imgUrl = item.thumbnail?.url || item.header?.url || item.thumbnail || item.image || "";
+
+            // Lógica de extracción selectiva para el contenido
+            let formattedContent = `[img:${imgUrl}] ¡Nueva actualización oficial de Blizzard!\n\n`;
+
+            if (item.content) {
+                // Blizzard suele separar por <h2> o similar. Buscamos secciones de "Campos de batalla" o "Battlegrounds"
+                const sections = item.content.split(/<h[123][^>]*>/i);
+                let bgContent = "";
+
+                for (const section of sections) {
+                    const sectionLower = section.toLowerCase();
+                    if (sectionLower.includes("campos de batalla") || sectionLower.includes("battlegrounds") || sectionLower.includes("bg")) {
+                        // Extraer texto y limpiar HTML básico
+                        let cleanSection = section.split(/<\/h[123]>/i).pop()
+                            .replace(/<br\s*\/?>/gi, '\n')
+                            .replace(/<\/p>/gi, '\n')
+                            .replace(/<[^>]*>?/gm, '')
+                            .trim();
+                        bgContent += cleanSection + "\n\n";
+                    }
+                }
+
+                if (bgContent) {
+                    formattedContent += bgContent.substring(0, 1000) + (bgContent.length > 1000 ? "..." : "");
+                } else {
+                    formattedContent += (item.summary || item.description || "Nueva actualización disponible.").replace(/<[^>]*>?/gm, '');
+                }
+            } else {
+                formattedContent += item.title + "\n\nConsulta los cambios específicos para Campos de Batalla en el enlace oficial.";
+            }
+
+            formattedContent += `\n\nPuedes leer todos los detalles en la web oficial:\n${blogUrl}`;
+
+            const newArticle = {
+                id: newId,
+                title: item.title,
+                content: formattedContent,
+                date: new Date().toISOString().split('T')[0],
+                author: "Blizzard Entertainment",
+                comments: [],
+                lastEdit: new Date().toISOString(),
+                externalUrl: blogUrl
+            };
+
+            if (MONGODB_URI && mongoose.connection.readyState === 1) {
+                await new News(newArticle).save();
+            } else {
+                currentNews.unshift(newArticle);
+            }
+            addedCount++;
+            console.log(`✨ Noticia automática añadida: ${item.title}`);
+        }
+
+        if (!MONGODB_URI || mongoose.connection.readyState !== 1) {
+            saveJson(NEWS_PATH, currentNews);
+        }
+
+    } catch (e) {
+        console.error("❌ Error en scraper de noticias:", e.message);
+    }
+}
 
 // Función interna para escaneo sin necesidad de request HTTP
 async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, targetPlayers = null) {
