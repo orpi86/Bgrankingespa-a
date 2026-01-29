@@ -20,23 +20,11 @@ function showPanel(user) {
     const panel = document.getElementById('admin-panel');
     panel.style.display = 'block';
 
-    // Personalize Title
-    const title = panel.querySelector('h1');
-    if (user.role === 'admin' || user.role === 'editor' || user.role === 'mod') {
-        title.innerText = "Panel de Control";
-    } else {
-        title.innerText = "Mi Cuenta";
-    }
-
-    // Role display in header
-    let roleDisplay = document.getElementById('panel-role-info');
-    if (!roleDisplay) {
-        roleDisplay = document.createElement('div');
-        roleDisplay.id = 'panel-role-info';
-        roleDisplay.style = "color:#aaa; margin-top:-20px; margin-bottom:20px; font-family:'Cinzel';";
-        title.after(roleDisplay);
-    }
-    roleDisplay.innerHTML = `Rango: <span style="color:var(--hs-gold)">${user.role.toUpperCase()}</span> ${user.battleTag ? '  ' + user.battleTag : ''}`;
+    // Premium Badge & Header
+    const pUsername = document.getElementById('panel-username');
+    const pRoleLabel = document.getElementById('panel-role');
+    if (pUsername) pUsername.innerText = user.username;
+    if (pRoleLabel) pRoleLabel.innerText = user.role.toUpperCase();
 
     // Fill profile tab
     const pUser = document.getElementById('profile-username');
@@ -49,27 +37,41 @@ function showPanel(user) {
     if (pBT) pBT.innerText = user.battleTag || 'No vinculado';
     if (pTwitch) pTwitch.innerHTML = user.twitch ? `<a href="https://twitch.tv/${user.twitch}" target="_blank" style="color:#9146ff; text-decoration:none;">${user.twitch}</a>` : 'No vinculado';
 
-    // Hide tabs based on roles
-    const tabNews = document.querySelector('[onclick="switchTab(\'tab-news\')"]');
-    const tabUsers = document.querySelector('[onclick="switchTab(\'tab-users\')"]');
-    const tabRanking = document.querySelector('[onclick="switchTab(\'tab-players\')"]');
+    // Role-based visibility for TABS
+    const isAdmin = user.role === 'admin';
+    const isStaff = isAdmin || user.role === 'editor' || user.role === 'mod';
 
-    if (user.role !== 'admin' && user.role !== 'editor') {
-        if (tabNews) tabNews.style.display = 'none';
+    const btnNews = document.getElementById('btn-tab-news');
+    const btnPlayers = document.getElementById('btn-tab-players');
+    const btnUsers = document.getElementById('btn-tab-users');
+    const btnDashboard = document.getElementById('btn-tab-dashboard');
+
+    if (btnDashboard) btnDashboard.style.display = isStaff ? 'inline-block' : 'none';
+    if (btnNews) btnNews.style.display = (isAdmin || user.role === 'editor') ? 'inline-block' : 'none';
+    if (btnPlayers) btnPlayers.style.display = isAdmin ? 'inline-block' : 'none';
+    if (btnUsers) btnUsers.style.display = isAdmin ? 'inline-block' : 'none';
+
+    // Default Tab
+    if (isStaff) {
+        switchTab('tab-dashboard');
+        loadAdminStats();
     } else {
-        if (tabNews) tabNews.style.display = 'inline-block';
+        switchTab('tab-profile');
     }
+}
 
-    if (user.role !== 'admin') {
-        if (tabUsers) tabUsers.style.display = 'none';
-        if (tabRanking) tabRanking.style.display = 'none';
-        // If regular user has no tabs, show a welcome message
-        if (user.role === 'user') {
-            switchTab('tab-profile');
+async function loadAdminStats() {
+    try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('stat-players').innerText = data.stats.totalPlayers;
+            document.getElementById('stat-news').innerText = data.stats.totalNews;
+            document.getElementById('stat-users').innerText = data.stats.totalUsers;
+            document.getElementById('stat-season').innerText = data.stats.currentSeason;
         }
-    } else {
-        if (tabUsers) tabUsers.style.display = 'inline-block';
-        if (tabRanking) tabRanking.style.display = 'inline-block';
+    } catch (e) {
+        console.error("Error loading stats:", e);
     }
 }
 
@@ -361,7 +363,7 @@ async function loadUsers() {
                 : `<button class="btn-ban" onclick="toggleBan(${u.id}, true)">Banear</button>`;
 
             const roleSelect = u.username !== 'admin' ? `
-                <select onchange="changeUserRole(${u.id}, this.value)" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:4px; font-size:0.8rem; padding:4px 8px; margin-right:6px; cursor:pointer;">
+                <select onchange="changeUserRole(${u.id}, this.value)">
                     <option value="user" ${u.role === 'user' ? 'selected' : ''}>Usuario</option>
                     <option value="editor" ${u.role === 'editor' ? 'selected' : ''}>Editor</option>
                     <option value="mod" ${u.role === 'mod' ? 'selected' : ''}>Mod</option>
@@ -371,12 +373,14 @@ async function loadUsers() {
 
             div.innerHTML = `
                 <div class="user-info">
-                    <span style="color: ${u.role === 'admin' ? 'var(--hs-gold)' : '#fff'}">${u.username}</span>
-                    <span class="user-role">${u.role} ${u.battleTag ? ' ' + u.battleTag : ''}</span>
+                    <span style="color: ${u.role === 'admin' ? 'var(--hs-gold)' : '#fff'}; font-weight: bold;">${u.username}</span>
+                    <span class="user-role" style="font-size: 0.7rem; color: #888; text-transform: uppercase;">${u.role} | ${u.battleTag || 'Sin Vincular'}</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:5px;">
+                <div style="display:flex; align-items:center; gap:8px;">
                     ${roleSelect}
-                    <button class="btn-action" style="padding:2px 6px; font-size:0.7rem; background:#555;" onclick="adminResetPassword('${u.id}', '${u.username}')">Reset Pass</button>
+                    <button class="btn-action-small" onclick="adminResetPassword('${u.id}', '${u.username}')" title="Reset Password">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
                     ${u.role !== 'admin' ? bannedBtn : ''}
                 </div>
             `;

@@ -16,9 +16,9 @@ function initFooter() {
             <div class="footer-section">
                 <h4>Comunidad</h4>
                 <ul>
-                    <li><a href="https://discord.gg/your-link" target="_blank"><i class="fa-brands fa-discord"></i> Discord</a></li>
-                    <li><a href="https://twitter.com/your-handle" target="_blank"><i class="fa-brands fa-twitter"></i> Twitter / X</a></li>
-                    <li><a href="https://twitch.tv/directory/game/Hearthstone" target="_blank"><i class="fa-brands fa-twitch"></i> Twitch</a></li>
+                    <li><a href="https://discord.gg/UUhG4msT" target="_blank"><i class="fa-brands fa-discord"></i> Discord</a></li>
+                    <li><a href="https://x.com/NellOrpi" target="_blank"><i class="fa-brands fa-twitter"></i> Twitter / X</a></li>
+                    <li><a href="https://www.twitch.tv/orpi86" target="_blank"><i class="fa-brands fa-twitch"></i> Twitch</a></li>
                 </ul>
             </div>
             <div class="footer-section">

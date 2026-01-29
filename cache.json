@@ -6618,7 +6618,7 @@
     ]
   },
   "17": {
-    "timestamp": 1769667785671,
+    "timestamp": 1769669653266,
     "data": [
       {
         "battleTag": "KuositoVélez#2154",
@@ -6667,8 +6667,8 @@
       },
       {
         "battleTag": "brutt#2576",
-        "rank": 150,
-        "rating": 10892,
+        "rank": 149,
+        "rating": 10911,
         "found": true,
         "twitchUser": null,
         "isLive": false,
@@ -6748,7 +6748,7 @@
       },
       {
         "battleTag": "yerolo#2226",
-        "rank": 427,
+        "rank": 426,
         "rating": 9387,
         "found": true,
         "twitchUser": "yerolo_97",
@@ -6757,7 +6757,7 @@
       },
       {
         "battleTag": "Migán#2259",
-        "rank": 451,
+        "rank": 448,
         "rating": 9316,
         "found": true,
         "twitchUser": null,
@@ -6766,7 +6766,7 @@
       },
       {
         "battleTag": "FrOdOpOllOn#21430",
-        "rank": 504,
+        "rank": 503,
         "rating": 9188,
         "found": true,
         "twitchUser": null,
@@ -6775,7 +6775,7 @@
       },
       {
         "battleTag": "Vizjerei94#2221",
-        "rank": 534,
+        "rank": 532,
         "rating": 9115,
         "found": true,
         "twitchUser": null,
@@ -6784,7 +6784,7 @@
       },
       {
         "battleTag": "Winterchaos#2337",
-        "rank": 564,
+        "rank": 562,
         "rating": 9062,
         "found": true,
         "twitchUser": null,
@@ -6793,7 +6793,7 @@
       },
       {
         "battleTag": "Bregok#2128",
-        "rank": 670,
+        "rank": 671,
         "rating": 8880,
         "found": true,
         "twitchUser": null,
@@ -6802,7 +6802,7 @@
       },
       {
         "battleTag": "Juli#21586",
-        "rank": 712,
+        "rank": 715,
         "rating": 8816,
         "found": true,
         "twitchUser": null,
@@ -6829,7 +6829,7 @@
       },
       {
         "battleTag": "mikibravo11#2177",
-        "rank": 935,
+        "rank": 934,
         "rating": 8557,
         "found": true,
         "twitchUser": null,
@@ -6838,7 +6838,7 @@
       },
       {
         "battleTag": "RoberHS#2831",
-        "rank": 1006,
+        "rank": 1004,
         "rating": 8492,
         "found": true,
         "twitchUser": "rober_hs",
@@ -6856,7 +6856,7 @@
       },
       {
         "battleTag": "litos#21771",
-        "rank": 1299,
+        "rank": 1302,
         "rating": 8266,
         "found": true,
         "twitchUser": null,
@@ -6865,7 +6865,7 @@
       },
       {
         "battleTag": "Spyrozgz#2196",
-        "rank": 1309,
+        "rank": 1312,
         "rating": 8261,
         "found": true,
         "twitchUser": "spyrozgz",
@@ -6874,7 +6874,7 @@
       },
       {
         "battleTag": "Tormento#2410",
-        "rank": 1378,
+        "rank": 1382,
         "rating": 8223,
         "found": true,
         "twitchUser": "tormento22",
@@ -6883,7 +6883,7 @@
       },
       {
         "battleTag": "Eternallie#2829",
-        "rank": 1504,
+        "rank": 1503,
         "rating": 8158,
         "found": true,
         "twitchUser": "silviauntz",
@@ -6892,7 +6892,7 @@
       },
       {
         "battleTag": "Orpinell#2250",
-        "rank": 1517,
+        "rank": 1514,
         "rating": 8155,
         "found": true,
         "twitchUser": "orpi86",
@@ -6901,7 +6901,7 @@
       },
       {
         "battleTag": "byCrash#2506",
-        "rank": 1523,
+        "rank": 1520,
         "rating": 8151,
         "found": true,
         "twitchUser": null,
@@ -6910,7 +6910,7 @@
       },
       {
         "battleTag": "Sentenciado#21853",
-        "rank": 1555,
+        "rank": 1551,
         "rating": 8141,
         "found": true,
         "twitchUser": null,
@@ -6919,7 +6919,7 @@
       },
       {
         "battleTag": "saiggo16#2483",
-        "rank": 1642,
+        "rank": 1640,
         "rating": 8103,
         "found": true,
         "twitchUser": "saiggo16",
@@ -6928,7 +6928,7 @@
       },
       {
         "battleTag": "Spawn#2651",
-        "rank": 1739,
+        "rank": 1737,
         "rating": 8077,
         "found": true,
         "twitchUser": null,
@@ -6937,7 +6937,7 @@
       },
       {
         "battleTag": "JUANEN1210#21397",
-        "rank": 1802,
+        "rank": 1800,
         "rating": 8067,
         "found": true,
         "twitchUser": null,
@@ -6946,7 +6946,7 @@
       },
       {
         "battleTag": "huventuri#1756",
-        "rank": 2014,
+        "rank": 2012,
         "rating": 8044,
         "found": true,
         "twitchUser": null,
@@ -6955,7 +6955,7 @@
       },
       {
         "battleTag": "NeCrO#2960",
-        "rank": 2333,
+        "rank": 2329,
         "rating": 8022,
         "found": true,
         "twitchUser": null,
@@ -6964,7 +6964,7 @@
       },
       {
         "battleTag": "javu113#2573",
-        "rank": 2490,
+        "rank": 2488,
         "rating": 8013,
         "found": true,
         "twitchUser": null,

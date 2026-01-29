@@ -656,6 +656,35 @@ app.get('/api/populate-history', async (req, res) => {
 
 });
 
+// --- STATS API ---
+app.get('/api/admin/stats', isAdmin, async (req, res) => {
+    try {
+        const players = await loadPlayers();
+        let newsCount = 0;
+        let usersCount = 0;
+
+        if (MONGODB_URI && mongoose.connection.readyState === 1) {
+            newsCount = await News.countDocuments();
+            usersCount = await User.countDocuments();
+        } else {
+            newsCount = loadJson(NEWS_PATH).length;
+            usersCount = loadJson(USERS_PATH).length;
+        }
+
+        res.json({
+            success: true,
+            stats: {
+                totalPlayers: players.length,
+                totalNews: newsCount,
+                totalUsers: usersCount,
+                currentSeason: CURRENT_SEASON_ID
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // --- AUTH API ---
 
 app.post('/api/login', async (req, res) => {
@@ -1808,13 +1837,6 @@ async function detectarNuevaTemporada() {
         console.error("❌ Error al detectar nueva temporada:", e.message);
     }
 }
-
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`🚀 Servidor en puerto ${process.env.PORT || 3000}`);
-    // Start background checks
-    verificarIntegridadTemporadas();
-    detectarNuevaTemporada();
-});
 
 // Periodic checks
 setInterval(verificarIntegridadTemporadas, 12 * 60 * 60 * 1000); // 12h
