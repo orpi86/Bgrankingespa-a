@@ -94,188 +94,12 @@
             color: #ddd;
         }
 
-        .btn-action {
-            background: #4a6fa5;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
+        .active-link {
+            border: 1px solid rgba(252, 209, 68, 0.3);
         }
 
-        /* Rework Admin Panel - Premium Style */
-        .admin-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-box,
-        .admin-panel {
-            background: rgba(10, 15, 30, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(252, 209, 68, 0.15);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(252, 209, 68, 0.05);
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-box input,
-        .panel-section input,
-        .panel-section textarea,
-        .panel-section select {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            width: 100%;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        .login-box input:focus,
-        .panel-section input:focus,
-        .panel-section textarea:focus {
-            border-color: var(--hs-gold);
-            background: rgba(252, 209, 68, 0.05);
-            outline: none;
-            box-shadow: 0 0 10px rgba(252, 209, 68, 0.2);
-        }
-
-        .login-box button,
-        .btn-action {
-            background: linear-gradient(135deg, var(--hs-gold), #b38600);
-            color: #000 !important;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-block;
-        }
-
-        .login-box button:hover,
-        .btn-action:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(252, 209, 68, 0.4);
-            filter: brightness(1.1);
-        }
-
-        /* Tabs Rework */
-        .admin-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 35px;
-            padding: 5px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #888;
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            padding: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            white-space: nowrap;
-        }
-
-        .tab-btn i {
-            font-size: 1rem;
-        }
-
-        .tab-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .tab-btn.active {
-            background: rgba(252, 209, 68, 0.12);
-            color: var(--hs-gold);
-            box-shadow: inset 0 0 10px rgba(252, 209, 68, 0.1);
-        }
-
-        .panel-section {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
-
-        .panel-section h3,
-        .panel-section h4 {
-            font-family: 'Cinzel', serif;
-            color: var(--hs-gold);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px 20px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            transition: all 0.3s;
-        }
-
-        .user-row:hover {
-            border-color: rgba(252, 209, 68, 0.3);
-            background: rgba(252, 209, 68, 0.03);
-        }
-
-        .admin-panel h1 {
-            font-family: 'Cinzel', serif;
-            color: var(--hs-gold);
-            text-shadow: 0 0 15px rgba(252, 209, 68, 0.3);
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        #panel-role-info {
-            background: rgba(252, 209, 68, 0.05);
-            padding: 5px 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(252, 209, 68, 0.1);
-            display: inline-block;
+        .tab-content {
+            display: none;
         }
     </style>
 </head>
@@ -396,113 +220,115 @@
                             style="width: 100%; margin-top:20px;">Actualizar Contraseña</button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab: Jugadores -->
-            <div id="tab-players" class="tab-content">
-                <div class="panel-section">
-                    <h3>Añadir Jugador al Ranking</h3>
-                    <div class="form-group">
-                        <label>BattleTag (Nombre#1234)</label>
-                        <input type="text" id="player-bt" placeholder="Ej: Kuosito#2154">
-                    </div>
-                    <div class="form-group">
-                        <label>Canal de Twitch (Opcional)</label>
-                        <input type="text" id="player-twitch" placeholder="Ej: kuosito">
-                    </div>
-                    <button class="btn-action" onclick="addPlayer()">Añadir Jugador</button>
-                    <p id="player-msg" style="margin-top:10px;"></p>
-                </div>
-
-                <div class="panel-section" style="border-color: rgba(255,107,107,0.3);">
-                    <h3 style="color:#ff6b6b;"><i class="fa-solid fa-user-minus"></i> Eliminar Jugador</h3>
-                    <div class="form-group">
-                        <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">BattleTag del
-                            Jugador</label>
-                        <input type="text" id="del-player-bt" placeholder="Player#1234">
-                    </div>
-                    <button class="btn-action"
-                        style="background:linear-gradient(135deg, #ff4444, #cc0000); color:#fff !important; width:100%;"
-                        onclick="deletePlayer()">Eliminar de Ranking</button>
-                </div>
-
-                <div class="panel-section">
-                    <h3><i class="fa-solid fa-terminal"></i> Opciones de Sistema</h3>
-                    <button class="btn-action"
-                        style="background:linear-gradient(135deg, #28a745, #1e7e34); color:#fff !important; width:100%;"
-                        onclick="forceRefreshRanking()">
-                        <i class="fa-solid fa-sync"></i> Forzar Escaneo de Blizzard
-                    </button>
-                    <p style="font-size:0.85rem; color:#888; margin-top:20px; text-align:center;">
-                        Esto forzará al servidor a actualizar los datos del ranking inmediatamente.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Tab: Noticias -->
-            <div id="tab-news" class="tab-content" style="display:none;">
-                <div class="panel-section" id="news-editor-container">
-                    <h3 id="news-form-title"><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia</h3>
-                    <input type="hidden" id="edit-news-id">
-                    <div class="form-group">
-                        <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Título de la
-                            Noticia</label>
-                        <input type="text" id="news-title" placeholder="Ej: Nueva Temporada Disponible">
-                    </div>
-                    <div class="form-group">
-                        <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Contenido
-                            (Soporta etiquetas [img:url], [yt:url], [tw:url])</label>
-                        <div style="margin-bottom:15px; display:flex; gap:8px;">
-                            <button class="btn-action" style="padding:6px 12px; font-size:0.75rem;"
-                                onclick="insertMedia('news-content', 'img')"><i class="fa-solid fa-image"></i>
-                                +Img</button>
-                            <button class="btn-action" style="padding:6px 12px; font-size:0.75rem; background:#c4302b;"
-                                onclick="insertMedia('news-content', 'yt')"><i class="fa-brands fa-youtube"></i>
-                                +YouTube</button>
-                            <button class="btn-action" style="padding:6px 12px; font-size:0.75rem; background:#9146ff;"
-                                onclick="insertMedia('news-content', 'tw')"><i class="fa-brands fa-twitch"></i>
-                                +Twitch</button>
+                <!-- Tab: Jugadores -->
+                <div id="tab-players" class="tab-content">
+                    <div class="panel-section">
+                        <h3>Añadir Jugador al Ranking</h3>
+                        <div class="form-group">
+                            <label>BattleTag (Nombre#1234)</label>
+                            <input type="text" id="player-bt" placeholder="Ej: Kuosito#2154">
                         </div>
-                        <textarea id="news-content" rows="8" placeholder="Escribe el contenido aquí..."></textarea>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn-action" id="btn-post-news" onclick="postNews()">Publicar Noticia</button>
-                        <button class="btn-action" id="btn-cancel-edit" style="background:#444; display:none;"
-                            onclick="cancelNewsEdit()">Cancelar Edición</button>
+                        <div class="form-group">
+                            <label>Canal de Twitch (Opcional)</label>
+                            <input type="text" id="player-twitch" placeholder="Ej: kuosito">
+                        </div>
+                        <button class="btn-action" onclick="addPlayer()">Añadir Jugador</button>
+                        <p id="player-msg" style="margin-top:10px;"></p>
                     </div>
 
-                    <div id="news-comments-section"
-                        style="display:none; margin-top:35px; border-top:1px solid rgba(255,255,255,0.1); padding-top:25px;">
-                        <h4><i class="fa-solid fa-comments"></i> Moderar Comentarios</h4>
-                        <div id="news-comments-list" style="max-height: 300px; overflow-y: auto;"></div>
+                    <div class="panel-section" style="border-color: rgba(255,107,107,0.3);">
+                        <h3 style="color:#ff6b6b;"><i class="fa-solid fa-user-minus"></i> Eliminar Jugador</h3>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">BattleTag
+                                del
+                                Jugador</label>
+                            <input type="text" id="del-player-bt" placeholder="Player#1234">
+                        </div>
+                        <button class="btn-action"
+                            style="background:linear-gradient(135deg, #ff4444, #cc0000); color:#fff !important; width:100%;"
+                            onclick="deletePlayer()">Eliminar de Ranking</button>
                     </div>
-                    <p id="news-msg" style="margin-top:15px; text-align:center;"></p>
+
+                    <div class="panel-section">
+                        <h3><i class="fa-solid fa-terminal"></i> Opciones de Sistema</h3>
+                        <button class="btn-action"
+                            style="background:linear-gradient(135deg, #28a745, #1e7e34); color:#fff !important; width:100%;"
+                            onclick="forceRefreshRanking()">
+                            <i class="fa-solid fa-sync"></i> Forzar Escaneo de Blizzard
+                        </button>
+                        <p style="font-size:0.85rem; color:#888; margin-top:20px; text-align:center;">
+                            Esto forzará al servidor a actualizar los datos del ranking inmediatamente.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="panel-section">
-                    <h3><i class="fa-solid fa-list-ul"></i> Noticias Publicadas</h3>
-                    <div id="admin-news-list" style="max-height: 400px; overflow-y: auto;">
-                        <!-- List of news will be injected here -->
+                <!-- Tab: Noticias -->
+                <div id="tab-news" class="tab-content">
+                    <div class="panel-section" id="news-editor-container">
+                        <h3 id="news-form-title"><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia</h3>
+                        <input type="hidden" id="edit-news-id">
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Título de la
+                                Noticia</label>
+                            <input type="text" id="news-title" placeholder="Ej: Nueva Temporada Disponible">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Contenido
+                                (Soporta etiquetas [img:url], [yt:url], [tw:url])</label>
+                            <div style="margin-bottom:15px; display:flex; gap:8px;">
+                                <button class="btn-action" style="padding:6px 12px; font-size:0.75rem;"
+                                    onclick="insertMedia('news-content', 'img')"><i class="fa-solid fa-image"></i>
+                                    +Img</button>
+                                <button class="btn-action"
+                                    style="padding:6px 12px; font-size:0.75rem; background:#c4302b;"
+                                    onclick="insertMedia('news-content', 'yt')"><i class="fa-brands fa-youtube"></i>
+                                    +YouTube</button>
+                                <button class="btn-action"
+                                    style="padding:6px 12px; font-size:0.75rem; background:#9146ff;"
+                                    onclick="insertMedia('news-content', 'tw')"><i class="fa-brands fa-twitch"></i>
+                                    +Twitch</button>
+                            </div>
+                            <textarea id="news-content" rows="8" placeholder="Escribe el contenido aquí..."></textarea>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn-action" id="btn-post-news" onclick="postNews()">Publicar Noticia</button>
+                            <button class="btn-action" id="btn-cancel-edit" style="background:#444; display:none;"
+                                onclick="cancelNewsEdit()">Cancelar Edición</button>
+                        </div>
+
+                        <div id="news-comments-section"
+                            style="display:none; margin-top:35px; border-top:1px solid rgba(255,255,255,0.1); padding-top:25px;">
+                            <h4><i class="fa-solid fa-comments"></i> Moderar Comentarios</h4>
+                            <div id="news-comments-list" style="max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+                        <p id="news-msg" style="margin-top:15px; text-align:center;"></p>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3><i class="fa-solid fa-list-ul"></i> Noticias Publicadas</h3>
+                        <div id="admin-news-list" style="max-height: 400px; overflow-y: auto;">
+                            <!-- List of news will be injected here -->
+                        </div>
                     </div>
                 </div>
+
+                <!-- Tab: Usuarios -->
+                <div id="tab-users" class="tab-content">
+                    <div class="panel-section">
+                        <h3><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</h3>
+                        <div style="margin-bottom:20px;">
+                            <button class="btn-action" onclick="loadUsers()" style="font-size:0.8rem;"><i
+                                    class="fa-solid fa-rotate"></i> Recargar Lista</button>
+                        </div>
+                        <div id="users-list" style="max-height: 500px; overflow-y: auto;">
+                            <!-- Users injected here -->
+                        </div>
+                    </div>
+                </div>
+
             </div>
-
-            <!-- Tab: Usuarios -->
-            <div id="tab-users" class="tab-content" style="display:none;">
-                <div class="panel-section">
-                    <h3><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</h3>
-                    <div style="margin-bottom:20px;">
-                        <button class="btn-action" onclick="loadUsers()" style="font-size:0.8rem;"><i
-                                class="fa-solid fa-rotate"></i> Recargar Lista</button>
-                    </div>
-                    <div id="users-list" style="max-height: 500px; overflow-y: auto;">
-                        <!-- Users injected here -->
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <footer></footer>
+            <footer></footer>
     </main>
     <script src="js/utils.js"></script>
     <script src="js/nav.js"></script>

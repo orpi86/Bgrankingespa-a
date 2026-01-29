@@ -293,7 +293,8 @@ async function deleteNews(id) {
 
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    document.getElementById(tabId).style.display = 'block';
+    const target = document.getElementById(tabId);
+    if (target) target.style.display = 'block';
 
     if (tabId === 'tab-news') loadNewsList();
 
