@@ -848,7 +848,19 @@ app.put('/api/news/:id', isEditor, async (req, res) => {
     const { title, content } = req.body;
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
-        const news = await News.findById(newsId);
+        let news = null;
+        try {
+            // Primero intentamos por el ID numérico custom (que es lo que el scraper pone en 'id')
+            news = await News.findOne({ id: newsId }).catch(() => null);
+
+            // Si no se encuentra y el ID parece un ObjectId válido, buscamos por _id
+            if (!news && mongoose.Types.ObjectId.isValid(newsId)) {
+                news = await News.findById(newsId).catch(() => null);
+            }
+        } catch (e) {
+            console.error("Error buscando noticia:", e.message);
+        }
+
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
         news.title = title || news.title;
         news.content = content || news.content;
@@ -875,9 +887,17 @@ app.delete('/api/news/:id', isEditor, async (req, res) => {
     const newsId = req.params.id;
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
-        // Try id (number) or _id (ObjectId)
-        const news = await News.findOneAndDelete({ $or: [{ id: newsId }, { _id: newsId }] }).catch(() => null)
-            || await News.findByIdAndDelete(newsId).catch(() => null);
+        let news = null;
+        try {
+            // Intentar por ID custom primero
+            news = await News.findOneAndDelete({ id: newsId }).catch(() => null);
+            // Si no, por _id si es válido
+            if (!news && mongoose.Types.ObjectId.isValid(newsId)) {
+                news = await News.findByIdAndDelete(newsId).catch(() => null);
+            }
+        } catch (e) {
+            console.error("Error borrando noticia:", e.message);
+        }
 
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
         res.json({ success: true });
@@ -901,21 +921,14 @@ app.post('/api/news/:id/comment', isAuthenticated, async (req, res) => {
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
 
-        // Usar findOne con $or para soportar items antiguos (id number) y nuevos (Mongo _id)
         // Intentar parsear a número si es posible para búsqueda legacy, o string para _id
-        const query = [];
-        // Si parece ObjectId válido
-        if (mongoose.Types.ObjectId.isValid(newsId)) {
-            query.push({ _id: newsId });
-        }
-        // Si parece un número entero (Legacy ID)
-        if (/^\d+$/.test(newsId)) {
-            query.push({ id: parseInt(newsId) });
-        }
-
-        if (query.length === 0) return res.status(404).json({ error: 'ID inválido' });
-
-        const news = await News.findOne({ $or: query });
+        let news = null;
+        try {
+            news = await News.findOne({ id: newsId }).catch(() => null);
+            if (!news && mongoose.Types.ObjectId.isValid(newsId)) {
+                news = await News.findById(newsId).catch(() => null);
+            }
+        } catch (e) { }
 
         if (!news) return res.status(404).json({ error: 'Noticia no encontrada' });
 
@@ -1672,8 +1685,16 @@ async function fetchBlizzardNews() {
 
         const keywords = ["campos de batalla", "battlegrounds", "parche", "actualización", "bg"];
         let addedCount = 0;
+        const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
 
         for (const item of newsItems) {
+            // Filtrar por fecha (Blizzard suele mandar publishDate o similar)
+            const itemDate = item.publishDate ? new Date(item.publishDate).getTime() : Date.now();
+            if (itemDate < sevenDaysAgo) {
+                console.log(`⏩ Saltando noticia antigua: ${item.title}`);
+                continue;
+            }
+
             const title = (item.title || "").toLowerCase();
             const isBG = keywords.some(k => title.includes(k));
 
@@ -1698,19 +1719,30 @@ async function fetchBlizzardNews() {
 
                 for (const section of sections) {
                     const sectionLower = section.toLowerCase();
-                    if (sectionLower.includes("campos de batalla") || sectionLower.includes("battlegrounds") || sectionLower.includes("bg")) {
-                        // Extraer texto y limpiar HTML básico
-                        let cleanSection = section.split(/<\/h[123]>/i).pop()
+                    // Si el título general ya es BG, somos menos restrictivos con el contenido
+                    const isGlobalBG = item.title.toLowerCase().includes("campos de batalla") || item.title.toLowerCase().includes("battlegrounds");
+
+                    if (isGlobalBG || sectionLower.includes("campos de batalla") || sectionLower.includes("battlegrounds") || sectionLower.includes("bg")) {
+                        // Extraer texto y limpiar HTML básico, pero preservando imágenes con nuestro formato [img:URL]
+                        let sectionWithImgs = section.split(/<\/h[123]>/i).pop();
+
+                        // Convertir <img> tags a [img:URL]
+                        const imgTagRegex = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
+                        sectionWithImgs = sectionWithImgs.replace(imgTagRegex, (match, src) => `\n[img:${src}]\n`);
+
+                        let cleanSection = sectionWithImgs
                             .replace(/<br\s*\/?>/gi, '\n')
                             .replace(/<\/p>/gi, '\n')
-                            .replace(/<[^>]*>?/gm, '')
+                            .replace(/<[^>]*>?/gm, '') // Quitar el resto de tags HTML
                             .trim();
+
                         bgContent += cleanSection + "\n\n";
                     }
                 }
 
                 if (bgContent) {
-                    formattedContent += bgContent.substring(0, 1000) + (bgContent.length > 1000 ? "..." : "");
+                    // No truncamos a 1000, dejamos que sea más larga si es necesario pero con un límite razonable (e.g. 10000)
+                    formattedContent += bgContent.substring(0, 10000);
                 } else {
                     formattedContent += (item.summary || item.description || "Nueva actualización disponible.").replace(/<[^>]*>?/gm, '');
                 }
