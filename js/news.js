@@ -26,18 +26,21 @@ async function loadNews() {
         news.forEach(item => {
             const card = document.createElement('div');
             card.className = 'news-card';
+            const itemId = item.id || item._id;
 
             const date = new Date(item.date).toLocaleDateString('es-ES', {
                 year: 'numeric', month: 'long', day: 'numeric'
             });
 
+            // Parse content
+            const fullContent = parseMedia(item.content);
+            const isLong = item.content.length > 1000; // Umbral más alto para mostrar más texto
+
             // Comments HTML
             const commentsHtml = (item.comments || []).map(c => {
-                // Check ownership
                 const canEdit = user && (user.role === 'admin' || user.username === c.author);
-                // Use c.id or c._id
                 const cid = c.id || c._id;
-                const editBtn = canEdit ? `<button class="btn-action" onclick="editComment('${item.id || item._id}', '${cid}', this)" style="float:right; font-size:0.65rem; margin-left:5px;">✏️</button>` : '';
+                const editBtn = canEdit ? `<button class="btn-action" onclick="editComment('${itemId}', '${cid}', this)" style="float:right; font-size:0.65rem; margin-left:5px;">✏️</button>` : '';
 
                 return `
                 <div class="comment">
@@ -52,29 +55,40 @@ async function loadNews() {
             const commentForm = user ? `
                 <div class="comment-input-area">
                     <div style="margin-bottom:5px; display:flex; gap:5px;">
-                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${item.id || item._id}', 'img')"><i class="fa-solid fa-image"></i> +Img</button>
-                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${item.id || item._id}', 'yt')"><i class="fa-brands fa-youtube"></i> +YT</button>
-                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem; background:#9146ff;" onclick="insertMedia('comment-text-${item.id || item._id}', 'tw')"><i class="fa-brands fa-twitch"></i> +Twitch</button>
+                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${itemId}', 'img')"><i class="fa-solid fa-image"></i> +Img</button>
+                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem;" onclick="insertMedia('comment-text-${itemId}', 'yt')"><i class="fa-brands fa-youtube"></i> +YT</button>
+                        <button class="btn-action" style="padding:4px 8px; font-size:0.75rem; background:#9146ff;" onclick="insertMedia('comment-text-${itemId}', 'tw')"><i class="fa-brands fa-twitch"></i> +Twitch</button>
                     </div>
-                    <textarea id="comment-text-${item.id || item._id}" rows="2" placeholder="Escribe un comentario..."></textarea>
-                    <button onclick="postComment('${item.id || item._id}')">Enviar</button>
+                    <textarea id="comment-text-${itemId}" rows="2" placeholder="Escribe un comentario..."></textarea>
+                    <button onclick="postComment('${itemId}')">Enviar</button>
                 </div>
             ` : `<div style="margin-top:15px; font-style:italic; color:#888;"><a href="/login" style="color:var(--hs-gold);">Inicia sesión</a> para comentar.</div>`;
 
             card.innerHTML = `
-                <div class="news-title">
+                <div class="news-title" onclick="toggleNews('${itemId}')">
                     ${item.title}
                     ${user && (user.role === 'admin' || user.role === 'editor') ? `
-                        <div style="float:right;">
-                            <button onclick="editNews('${item.id || item._id}')" style="background:none; border:none; cursor:pointer;" title="Editar">✏️</button>
-                            <button onclick="deleteNews('${item.id || item._id}')" style="background:none; border:none; cursor:pointer;" title="Borrar">🗑️</button>
+                        <div style="float:right;" onclick="event.stopPropagation()">
+                            <button onclick="editNews('${itemId}')" style="background:none; border:none; cursor:pointer;" title="Editar">✏️</button>
+                            <button onclick="deleteNews('${itemId}')" style="background:none; border:none; cursor:pointer;" title="Borrar">🗑️</button>
                         </div>
                     ` : ''}
                 </div>
                 <div class="news-meta">Publicado el ${date} por ${item.author}</div>
-                <div class="news-content">${parseMedia(item.content)}</div>
                 
-                <div class="comments-section">
+                <div id="content-${itemId}" class="news-content ${isLong ? 'news-preview' : ''}">
+                    ${fullContent}
+                </div>
+                
+                ${isLong ? `<button id="btn-${itemId}" class="news-expand-btn" onclick="toggleNews('${itemId}')">Leer más...</button>` : ''}
+                
+                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                    <button id="comment-btn-${itemId}" class="news-expand-btn" style="font-size: 0.85rem; color: #aaa;" onclick="toggleComments('${itemId}')">
+                        <i class="fa-solid fa-comments"></i> Ver comentarios (${item.comments ? item.comments.length : 0})
+                    </button>
+                </div>
+
+                <div id="comments-section-${itemId}" class="comments-section" style="display: none;">
                     <h4><i class="fa-solid fa-comments"></i> Comentarios (${item.comments ? item.comments.length : 0})</h4>
                     <div class="comments-list">${commentsHtml}</div>
                     ${commentForm}
@@ -84,6 +98,39 @@ async function loadNews() {
         });
     } catch (e) {
         console.error("Error loading news:", e);
+    }
+}
+
+function toggleNews(id) {
+    const card = document.getElementById(`content-${id}`).parentElement;
+    const content = document.getElementById(`content-${id}`);
+    const btn = document.getElementById(`btn-${id}`);
+    if (!content) return;
+
+    if (content.classList.contains('news-preview')) {
+        content.classList.remove('news-preview');
+        if (btn) btn.innerText = "Mostrar menos";
+        // Al expandir también nos aseguramos que el título esté visible
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        content.classList.add('news-preview');
+        if (btn) btn.innerText = "Leer más...";
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function toggleComments(id) {
+    const section = document.getElementById(`comments-section-${id}`);
+    const btn = document.getElementById(`comment-btn-${id}`);
+    if (!section) return;
+
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        if (btn) btn.innerHTML = `<i class="fa-solid fa-comment-slash"></i> Ocultar comentarios`;
+    } else {
+        section.style.display = 'none';
+        const count = section.querySelectorAll('.comment').length;
+        if (btn) btn.innerHTML = `<i class="fa-solid fa-comments"></i> Ver comentarios (${count})`;
     }
 }
 

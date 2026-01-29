@@ -102,8 +102,180 @@
             cursor: pointer;
         }
 
+        /* Rework Admin Panel - Premium Style */
+        .admin-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-box,
+        .admin-panel {
+            background: rgba(10, 15, 30, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(252, 209, 68, 0.15);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(252, 209, 68, 0.05);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-box input,
+        .panel-section input,
+        .panel-section textarea,
+        .panel-section select {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .login-box input:focus,
+        .panel-section input:focus,
+        .panel-section textarea:focus {
+            border-color: var(--hs-gold);
+            background: rgba(252, 209, 68, 0.05);
+            outline: none;
+            box-shadow: 0 0 10px rgba(252, 209, 68, 0.2);
+        }
+
+        .login-box button,
+        .btn-action {
+            background: linear-gradient(135deg, var(--hs-gold), #b38600);
+            color: #000 !important;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .login-box button:hover,
         .btn-action:hover {
-            background: #5a7fb5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(252, 209, 68, 0.4);
+            filter: brightness(1.1);
+        }
+
+        /* Tabs Rework */
+        .admin-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 35px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            background: rgba(252, 209, 68, 0.12);
+            color: var(--hs-gold);
+            box-shadow: inset 0 0 10px rgba(252, 209, 68, 0.1);
+        }
+
+        .panel-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .panel-section h3,
+        .panel-section h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--hs-gold);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .user-row:hover {
+            border-color: rgba(252, 209, 68, 0.3);
+            background: rgba(252, 209, 68, 0.03);
+        }
+
+        .admin-panel h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--hs-gold);
+            text-shadow: 0 0 15px rgba(252, 209, 68, 0.3);
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        #panel-role-info {
+            background: rgba(252, 209, 68, 0.05);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(252, 209, 68, 0.1);
+            display: inline-block;
         }
     </style>
 </head>
@@ -136,170 +308,206 @@
 
             <!-- Admin Panel View -->
             <div id="admin-panel" class="admin-panel">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h1>Panel de Administración</h1>
-                    <button onclick="logout()"
-                        style="background:#555; color:#fff; border:none; padding:5px 10px;">Salir</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                    <h1><i class="fa-solid fa-gears"></i> Panel de Control</h1>
+                    <button onclick="logout()" class="btn-action"
+                        style="background:#444; color:#fff; padding:8px 15px; font-size:0.8rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Salir
+                    </button>
                 </div>
 
                 <!-- Tabs -->
-                <div class="admin-tabs" style="margin-bottom: 20px; border-bottom: 1px solid #444;">
-                    <button class="tab-btn active" onclick="switchTab('tab-profile')">Mi Perfil</button>
-                    <button class="tab-btn" onclick="switchTab('tab-players')">Jugadores</button>
-                    <button class="tab-btn" onclick="switchTab('tab-news')">Noticias</button>
-                    <button class="tab-btn" onclick="switchTab('tab-users')">Usuarios</button>
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="switchTab('tab-profile')"><i
+                            class="fa-solid fa-user-shield"></i> Mi Perfil</button>
+                    <button class="tab-btn" onclick="switchTab('tab-players')"><i class="fa-solid fa-users"></i>
+                        Jugadores</button>
+                    <button class="tab-btn" onclick="switchTab('tab-news')"><i class="fa-solid fa-newspaper"></i>
+                        Noticias</button>
+                    <button class="tab-btn" onclick="switchTab('tab-users')"><i class="fa-solid fa-user-group"></i>
+                        Usuarios</button>
                 </div>
 
                 <!-- Tab: Perfil (For Everyone) -->
                 <div id="tab-profile" class="tab-content">
                     <div class="panel-section">
-                        <h3>Información de Cuenta</h3>
-                        <div class="user-row"
-                            style="background:rgba(252,209,68,0.1); border:1px solid var(--hs-gold); padding:15px; border-radius:8px;">
-                            <div class="user-info" style="font-family:'Cinzel';">
-                                <strong>Usuario:</strong> <span id="profile-username">---</span><br>
-                                <strong>Rango:</strong> <span id="profile-role">---</span><br>
-                                <strong>BattleTag:</strong> <span id="profile-battletag">---</span><br>
-                                <strong>Twitch:</strong> <span id="profile-twitch">---</span>
+                        <h3><i class="fa-solid fa-address-card"></i> Información de Cuenta</h3>
+                        <div class="user-row">
+                            <div class="user-info">
+                                <span style="color:#888;">Usuario:</span> <span id="profile-username"
+                                    style="font-weight:bold; color:#fff;">---</span>
                             </div>
                         </div>
-
-                        <div
-                            style="margin-top:20px; background:rgba(252,209,68,0.05); padding:15px; border-radius:8px; border:1px solid rgba(252,209,68,0.2);">
-                            <h4 style="color:var(--hs-gold); margin-bottom:15px;"><i class="fa-solid fa-id-card"></i>
-                                Actualizar BattleTag</h4>
-                            <div class="form-group" style="display:flex; gap:10px; margin-bottom:0;">
-                                <input type="text" id="new-battletag" placeholder="Ej: MiTag#1234" style="flex:1;">
-                                <button class="btn-action" onclick="updateBattleTag()"
-                                    style="white-space:nowrap;">Guardar Tag</button>
+                        <div class="user-row">
+                            <div class="user-info">
+                                <span style="color:#888;">Rango:</span> <span id="profile-role"
+                                    style="color:var(--hs-gold); font-weight:bold;">---</span>
                             </div>
-                            <p id="bt-msg" style="margin-top:10px; font-size:0.85rem;"></p>
                         </div>
-
-                        <div style="margin-top:30px; border-top:1px solid rgba(252,209,68,0.2); padding-top:20px;">
-                            <h4 style="color:var(--hs-gold); margin-bottom:15px;"><i class="fa-solid fa-lock"></i>
-                                Seguridad: Cambiar Contraseña</h4>
-                            <div id="pass-msg" style="margin-bottom:15px; font-weight:bold;"></div>
-                            <div class="form-group">
-                                <label>Contraseña Actual</label>
-                                <input type="password" id="pass-current" placeholder="Tu contraseña actual">
+                        <div class="user-row">
+                            <div class="user-info">
+                                <span style="color:#888;">BattleTag:</span> <span id="profile-battletag"
+                                    style="color:#fff;">---</span>
                             </div>
-                            <div class="form-group">
-                                <label>Nueva Contraseña</label>
-                                <input type="password" id="pass-new" placeholder="Min. 6 caracteres">
+                        </div>
+                        <div class="user-row">
+                            <div class="user-info">
+                                <span style="color:#888;">Twitch:</span> <span id="profile-twitch">---</span>
                             </div>
-                            <div class="form-group">
-                                <label>Confirmar Nueva Contraseña</label>
-                                <input type="password" id="pass-confirm" placeholder="Repite la nueva contraseña">
-                            </div>
-                            <button class="btn-action" onclick="changePassword()">Actualizar Contraseña</button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Jugadores -->
-                <div id="tab-players" class="tab-content">
-                    <div class="panel-section">
-                        <h3>Añadir Jugador al Ranking</h3>
-                        <div class="form-group">
-                            <label>BattleTag (Nombre#1234)</label>
-                            <input type="text" id="player-bt" placeholder="Ej: Kuosito#2154">
-                        </div>
-                        <div class="form-group">
-                            <label>Canal de Twitch (Opcional)</label>
-                            <input type="text" id="player-twitch" placeholder="Ej: kuosito">
-                        </div>
-                        <button class="btn-action" onclick="addPlayer()">Añadir Jugador</button>
-                        <p id="player-msg" style="margin-top:10px;"></p>
-                    </div>
-
-                    <div class="panel-section" style="border-color: #ff6b6b;">
-                        <h3 style="color:#ff6b6b; border-color:#ff6b6b;">Eliminar Jugador</h3>
-                        <div class="input-group">
-                            <label>BattleTag</label>
-                            <input type="text" id="new-battletag" placeholder="Player#1234">
-                            <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Vincula para aparecer en los
-                                rankings.</div>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Canal de Twitch (Opcional)</label>
-                            <input type="text" id="new-twitch" placeholder="TuUsuarioTwitch">
-                            <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Se usará para mostrar si estás
-                                en directo.</div>
-                        </div> <button class="btn-action" style="background:#ff4444;" onclick="deletePlayer()">Eliminar
-                            Jugador</button>
-                    </div>
-                </div>
-
-                <!-- Tab: Noticias -->
-                <div id="tab-news" class="tab-content" style="display:none;">
-                    <div class="panel-section" id="news-editor-container">
-                        <h3 id="news-form-title">Publicar Noticia</h3>
-                        <input type="hidden" id="edit-news-id">
-                        <div class="form-group">
-                            <label>Título</label>
-                            <input type="text" id="news-title">
-                        </div>
-                        <div class="form-group">
-                            <label>Contenido</label>
-                            <div style="margin-bottom:5px;">
-                                <button class="btn-action" style="padding:4px 8px; font-size:0.8rem;"
-                                    onclick="insertMedia('news-content', 'img')"><i class="fa-solid fa-image"></i>
-                                    +Imagen</button>
-                                <button class="btn-action" style="padding:4px 8px; font-size:0.8rem;"
-                                    onclick="insertMedia('news-content', 'yt')"><i class="fa-brands fa-youtube"></i>
-                                    +YouTube</button>
-                                <button class="btn-action"
-                                    style="padding:4px 8px; font-size:0.8rem; background:#9146ff;"
-                                    onclick="insertMedia('news-content', 'tw')"><i class="fa-brands fa-twitch"></i>
-                                    +Twitch</button>
-                                <button class="btn-action"
-                                    style="padding:4px 8px; font-size:0.8rem; background:#6441a5;"
-                                    onclick="insertMedia('news-content', 'twclip')"><i class="fa-brands fa-twitch"></i>
-                                    +Twitch Clip</button>
-                            </div>
-                            <textarea id="news-content" rows="5"></textarea>
-                        </div>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn-action" id="btn-post-news" onclick="postNews()">Publicar Noticia</button>
-                            <button class="btn-action" id="btn-cancel-edit" style="background:#555; display:none;"
-                                onclick="cancelNewsEdit()">Cancelar</button>
-                        </div>
-                        <div id="news-comments-section"
-                            style="display:none; margin-top:30px; border-top:1px solid rgba(252,209,68,0.2); padding-top:20px;">
-                            <h4 style="color:var(--hs-gold); margin-bottom:15px;">Gestionar Comentarios</h4>
-                            <div id="news-comments-list"></div>
-                        </div>
-                        <p id="news-msg" style="margin-top:10px;"></p>
                     </div>
 
                     <div class="panel-section">
-                        <h3>Gestionar Noticias</h3>
-                        <div id="admin-news-list" style="max-height: 400px; overflow-y: auto;">
-                            <!-- List of news will be injected here -->
+                        <h4><i class="fa-solid fa-id-card"></i> Actualizar Battletag y Twitch</h4>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">BattleTag
+                                (Nombre#1234)</label>
+                            <input type="text" id="new-battletag" placeholder="Ej: MiTag#1234">
                         </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Canal de
+                                Twitch</label>
+                            <input type="text" id="new-twitch" placeholder="Ej: usuario_twitch">
+                        </div>
+                        <button class="btn-action" onclick="updateBattleTag()"
+                            style="width: 100%; margin-top:20px;">Guardar Cambios</button>
+                        <p id="bt-msg" style="margin-top:15px; text-align:center;"></p>
                     </div>
-                </div>
 
-                <!-- Tab: Usuarios -->
-                <div id="tab-users" class="tab-content" style="display:none;">
                     <div class="panel-section">
-                        <h3>Gestión de Usuarios</h3>
-                        <button class="btn-action" onclick="loadUsers()">Recargar Lista</button>
-                        <div id="users-list" style="margin-top:20px; max-height: 400px; overflow-y: auto;">
-                            <!-- Users injected here -->
+                        <h4><i class="fa-solid fa-lock"></i> Seguridad: Cambiar Contraseña</h4>
+                        <div id="pass-msg" style="margin-bottom:15px; font-weight:bold; text-align:center;"></div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Contraseña
+                                Actual</label>
+                            <input type="password" id="pass-current" placeholder="Tu contraseña actual">
                         </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Nueva
+                                Contraseña</label>
+                            <input type="password" id="pass-new" placeholder="Min. 6 caracteres">
+                        </div>
+                        <div class="form-group">
+                            <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Confirmar
+                                Nueva Contraseña</label>
+                            <input type="password" id="pass-confirm" placeholder="Repite la nueva contraseña">
+                        </div>
+                        <button class="btn-action" onclick="changePassword()"
+                            style="width: 100%; margin-top:20px;">Actualizar Contraseña</button>
                     </div>
                 </div>
-
             </div>
-        </div>
 
+            <!-- Tab: Jugadores -->
+            <div id="tab-players" class="tab-content">
+                <div class="panel-section">
+                    <h3>Añadir Jugador al Ranking</h3>
+                    <div class="form-group">
+                        <label>BattleTag (Nombre#1234)</label>
+                        <input type="text" id="player-bt" placeholder="Ej: Kuosito#2154">
+                    </div>
+                    <div class="form-group">
+                        <label>Canal de Twitch (Opcional)</label>
+                        <input type="text" id="player-twitch" placeholder="Ej: kuosito">
+                    </div>
+                    <button class="btn-action" onclick="addPlayer()">Añadir Jugador</button>
+                    <p id="player-msg" style="margin-top:10px;"></p>
+                </div>
+
+                <div class="panel-section" style="border-color: rgba(255,107,107,0.3);">
+                    <h3 style="color:#ff6b6b;"><i class="fa-solid fa-user-minus"></i> Eliminar Jugador</h3>
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">BattleTag del
+                            Jugador</label>
+                        <input type="text" id="del-player-bt" placeholder="Player#1234">
+                    </div>
+                    <button class="btn-action"
+                        style="background:linear-gradient(135deg, #ff4444, #cc0000); color:#fff !important; width:100%;"
+                        onclick="deletePlayer()">Eliminar de Ranking</button>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fa-solid fa-terminal"></i> Opciones de Sistema</h3>
+                    <button class="btn-action"
+                        style="background:linear-gradient(135deg, #28a745, #1e7e34); color:#fff !important; width:100%;"
+                        onclick="forceRefreshRanking()">
+                        <i class="fa-solid fa-sync"></i> Forzar Escaneo de Blizzard
+                    </button>
+                    <p style="font-size:0.85rem; color:#888; margin-top:20px; text-align:center;">
+                        Esto forzará al servidor a actualizar los datos del ranking inmediatamente.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tab: Noticias -->
+            <div id="tab-news" class="tab-content" style="display:none;">
+                <div class="panel-section" id="news-editor-container">
+                    <h3 id="news-form-title"><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia</h3>
+                    <input type="hidden" id="edit-news-id">
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Título de la
+                            Noticia</label>
+                        <input type="text" id="news-title" placeholder="Ej: Nueva Temporada Disponible">
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block; margin-bottom:10px; color:#aaa; font-size:0.9rem;">Contenido
+                            (Soporta etiquetas [img:url], [yt:url], [tw:url])</label>
+                        <div style="margin-bottom:15px; display:flex; gap:8px;">
+                            <button class="btn-action" style="padding:6px 12px; font-size:0.75rem;"
+                                onclick="insertMedia('news-content', 'img')"><i class="fa-solid fa-image"></i>
+                                +Img</button>
+                            <button class="btn-action" style="padding:6px 12px; font-size:0.75rem; background:#c4302b;"
+                                onclick="insertMedia('news-content', 'yt')"><i class="fa-brands fa-youtube"></i>
+                                +YouTube</button>
+                            <button class="btn-action" style="padding:6px 12px; font-size:0.75rem; background:#9146ff;"
+                                onclick="insertMedia('news-content', 'tw')"><i class="fa-brands fa-twitch"></i>
+                                +Twitch</button>
+                        </div>
+                        <textarea id="news-content" rows="8" placeholder="Escribe el contenido aquí..."></textarea>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-action" id="btn-post-news" onclick="postNews()">Publicar Noticia</button>
+                        <button class="btn-action" id="btn-cancel-edit" style="background:#444; display:none;"
+                            onclick="cancelNewsEdit()">Cancelar Edición</button>
+                    </div>
+
+                    <div id="news-comments-section"
+                        style="display:none; margin-top:35px; border-top:1px solid rgba(255,255,255,0.1); padding-top:25px;">
+                        <h4><i class="fa-solid fa-comments"></i> Moderar Comentarios</h4>
+                        <div id="news-comments-list" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                    <p id="news-msg" style="margin-top:15px; text-align:center;"></p>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i class="fa-solid fa-list-ul"></i> Noticias Publicadas</h3>
+                    <div id="admin-news-list" style="max-height: 400px; overflow-y: auto;">
+                        <!-- List of news will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Usuarios -->
+            <div id="tab-users" class="tab-content" style="display:none;">
+                <div class="panel-section">
+                    <h3><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</h3>
+                    <div style="margin-bottom:20px;">
+                        <button class="btn-action" onclick="loadUsers()" style="font-size:0.8rem;"><i
+                                class="fa-solid fa-rotate"></i> Recargar Lista</button>
+                    </div>
+                    <div id="users-list" style="max-height: 500px; overflow-y: auto;">
+                        <!-- Users injected here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <footer></footer>
     </main>
     <script src="js/utils.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/login.js"></script>
+    <script src="js/footer.js"></script>
 </body>
 
 </html>

@@ -129,6 +129,28 @@ async function addPlayer() {
     }
 }
 
+async function forceRefreshRanking() {
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "Refrescando...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/force-refresh');
+        const data = await res.json();
+        if (data.success) {
+            alert("Ranking actualizado correctamente.");
+        } else {
+            alert("Error al refrescar: " + data.error);
+        }
+    } catch (e) {
+        alert("Error de conexión al refrescar el ranking.");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
 function cancelNewsEdit() {
     document.getElementById('edit-news-id').value = '';
     document.getElementById('news-title').value = '';
@@ -200,6 +222,29 @@ function startEditNews(id) {
 
     // Scroll to form
     document.getElementById('news-editor-container').scrollIntoView({ behavior: 'smooth' });
+}
+
+function insertMedia(targetId, type) {
+    const txtArea = document.getElementById(targetId);
+    if (!txtArea) return;
+
+    let tag = '';
+    let placeholder = '';
+
+    if (type === 'img') { tag = 'img'; placeholder = 'URL_DE_LA_IMAGEN'; }
+    else if (type === 'yt') { tag = 'yt'; placeholder = 'URL_DE_YOUTUBE'; }
+    else if (type === 'tw') { tag = 'tw'; placeholder = 'URL_DE_TWITCH_O_CLIP'; }
+
+    const start = txtArea.selectionStart;
+    const end = txtArea.selectionEnd;
+    const text = txtArea.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end, text.length);
+
+    txtArea.value = before + `[${tag}:${placeholder}]` + after;
+    txtArea.focus();
+    // Poner el cursor dentro del placeholder
+    txtArea.setSelectionRange(start + tag.length + 2, start + tag.length + 2 + placeholder.length);
 }
 
 async function loadNewsList() {
@@ -315,7 +360,7 @@ async function loadUsers() {
                 : `<button class="btn-ban" onclick="toggleBan(${u.id}, true)">Banear</button>`;
 
             const roleSelect = u.username !== 'admin' ? `
-                <select onchange="changeUserRole(${u.id}, this.value)" style="background:#222; color:#fff; border:1px solid #444; font-size:0.8rem; margin-right:10px;">
+                <select onchange="changeUserRole(${u.id}, this.value)" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:4px; font-size:0.8rem; padding:4px 8px; margin-right:6px; cursor:pointer;">
                     <option value="user" ${u.role === 'user' ? 'selected' : ''}>Usuario</option>
                     <option value="editor" ${u.role === 'editor' ? 'selected' : ''}>Editor</option>
                     <option value="mod" ${u.role === 'mod' ? 'selected' : ''}>Mod</option>
@@ -462,18 +507,25 @@ async function updateBattleTag() {
         const data = await res.json();
         if (data.success) {
             msg.style.color = 'green';
-            msg.innerText = "Perfil actualizado!";
-            document.getElementById('profile-battletag').innerText = data.battleTag || 'No vinculado';
-            // Opcional: mostrar twitch tambien si existiera elemento UI
-            // Recargar auth para asegurar
-            checkAuth();
+            msg.innerText = "¡Perfil actualizado!";
+            if (data.battleTag) document.getElementById('profile-battletag').innerText = data.battleTag;
+            if (data.twitch) {
+                document.getElementById('profile-twitch').innerHTML = `<a href="https://twitch.tv/${data.twitch}" target="_blank" style="color:#9146ff; text-decoration:none;">${data.twitch}</a>`;
+            } else if (data.twitch === "" || data.twitch === null) {
+                document.getElementById('profile-twitch').innerText = 'No vinculado';
+            }
+            // Sync with backend session and state
+            setTimeout(() => {
+                checkAuth(); // Refresh whole panel to be sure
+                msg.innerText = "";
+            }, 2000);
         } else {
             msg.style.color = 'red';
             msg.innerText = data.error;
         }
     } catch (e) {
         msg.style.color = 'red';
-        msg.innerText = 'Error de conexion';
+        msg.innerText = 'Error de conexión';
     }
 }
 

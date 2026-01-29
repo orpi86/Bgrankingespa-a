@@ -1,12 +1,12 @@
-/**
- * Parses content to convert [img:url] and [yt:url] tags into HTML elements.
- * Also handles basic line breaks.
- */
 function parseMedia(content) {
     if (!content) return '';
 
+    // Pre-process: Remove newlines and extra spaces between tags [img:...], [yt:...], [tw:...] 
+    // to prevent <br> injection between side-by-side elements
+    let processed = content.replace(/(\]|\))\s*\n\s*(\[)/g, '$1$2');
+
     // Convert [img:url] to <img> tags
-    let parsed = content.replace(/\[img:(https?:\/\/[^\]]+)\]/gi, (match, url) => {
+    let parsed = processed.replace(/\[img:(https?:\/\/[^\]]+)\]/gi, (match, url) => {
         return `<div class="media-container"><img src="${url}" alt="Imagen del usuario" class="embedded-img" loading="lazy"></div>`;
     });
 
@@ -93,9 +93,21 @@ document.addEventListener('DOMContentLoaded', createParticles);
 // Global styles for media and particles
 const utilsStyle = document.createElement('style');
 utilsStyle.innerHTML = `
-    .media-container { margin: 15px 0; text-align: center; }
-    .embedded-img { max-width: 100%; border-radius: 8px; border: 1px solid var(--hs-gold); }
-    .embedded-video { width: 100%; aspect-ratio: 16 / 9; max-width: 600px; border-radius: 8px; border: 1px solid var(--hs-gold); }
+    .media-container { margin: 15px auto; text-align: center; }
+    .embedded-img { transition: transform 0.3s; }
+    .embedded-img:hover { transform: scale(1.02); border-color: #fff; }
+    .embedded-video { width: 100%; aspect-ratio: 16 / 9; max-width: 800px; border-radius: 8px; border: 1px solid var(--hs-gold); margin: 0 auto; display: block; }
+    
+    @media (min-width: 768px) {
+        /* If two media items are next to each other, show them side-by-side */
+        .media-container:has(+ .media-container),
+        .media-container + .media-container {
+            display: inline-block;
+            max-width: 48%;
+            margin: 15px 1%;
+            vertical-align: top;
+        }
+    }
     
     .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%); }
     .particle { position: absolute; background: rgba(252, 209, 68, 0.4); border-radius: 50%; filter: blur(2px); animation: float 15s infinite linear; }
