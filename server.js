@@ -1683,15 +1683,17 @@ async function fetchBlizzardNews() {
             currentNews = loadJson(NEWS_PATH);
         }
 
-        const keywords = ["campos de batalla", "battlegrounds", "parche", "actualización", "bg"];
+        const keywords = ["campos de batalla", "battlegrounds", "bg"];
         let addedCount = 0;
         const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
 
         for (const item of newsItems) {
-            // Filtrar por fecha (Blizzard suele mandar publishDate o similar)
-            const itemDate = item.publishDate ? new Date(item.publishDate).getTime() : Date.now();
+            // Filtrar por fecha (Blizzard detecta publish, publishDate, created_at o created)
+            const rawDate = item.publish || item.publishDate || item.created_at || item.created;
+            const itemDate = rawDate ? new Date(rawDate).getTime() : 0;
+
             if (itemDate < sevenDaysAgo) {
-                console.log(`⏩ Saltando noticia antigua: ${item.title}`);
+                console.log(`⏩ Saltando noticia antigua (${rawDate ? new Date(itemDate).toLocaleDateString() : 'fecha desconocida'}): ${item.title}`);
                 continue;
             }
 
@@ -1700,12 +1702,15 @@ async function fetchBlizzardNews() {
 
             if (!isBG) continue;
 
-            // Verificar duplicado por título (aproximado) o URL si la tenemos
-            const exists = currentNews.some(n => n.title.toLowerCase() === item.title.toLowerCase());
+            // Verificar duplicado por título (aproximado) o ID de Blizzard
+            const exists = currentNews.some(n =>
+                n.title.toLowerCase() === item.title.toLowerCase() ||
+                (item.id && String(n.id) === String(item.id))
+            );
             if (exists) continue;
 
             // Crear nueva noticia
-            const newId = Date.now() + addedCount;
+            const newId = item.id || (Date.now() + addedCount);
             const blogUrl = item.defaultUrl || item.url || `https://hearthstone.blizzard.com/es-es/news/${item.id}`;
             const imgUrl = item.thumbnail?.url || item.header?.url || item.thumbnail || item.image || "";
 
