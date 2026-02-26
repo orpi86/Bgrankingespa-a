@@ -11,7 +11,7 @@ const bcrypt = require('bcrypt');
 require('dotenv').config();
 const crypto = require('crypto');
 const mongoose = require('mongoose');
-const { User, News, Forum, Player } = require('./models');
+const { User, News, Forum, Player, Ranking } = require('./models');
 
 const app = express();
 app.set('trust proxy', 1); // Confiar en el proxy de Render para express-rate-limit
@@ -338,7 +338,7 @@ app.get('/api/config', (req, res) => {
     });
 });
 
-app.get('/api/player-summary', (req, res) => {
+app.get('/api/player-summary', async (req, res) => {
     const { player } = req.query;
     if (!player) return res.status(400).json({ error: "Falta el player" });
 
@@ -348,7 +348,31 @@ app.get('/api/player-summary', (req, res) => {
         current: null
     };
 
-    // 1. Buscar en BBDD histórica
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
+        try {
+            const rankings = await Ranking.find({ battleTag: player }).sort({ seasonId: 1 });
+            rankings.forEach(r => {
+                if (r.found) {
+                    summary.historical.push({
+                        seasonId: r.seasonId,
+                        rank: r.rank,
+                        spainRank: r.spainRank,
+                        rating: r.rating
+                    });
+                    const ratingNum = typeof r.rating === 'number' ? r.rating : 0;
+                    if (ratingNum > summary.peak) summary.peak = ratingNum;
+                    if (r.seasonId === CURRENT_SEASON_ID) {
+                        summary.current = r;
+                    }
+                }
+            });
+            return res.json(summary);
+        } catch (e) {
+            console.error("Error en player-summary (Mongo):", e.message);
+        }
+    }
+
+    // Fallback to JSON
     Object.keys(historicalData.seasons).forEach(sId => {
         const players = historicalData.seasons[sId];
         const pData = players.find(p => p.battleTag === player);
@@ -359,15 +383,16 @@ app.get('/api/player-summary', (req, res) => {
                 spainRank: pData.spainRank,
                 rating: pData.rating
             });
-            if (pData.rating > summary.peak) summary.peak = pData.rating;
+            const ratingNum = typeof pData.rating === 'number' ? pData.rating : 0;
+            if (ratingNum > summary.peak) summary.peak = ratingNum;
         }
     });
 
-    // 2. Buscar en Cache (incluye actual)
     Object.keys(memoriaCache).forEach(sId => {
         const pData = memoriaCache[sId].data.find(p => p.battleTag === player);
         if (pData && pData.found) {
-            if (pData.rating > summary.peak) summary.peak = pData.rating;
+            const ratingNum = typeof pData.rating === 'number' ? pData.rating : 0;
+            if (ratingNum > summary.peak) summary.peak = ratingNum;
             if (parseInt(sId) === CURRENT_SEASON_ID) {
                 summary.current = pData;
             }
@@ -406,6 +431,45 @@ app.get('/api/ranking', async (req, res) => {
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
 
+    console.log(`📡 Petición recibida para Season ${seasonToScan}`);
+
+    // --- INTEGRACIÓN MONGODB ---
+    if (MONGODB_URI && mongoose.connection.readyState === 1) {
+        try {
+            // Buscamos los datos de la temporada en Mongo
+            const dbRankings = await Ranking.find({ seasonId: seasonToScan }).sort({ spainRank: 1 });
+
+            if (dbRankings.length > 0) {
+                // Si es la temporada actual, verificamos si la "cache" de Mongo está vieja
+                if (isCurrentSeason) {
+                    const newest = dbRankings.reduce((prev, curr) => (prev.updatedAt > curr.updatedAt) ? prev : curr);
+                    const isOld = (Date.now() - new Date(newest.updatedAt).getTime() > TIEMPO_CACHE_ACTUAL);
+
+                    if (isOld && !scansInProgress[seasonToScan]) {
+                        console.log(`♻️ Datos de Mongo expirados para S${seasonToScan}. Actualizando en background...`);
+                        scansInProgress[seasonToScan] = true;
+                        realizarEscaneoInterno(seasonToScan).finally(() => delete scansInProgress[seasonToScan]);
+                    }
+                }
+
+                return res.json(calcularLogros(dbRankings, seasonToScan));
+            } else {
+                // Si no hay datos en absoluto, lanzamos escaneo síncrono
+                console.log(`🌐 No hay datos en Mongo para S${seasonToScan}. Iniciando escaneo...`);
+                if (!scansInProgress[seasonToScan]) {
+                    scansInProgress[seasonToScan] = true;
+                    await realizarEscaneoInterno(seasonToScan).finally(() => delete scansInProgress[seasonToScan]);
+                }
+                const newRankings = await Ranking.find({ seasonId: seasonToScan }).sort({ spainRank: 1 });
+                return res.json(calcularLogros(newRankings, seasonToScan));
+            }
+        } catch (e) {
+            console.error("Error en endpoint ranking (Mongo):", e.message);
+            // Fallback to JSON logic below if Mongo fails
+        }
+    }
+
+    // --- FALLBACK LÓGICA JSON (ANTIGUA) ---
     // Obtener timestamp de jugadores.json para invalidación de cache
     let playersMtime = 0;
     try {
@@ -413,27 +477,20 @@ app.get('/api/ranking', async (req, res) => {
         playersMtime = stats.mtimeMs;
     } catch (e) { }
 
-    console.log(`📡 Petición recibida para Season ${seasonToScan}`);
-
     // 0. GESTIÓN DE TEMPORADAS PASADAS
     if (!isCurrentSeason && historicalData.seasons[seasonToScan]) {
         const currentPlayersList = await loadPlayers();
         const historyPlayers = historicalData.seasons[seasonToScan];
 
-        // Revisar si faltan jugadores nuevos añadidos recientemente a la lista
         const missing = currentPlayersList.filter(p => !historyPlayers.some(hp => hp.battleTag === p.battleTag));
-        // const foundCount = historyPlayers.filter(hp => hp.found).length;
 
-        // Solo re-escanear si faltan jugadores Y no hay uno en curso
         if (missing.length > 0 && !scansInProgress[seasonToScan]) {
-            console.log(`♻️ Season ${seasonToScan}: Faltan ${missing.length} jugadores. Re-escaneando en background...`);
             scansInProgress[seasonToScan] = true;
             realizarEscaneoInterno(seasonToScan).finally(() => {
                 delete scansInProgress[seasonToScan];
             });
         }
 
-        // Devolver lo que tenemos inmediatamente
         const mergedResults = currentPlayersList.map(p => {
             const h = historyPlayers.find(hp => hp.battleTag === p.battleTag);
             if (h) return h;
@@ -451,54 +508,32 @@ app.get('/api/ranking', async (req, res) => {
         });
         mergedResults.forEach((p, i) => p.spainRank = i + 1);
 
-        const dataWithAchievements = calcularLogros(mergedResults, seasonToScan);
-        return res.json(dataWithAchievements);
+        return res.json(calcularLogros(mergedResults, seasonToScan));
     }
 
-    // 1. GESTIÓN TEMPORADA ACTUAL (MEMORIA RAM)
     const datosGuardados = memoriaCache[seasonToScan];
     if (datosGuardados) {
-        // Si hay datos, los servimos INMEDIATAMENTE (Estrategia: Stale-While-Revalidate)
-        console.log(`⚡ Sirviendo ${seasonToScan} desde CACHÉ (Stale-While-Revalidate).`);
         res.json(calcularLogros(datosGuardados.data, seasonToScan));
-
-        // VERIFICACIÓN ASÍNCRONA EN BACKGROUND
         const cacheExpired = (Date.now() - datosGuardados.timestamp > TIEMPO_CACHE_ACTUAL);
         const playersChanged = (datosGuardados.playersMtime !== playersMtime);
 
         if ((cacheExpired || playersChanged) && !scansInProgress[seasonToScan]) {
-            console.log(`♻️ Background Update iniciada para Season ${seasonToScan}...`);
             scansInProgress[seasonToScan] = true;
-
-            // NO usamos await aquí, dejamos que corra en background
-            realizarEscaneoInterno(seasonToScan)
-                .catch(err => console.error("Error en background update:", err))
-                .finally(() => {
-                    delete scansInProgress[seasonToScan];
-                    console.log(`✅ Background Update completada para Season ${seasonToScan}.`);
-                });
+            realizarEscaneoInterno(seasonToScan).finally(() => delete scansInProgress[seasonToScan]);
         }
-        return; // Terminamos la request.
+        return;
     }
-
-    // 2. SI NO ESTÁ EN MEMORIA (Cache vacía), TOCA ESPERAR
-    console.log(`🌐 Cache vacía para Season ${seasonToScan}. Iniciando descarga síncrona...`);
 
     try {
         scansInProgress[seasonToScan] = true;
         await realizarEscaneoInterno(seasonToScan);
-
         const datosRecienCargados = memoriaCache[seasonToScan];
-
         if (datosRecienCargados) {
-            const dataWithAchievements = calcularLogros(datosRecienCargados.data, seasonToScan);
-            return res.json(dataWithAchievements);
+            return res.json(calcularLogros(datosRecienCargados.data, seasonToScan));
         } else {
             throw new Error("No se pudieron obtener datos tras el escaneo.");
         }
-
     } catch (error) {
-        console.error("🚨 Error Servidor en endpoint:", error.message);
         res.status(500).json({ error: error.message });
     } finally {
         delete scansInProgress[seasonToScan];
@@ -2024,14 +2059,37 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
         });
         finalMergedData.forEach((player, index) => player.spainRank = index + 1);
 
-        // Guardar
+        // Guardar en MongoDB
+        if (MONGODB_URI && mongoose.connection.readyState === 1) {
+            console.log(`${logPrefix} Guardando resultados en MongoDB...`);
+            for (const p of finalMergedData) {
+                try {
+                    await Ranking.findOneAndUpdate(
+                        { seasonId: parseInt(seasonId), battleTag: p.battleTag },
+                        {
+                            rank: p.rank,
+                            rating: p.rating,
+                            found: p.found,
+                            spainRank: p.spainRank,
+                            isLive: p.isLive,
+                            twitchUser: p.twitchUser,
+                            updatedAt: new Date()
+                        },
+                        { upsert: true }
+                    );
+                } catch (mongoErr) {
+                    console.error(`Error guardando ${p.battleTag} en Mongo:`, mongoErr.message);
+                }
+            }
+        }
+
+        // Guardar Fallback JSON
         memoriaCache[seasonId] = { timestamp: Date.now(), data: finalMergedData };
         saveCache();
 
         if (seasonId !== CURRENT_SEASON_ID) {
-            historicalData.seasons[seasonId] = finalMergedData; // También guardamos el merged en historial
+            historicalData.seasons[seasonId] = finalMergedData;
             saveHistoricalData();
-            console.log(`${logPrefix} Datos fusionados y guardados en Histórico.`);
         }
 
         if (seasonId === CURRENT_SEASON_ID) saveHistory(finalMergedData);
@@ -2050,9 +2108,14 @@ async function verificarIntegridadTemporadas() {
     for (const season of CONFIG.seasons) {
         if (season.id === CURRENT_SEASON_ID) continue; // Skip actual
 
-        const historyPlayers = historicalData.seasons[season.id];
+        let historyPlayers = [];
+        if (MONGODB_URI && mongoose.connection.readyState === 1) {
+            historyPlayers = await Ranking.find({ seasonId: season.id });
+        } else {
+            historyPlayers = historicalData.seasons[season.id] || [];
+        }
 
-        if (!historyPlayers) {
+        if (!historyPlayers || historyPlayers.length === 0) {
             console.log(`📜 Season ${season.id} VACÍA. Iniciando escaneo COMPLETO.`);
             await realizarEscaneoInterno(season.id);
             continue;

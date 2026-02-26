@@ -66,9 +66,26 @@ const playerSchema = new mongoose.Schema({
     twitch: { type: String, default: null }
 });
 
+// --- RANKING SCHEMA (Seasonal Data) ---
+const rankingSchema = new mongoose.Schema({
+    seasonId: { type: Number, required: true },
+    battleTag: { type: String, required: true },
+    rank: Number,
+    rating: mongoose.Schema.Types.Mixed, // Supports number or "Sin datos"
+    found: Boolean,
+    spainRank: Number,
+    isLive: { type: Boolean, default: false },
+    twitchUser: String,
+    updatedAt: { type: Date, default: Date.now }
+});
+
+// Index for fast lookups and to ensure no duplicates for a player in a season
+rankingSchema.index({ seasonId: 1, battleTag: 1 }, { unique: true });
+
 const User = mongoose.model('User', userSchema);
 const News = mongoose.model('News', newsSchema);
 const Forum = mongoose.model('Forum', forumSchema);
 const Player = mongoose.model('Player', playerSchema);
+const Ranking = mongoose.model('Ranking', rankingSchema);
 
-module.exports = { User, News, Forum, Player };
+module.exports = { User, News, Forum, Player, Ranking };

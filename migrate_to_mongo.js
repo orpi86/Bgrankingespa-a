@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
-const { User, News, Forum, Player } = require('./models');
+const { User, News, Forum, Player, Ranking } = require('./models');
 require('dotenv').config();
 
 const DATA_DIR = path.join(__dirname, 'data');
@@ -9,6 +9,8 @@ const USERS_PATH = path.join(DATA_DIR, 'users.json');
 const NEWS_PATH = path.join(DATA_DIR, 'news.json');
 const FORUM_PATH = path.join(DATA_DIR, 'forum.json');
 const PLAYERS_PATH = path.join(__dirname, 'jugadores.json');
+const HISTORICAL_PATH = path.join(__dirname, 'historical_data.json');
+const CACHE_PATH = path.join(__dirname, 'cache.json');
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -21,6 +23,68 @@ async function migrate() {
     try {
         await mongoose.connect(MONGODB_URI);
         console.log("✅ Conectado a MongoDB");
+
+        // --- MIGRAR RANKINGS (Desde Historical y Cache) ---
+        console.log("📊 Iniciando migración de Rankings...");
+
+        // 1. Historical Data
+        if (fs.existsSync(HISTORICAL_PATH)) {
+            const historical = JSON.parse(fs.readFileSync(HISTORICAL_PATH, 'utf8'));
+            if (historical.seasons) {
+                for (const seasonId in historical.seasons) {
+                    console.log(`📦 Migrando Season ${seasonId} (Historical)...`);
+                    const players = historical.seasons[seasonId];
+                    for (const p of players) {
+                        try {
+                            await Ranking.findOneAndUpdate(
+                                { seasonId: parseInt(seasonId), battleTag: p.battleTag },
+                                {
+                                    rank: p.rank,
+                                    rating: p.rating,
+                                    found: p.found,
+                                    spainRank: p.spainRank,
+                                    isLive: p.isLive || false,
+                                    twitchUser: p.twitchUser || null,
+                                    updatedAt: new Date()
+                                },
+                                { upsert: true }
+                            );
+                        } catch (err) {
+                            console.error(`Error migrando ${p.battleTag} en season ${seasonId}:`, err.message);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Cache Data (Current/Recent seasons)
+        if (fs.existsSync(CACHE_PATH)) {
+            const cache = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8'));
+            for (const seasonId in cache) {
+                console.log(`📦 Migrando Season ${seasonId} (Cache)...`);
+                const players = cache[seasonId].data;
+                for (const p of players) {
+                    try {
+                        await Ranking.findOneAndUpdate(
+                            { seasonId: parseInt(seasonId), battleTag: p.battleTag },
+                            {
+                                rank: p.rank,
+                                rating: p.rating,
+                                found: p.found,
+                                spainRank: p.spainRank,
+                                isLive: p.isLive || false,
+                                twitchUser: p.twitchUser || null,
+                                updatedAt: new Date(cache[seasonId].timestamp || Date.now())
+                            },
+                            { upsert: true }
+                        );
+                    } catch (err) {
+                        console.error(`Error migrando cache ${p.battleTag} en season ${seasonId}:`, err.message);
+                    }
+                }
+            }
+        }
+        console.log("✅ Rankings migrados correctamente.");
 
         // CLEAN UP OPTION (To fix schema issues)
         // Uncomment to wipe DB and request cleanly:
