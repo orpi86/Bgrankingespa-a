@@ -1,0 +1,39 @@
+[
+    {
+        "id": 2,
+        "title": "¡Nuevo Sistema de Rangos MMR Implementado!",
+        "content": "¡Atención comunidad! Hemos actualizado el sistema de ranking con nuevos **Rangos por MMR**. Ahora podrás ver insignias exclusivas según tu puntuación: desde 🪙 **Buscador de Monedas** hasta el legendario 👑 **Primogénito de Bob**. \n\nCada rango incluye una descripción detallada de tu nivel de juego y una 'Prueba' para alcanzar la maestría. ¡Pasa el ratón sobre los badges en la tabla de ranking para descubrirlo! Además, estas insignias ahora son visibles en todas las temporadas pasadas. ¡A por el Top 1!",
+        "date": "2026-02-10",
+        "author": "admin",
+        "comments": [],
+        "lastEdit": "2026-02-10T06:55:00.000Z"
+    },
+    {
+        "id": 1,
+        "title": "Bienvenido a la nueva comunidad",
+        "content": "[img:https://i.gyazo.com/b0999e075a1322904ff72657cc5df49f.png] Pues el foro se transformó en una nueva web con foro y noticias, espero que os registréis, la deis uso, compartáis vuestras partidas y emociones en los foros porque esto es un proyecto para todos, no somos muchos jugadores actualmente pero somos muy grandes. ¡Disfrutad!",
+        "date": "2024-01-12",
+        "author": "admin",
+        "comments": [
+            {
+                "id": 1768388741762,
+                "author": "Spyrozgz",
+                "content": "Hola a todos!!!!",
+                "date": "2026-01-14T11:05:41.762Z"
+            },
+            {
+                "id": 1768433641621,
+                "author": "FAF1",
+                "content": "OPAAAAAAAAAAA!",
+                "date": "2026-01-14T23:34:01.621Z"
+            },
+            {
+                "id": 1768485339860,
+                "author": "Gotor",
+                "content": "Opa!!!\n",
+                "date": "2026-01-15T13:55:39.860Z"
+            }
+        ],
+        "lastEdit": "2026-01-14T01:51:53.380Z"
+    }
+]

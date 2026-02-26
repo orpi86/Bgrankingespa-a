@@ -1,0 +1,134 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    const nav = document.getElementById('main-nav');
+    if (!nav) return;
+
+    // Check Auth Status
+    let user = null;
+    try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        user = data.user;
+    } catch (e) { }
+
+    let authLinks = '';
+    if (user) {
+        let adminLink = '';
+        if (['admin', 'editor', 'mod'].includes(user.role)) {
+            adminLink = `<a href="/admin.html" class="nav-link"><i class="fa-solid fa-crown"></i> Panel Admin</a>`;
+        }
+        authLinks = `
+            ${adminLink}
+            <a href="/login" class="nav-link"><i class="fa-solid fa-circle-user"></i> Mi Perfil</a>
+            <span style="color:var(--hs-gold); padding:5px 15px; font-family:'Cinzel'; display:flex; align-items:center; gap:5px;">
+                ${user.username}
+            </span>
+            <a href="#" onclick="logoutNav()" class="nav-link"><i class="fa-solid fa-right-from-bracket"></i> Salir</a>
+        `;
+    } else {
+        authLinks = `
+            <a href="/login" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
+            <a href="/register.html" class="nav-link"><i class="fa-solid fa-user-plus"></i> Registro</a>
+        `;
+    }
+
+    nav.innerHTML = `
+        <a href="/news" class="nav-link"><i class="fa-solid fa-newspaper"></i> Noticias</a>
+        <a href="/forum" class="nav-link"><i class="fa-solid fa-comments"></i> Foro</a>
+        <a href="/ranking" class="nav-link"><i class="fa-solid fa-trophy"></i> Ranking</a>
+        <a href="https://hsreplay.net/battlegrounds/comps/" target="_blank" class="nav-link"><i class="fa-solid fa-chess-board"></i> Compos</a>
+        ${authLinks}
+    `;
+
+    // --- Hamburger Menu Button ---
+    const hamburger = document.createElement('button');
+    hamburger.className = 'hamburger-btn';
+    hamburger.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    hamburger.setAttribute('aria-label', 'Menú');
+    hamburger.addEventListener('click', () => {
+        nav.classList.toggle('nav-open');
+        const icon = hamburger.querySelector('i');
+        if (nav.classList.contains('nav-open')) {
+            icon.className = 'fa-solid fa-xmark';
+        } else {
+            icon.className = 'fa-solid fa-bars';
+        }
+    });
+    nav.appendChild(hamburger);
+
+    // Highlight active link
+    const currentPath = window.location.pathname;
+    const links = nav.querySelectorAll('a');
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || (currentPath === '/' && href === '/news')) {
+            link.classList.add('active-link');
+        }
+    });
+});
+
+async function logoutNav() {
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.reload();
+}
+
+// Add styles dynamically if not present
+const style = document.createElement('style');
+style.innerHTML = `
+    .main-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        background: rgba(27, 22, 38, 0.9);
+        padding: 15px;
+        margin: 0 auto 30px auto;
+        border: 3px solid var(--hs-gold-dim);
+        border-radius: 15px;
+        flex-wrap: wrap;
+        max-width: 950px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(252, 230, 68, 0.05);
+        position: sticky;
+        top: 20px;
+        z-index: 1000;
+    }
+    .main-nav::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--hs-gold), transparent);
+    }
+    .nav-link {
+        color: #ddd;
+        text-decoration: none;
+        font-family: 'Cinzel', serif;
+        font-size: 1.1rem;
+        padding: 8px 15px;
+        border-radius: 8px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .nav-link:hover, .active-link {
+        color: var(--hs-gold);
+        background: rgba(252, 209, 68, 0.1);
+        text-shadow: 0 0 10px rgba(252, 209, 68, 0.5);
+    }
+    .active-link {
+        border: 1px solid rgba(252, 209, 68, 0.3);
+    }
+`;
+document.head.appendChild(style);
+
+// Inject Inter font for improved body text
+const interFont = document.createElement('link');
+interFont.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
+interFont.rel = 'stylesheet';
+document.head.appendChild(interFont);
+
+// Apply Inter as secondary body font after it loads
+interFont.onload = () => {
+    document.body.style.fontFamily = "'Inter', 'Lato', sans-serif";
+};

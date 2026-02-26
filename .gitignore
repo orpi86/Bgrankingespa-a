@@ -1,0 +1,12 @@
+node_modules/
+.env
+backup_*/
+*.bak
+cache.json
+history.json
+historical_data.json
+server_log.txt
+scraper_test_results.txt
+syntax_error.txt
+debug_*.json
+.antigravityignore

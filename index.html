@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias y Novedades | BG Ranking España - Comunidad Hearthstone Battlegrounds</title>
+    <meta name="description"
+        content="Mantente al día con las últimas noticias, parches y actualizaciones de Hearthstone Battlegrounds en la comunidad líder de España. Ranking MMR, foro y más.">
+    <meta name="keywords"
+        content="Hearthstone Battlegrounds, BG Ranking España, Campos de Batalla, MMR, Blizzard, Estrategia Hearthstone, Comunidad BG">
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Open Graph (Discord / Social Media) -->
+    <meta property="og:title" content="Noticias BG Ranking España">
+    <meta property="og:description"
+        content="Toda la actualidad de Hearthstone Battlegrounds en un solo lugar. Ranking, comunidad y pasión por los Campos de Batalla.">
+    <meta property="og:image" content="assets/img/ranking_spanish_flag_banner.png">
+    <meta property="og:url" content="https://bg-ranking-es.onrender.com">
+    <meta property="og:type" content="website">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .news-container {
+            width: 100%;
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #eee;
+            position: relative;
+            z-index: 10;
+        }
+
+        .news-header {
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            color: var(--hs-gold);
+            margin-bottom: 40px;
+            font-size: 3rem;
+        }
+
+        .news-card {
+            background: rgba(27, 22, 38, 0.7);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            scroll-margin-top: 110px;
+            /* Evita que el menú sticky tape el título */
+        }
+
+        .news-card:hover {
+            border-color: var(--hs-gold);
+            background: rgba(43, 29, 48, 0.5);
+            transform: scale(1.005);
+        }
+
+        .news-title {
+            font-family: 'Cinzel', serif;
+            color: var(--hs-gold);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .news-meta {
+            color: #777;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .news-content {
+            color: #ddd;
+            line-height: 1.6;
+            font-size: 1rem;
+            white-space: pre-wrap;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .news-preview {
+            color: #aaa;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-height: 120px;
+            /* Más líneas de texto antes de expandir */
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            line-clamp: 5;
+            -webkit-box-orient: vertical;
+        }
+
+        .news-expand-btn {
+            background: none;
+            border: none;
+            color: var(--hs-gold);
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .news-expand-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+    <main class="content-wrapper">
+        <header>
+            <div class="header-banner"></div>
+            <nav id="main-nav" class="main-nav"></nav>
+        </header>
+
+        <div class="news-container">
+            <h1 class="news-header">
+                <i class="fa-solid fa-newspaper"></i> Últimas Noticias
+            </h1>
+            <div id="news-feed">
+                <div class="skeleton-block" style="height:160px;"></div>
+                <div class="skeleton-block" style="height:140px;"></div>
+                <div class="skeleton-block" style="height:120px;"></div>
+            </div>
+        </div>
+        <footer></footer>
+    </main>
+    <script src="js/utils.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/news.js"></script>
+    <script src="js/footer.js"></script>
+</body>
+
+</html>
