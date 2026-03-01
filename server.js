@@ -350,7 +350,7 @@ app.get('/api/player-summary', async (req, res) => {
 
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
         try {
-            const rankings = await Ranking.find({ battleTag: player }).sort({ seasonId: 1 });
+            const rankings = await Ranking.find({ battleTag: player }).sort({ seasonId: 1 }).lean();
             rankings.forEach(r => {
                 if (r.found) {
                     summary.historical.push({
@@ -437,7 +437,7 @@ app.get('/api/ranking', async (req, res) => {
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
         try {
             // Buscamos los datos de la temporada en Mongo
-            const dbRankings = await Ranking.find({ seasonId: seasonToScan }).sort({ spainRank: 1 });
+            const dbRankings = await Ranking.find({ seasonId: seasonToScan }).sort({ spainRank: 1 }).lean();
 
             if (dbRankings.length > 0) {
                 // Si es la temporada actual, verificamos si la "cache" de Mongo está vieja
@@ -460,7 +460,7 @@ app.get('/api/ranking', async (req, res) => {
                     scansInProgress[seasonToScan] = true;
                     await realizarEscaneoInterno(seasonToScan).finally(() => delete scansInProgress[seasonToScan]);
                 }
-                const newRankings = await Ranking.find({ seasonId: seasonToScan }).sort({ spainRank: 1 });
+                const newRankings = await Ranking.find({ seasonId: seasonToScan }).sort({ spainRank: 1 }).lean();
                 return res.json(calcularLogros(newRankings, seasonToScan));
             }
         } catch (e) {
@@ -2110,7 +2110,7 @@ async function verificarIntegridadTemporadas() {
 
         let historyPlayers = [];
         if (MONGODB_URI && mongoose.connection.readyState === 1) {
-            historyPlayers = await Ranking.find({ seasonId: season.id });
+            historyPlayers = await Ranking.find({ seasonId: season.id }).lean();
         } else {
             historyPlayers = historicalData.seasons[season.id] || [];
         }

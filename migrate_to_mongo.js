@@ -91,12 +91,11 @@ async function migrate() {
         // await User.deleteMany({}); await News.deleteMany({}); await Forum.deleteMany({}); await Player.deleteMany({});
         // console.log("🧹 Base de datos limpiada para re-migración.");
 
-        // Instead of full wipe, let's try to update logic or warn. 
-        // For the user's specific case (missing IDs), a wipe of specific collections (Forum/News) is best if they want to restore from JSON.
-        // Let's wipe Forum and News to ensure they get recreated with IDs.
-        await Forum.deleteMany({});
-        await News.deleteMany({});
-        console.log("🧹 Colecciones Forum y News limpiadas para corregir IDs.");
+        // NOTE: The lines below caused data deletion previously. They are commented out now to prevent data loss.
+        // If you want to reset Forum and News, uncomment them carefully.
+        // await Forum.deleteMany({});
+        // await News.deleteMany({});
+        // console.log("🧹 Colecciones Forum y News limpiadas para corregir IDs.");
 
 
         // --- MIGRAR USUARIOS ---
