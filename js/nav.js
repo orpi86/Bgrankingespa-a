@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <a href="/forum" class="nav-link"><i class="fa-solid fa-comments"></i> Foro</a>
         <a href="/ranking" class="nav-link"><i class="fa-solid fa-trophy"></i> Ranking</a>
         <a href="https://hsreplay.net/battlegrounds/comps/" target="_blank" class="nav-link"><i class="fa-solid fa-chess-board"></i> Compos</a>
+        <a href="https://bgrankinglatam.onrender.com/" target="_blank" class="nav-link"><i class="fa-solid fa-earth-americas"></i> Latam</a>
         ${authLinks}
     `;
 
