@@ -21,15 +21,19 @@
     <script src="js/utils.js"></script>
     <style>
         .register-container {
-            max-width: 400px;
-            margin: 100px auto;
+            max-width: 420px;
+            margin: 80px auto;
             padding: 40px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--hs-gold);
-            border-radius: 8px;
+            background: rgba(27, 22, 38, 0.75) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 16px !important;
             text-align: center;
-            color: #fff;
-            box-shadow: 0 0 20px rgba(252, 209, 68, 0.2);
+            color: #eee;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            z-index: 10;
         }
 
         .input-group {
@@ -39,31 +43,43 @@
 
         .input-group label {
             display: block;
-            margin-bottom: 5px;
-            color: var(--hs-gold);
-            font-family: 'Cinzel';
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 0.9rem;
+            font-family: 'Lato', sans-serif;
         }
 
         .input-group input {
             width: 100%;
-            padding: 10px;
-            background: #222;
-            border: 1px solid #555;
-            color: #fff;
-            border-radius: 4px;
+            padding: 12px 15px !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(252, 209, 68, 0.15) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--hs-gold) !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+            box-shadow: 0 0 15px rgba(252, 209, 68, 0.1) !important;
+            outline: none;
         }
 
         .btn-register {
             width: 100%;
-            padding: 12px;
-            background: var(--hs-gold);
-            border: none;
+            padding: 14px !important;
+            background: linear-gradient(135deg, var(--hs-gold), #b38600) !important;
+            border: none !important;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 44px;
+            border-radius: 8px !important;
+            color: #000 !important;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             transition: all 0.3s;
-            font-family: 'Cinzel';
-            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .btn-register:hover {
