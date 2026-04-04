@@ -2012,43 +2012,61 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
         }
 
         // FUSIONAR RESULTADOS
-        let finalMergedData = [];
+        let previousData = [];
+        const seasonNum = parseInt(seasonId);
 
-        if (isTargeted) {
-            let previousData = [];
-            if (seasonId === CURRENT_SEASON_ID) {
-                if (memoriaCache[seasonId]) previousData = memoriaCache[seasonId].data;
-            } else {
-                if (historicalData.seasons[seasonId]) previousData = historicalData.seasons[seasonId];
+        if (seasonNum === CURRENT_SEASON_ID) {
+            if (memoriaCache[seasonId]) {
+                previousData = memoriaCache[seasonId].data;
+            } else if (MONGODB_URI && mongoose.connection.readyState === 1) {
+                try {
+                    previousData = await Ranking.find({ seasonId: seasonNum }).lean();
+                    console.log(`${logPrefix} Cargados ${previousData.length} registros previos desde MongoDB.`);
+                } catch (e) { console.error("Error cargando previousData de Mongo:", e.message); }
             }
-
-            // Formatear resultados nuevos
-            const newResultsFormatted = results.map(p => ({
-                battleTag: p.battleTag, rank: p.rank, rating: p.rating, found: p.found, twitchUser: p.twitchUser, isLive: false
-            }));
-
-            // Mapa de nuevos resultados
-            const resultMap = new Map(newResultsFormatted.map(p => [p.battleTag, p]));
-
-            // 1. Mantener antiguos (actualizando si hay coincidencia)
-            finalMergedData = previousData.map(oldP => {
-                if (resultMap.has(oldP.battleTag)) {
-                    const updated = resultMap.get(oldP.battleTag);
-                    resultMap.delete(oldP.battleTag);
-                    return updated;
-                }
-                return oldP;
-            });
-
-            // 2. Añadir los puramente nuevos
-            resultMap.forEach(val => finalMergedData.push(val));
-
         } else {
-            // Full Scan: sobrescribir
-            finalMergedData = results.map(p => ({
-                battleTag: p.battleTag, rank: p.rank, rating: p.rating, found: p.found, twitchUser: p.twitchUser, isLive: false
-            }));
+            if (historicalData.seasons[seasonId]) {
+                previousData = historicalData.seasons[seasonId];
+            } else if (MONGODB_URI && mongoose.connection.readyState === 1) {
+                try {
+                    previousData = await Ranking.find({ seasonId: seasonNum }).lean();
+                } catch (e) { console.error("Error cargando previousData de Mongo:", e.message); }
+            }
         }
+
+        // Formatear resultados nuevos
+        const newResultsFormatted = results.map(p => ({
+            battleTag: p.battleTag,
+            rank: p.rank,
+            rating: p.rating,
+            found: p.found,
+            twitchUser: p.twitchUser,
+            isLive: false // Se hidrata luego via API
+        }));
+
+        // Mapa de resultados del escaneo actual
+        const resultMap = new Map(newResultsFormatted.map(p => [p.battleTag, p]));
+
+        // Proceso de Mezcla (Merge)
+        // 1. Empezamos con los datos anteriores y actualizamos si el escaneo actual trajo algo mejor o nuevo.
+        let finalMergedData = previousData.map(oldP => {
+            if (resultMap.has(oldP.battleTag)) {
+                const newData = resultMap.get(oldP.battleTag);
+                resultMap.delete(oldP.battleTag);
+
+                // IMPORTANTE: Si el escaneo nuevo NO encontró al jugador (found: false)
+                // pero ya teníamos datos previos válidos (found: true), conservamos los antiguos.
+                // Esto evita el parpadeo a "Sin datos" por glitches de la API o profundidad de escaneo.
+                if (!newData.found && oldP.found) {
+                    return oldP;
+                }
+                return newData;
+            }
+            return oldP;
+        });
+
+        // 2. Añadimos jugadores que no estaban en la versión anterior
+        resultMap.forEach(val => finalMergedData.push(val));
 
         // Re-ranking (siempre re-calcular SpainRank)
         finalMergedData.sort((a, b) => {
