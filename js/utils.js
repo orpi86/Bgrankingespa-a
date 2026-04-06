@@ -1,9 +1,9 @@
 function parseMedia(content) {
     if (!content) return '';
 
-    // Pre-process: Remove newlines and extra spaces between tags [img:...], [yt:...], [tw:...] 
-    // to prevent <br> injection between side-by-side elements
-    let text = content.replace(/(\]|\))\s*\n\s*(\[)/g, '$1$2');
+    // Pre-process: Remove newlines, extra spaces, and redundant paragraph wrappers between consecutive tags [img:...], [yt:...], [tw:...] 
+    // to prevent <br> or <p> injection between side-by-side elements
+    let text = content.replace(/(\]|\))\s*(?:<\/p>\s*<p>|\n|<br\s*\/?>)\s*(\[)/gi, '$1$2');
 
     // 1. Convert [img:url] to <img> tags
     text = text.replace(/\[img:([^\]]+)\]/gi, (match, possibleUrl) => {
