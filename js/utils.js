@@ -6,12 +6,19 @@ function parseMedia(content) {
     let text = content.replace(/(\]|\))\s*\n\s*(\[)/g, '$1$2');
 
     // 1. Convert [img:url] to <img> tags
-    text = text.replace(/\[img:(https?:\/\/[^\]]+)\]/gi, (match, url) => {
+    text = text.replace(/\[img:([^\]]+)\]/gi, (match, possibleUrl) => {
+        // Strip HTML tags from possibleUrl (e.g., <a href="...">URL</a>)
+        const url = possibleUrl.replace(/<[^>]*>?/gm, '').trim();
+        // Check if the URL is valid (basic check for http/https)
+        if (!url.startsWith('http')) return match; 
         return `<div class="media-container"><img src="${url}" alt="Imagen del usuario" class="embedded-img" loading="lazy"></div>`;
     });
 
     // 2. Convert [yt:url] to YouTube iframes
-    text = text.replace(/\[yt:(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[^\]]+)\]/gi, (match, url) => {
+    text = text.replace(/\[yt:([^\]]+)\]/gi, (match, possibleUrl) => {
+        const url = possibleUrl.replace(/<[^>]*>?/gm, '').trim();
+        if (!url.startsWith('http')) return match;
+
         let videoId = '';
         if (url.includes('v=')) {
             videoId = url.split('v=')[1].split('&')[0];
@@ -26,7 +33,10 @@ function parseMedia(content) {
     });
 
     // 3. Convert [tw:url] to Twitch Clips iframes
-    text = text.replace(/\[tw:(https?:\/\/(?:www\.)?(?:twitch\.tv\/[^\/]+\/clip\/|clips\.twitch\.tv\/)[^\]]+)\]/gi, (match, url) => {
+    text = text.replace(/\[tw:([^\]]+)\]/gi, (match, possibleUrl) => {
+        const url = possibleUrl.replace(/<[^>]*>?/gm, '').trim();
+        if (!url.startsWith('http')) return match;
+
         let clipSlug = '';
         if (url.includes('clips.twitch.tv/')) {
             clipSlug = url.split('clips.twitch.tv/')[1].split('?')[0];
