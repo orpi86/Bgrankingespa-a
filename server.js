@@ -1742,9 +1742,7 @@ app.listen(PORT, async () => {
     setInterval(fetchBlizzardNews, 6 * 60 * 60 * 1000); // Cada 6 horas
     setTimeout(fetchBlizzardNews, 5000); // Primer escaneo a los 5 segundos de arrancar
 
-    // Detectar nueva temporada cada hora
-    setInterval(detectarNuevaTemporada, 60 * 60 * 1000);
-    // Y al iniciar (en background)
+    // Detectar nueva temporada al iniciar (en background)
     detectarNuevaTemporada().catch(e => console.error("❌ Error detectando temporada inicial:", e.message));
 
     setTimeout(async function escaneoProgamado() {
@@ -2149,11 +2147,25 @@ async function verificarIntegridadTemporadas() {
     console.log("✅ Integridad verificada.");
 }
 
+let isDetectingSeason = false;
+
 async function detectarNuevaTemporada() {
+    if (isDetectingSeason) return;
+    isDetectingSeason = true;
+
     console.log("🔍 Buscando cambios de temporada en Blizzard API...");
     try {
         // Consultar la página 1 de la temporada actual + 1 para ver si ya hay datos
         const nextSeasonId = CURRENT_SEASON_ID + 1;
+
+        // Comprobación de seguridad: ¿Ya existe en nuestra CONFIG?
+        const alreadyExists = CONFIG.seasons.some(s => s.id === nextSeasonId);
+        if (alreadyExists) {
+            console.log(`✅ Season ${nextSeasonId} ya está en la configuración. Cancelando.`);
+            isDetectingSeason = false;
+            return;
+        }
+
         const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=1&seasonId=${nextSeasonId}`;
         const response = await axios.get(url, {
             timeout: 10000,
@@ -2168,18 +2180,21 @@ async function detectarNuevaTemporada() {
             await realizarEscaneoInterno(CURRENT_SEASON_ID);
 
             // 2. Actualizar configuración
-            const oldSeasonName = `Temporada ${CURRENT_SEASON_ID - 5}`; // Siguiendo el mapeo T.12 = ID 17
             const newSeasonNum = CURRENT_SEASON_ID - 5 + 1;
 
             CONFIG.currentSeason = nextSeasonId;
-            CONFIG.seasons.unshift({
-                id: nextSeasonId,
-                name: `T. ${newSeasonNum} (Actual)`
-            });
 
-            // Actualizar el nombre de la que era "Actual"
-            const prevSeason = CONFIG.seasons.find(s => s.id === CURRENT_SEASON_ID);
-            if (prevSeason) prevSeason.name = `Temporada ${newSeasonNum - 1}`;
+            // Doble verificación justo antes de insertar (por si acaso hubo cambios durante el await)
+            if (!CONFIG.seasons.some(s => s.id === nextSeasonId)) {
+                CONFIG.seasons.unshift({
+                    id: nextSeasonId,
+                    name: `T. ${newSeasonNum} (Actual)`
+                });
+
+                // Actualizar el nombre de la que era "Actual"
+                const prevSeason = CONFIG.seasons.find(s => s.id === CURRENT_SEASON_ID);
+                if (prevSeason) prevSeason.name = `Temporada ${newSeasonNum - 1}`;
+            }
 
             CURRENT_SEASON_ID = nextSeasonId;
 
@@ -2195,6 +2210,8 @@ async function detectarNuevaTemporada() {
         }
     } catch (e) {
         console.error("❌ Error al detectar nueva temporada:", e.message);
+    } finally {
+        isDetectingSeason = false;
     }
 }
 
