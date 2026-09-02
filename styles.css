@@ -58,7 +58,8 @@ body {
 }
 
 .rank-1 .podium-info {
-    bottom: -5px;
+    bottom: 12px;
+    padding-left: 8px;
 }
 
 .rank-2 .podium-info {
@@ -145,7 +146,7 @@ h1 {
 .header-banner {
     width: 100vw;
     height: 350px;
-    background: url('assets/img/ranking_spanish_flag_banner.gif') center top/contain no-repeat;
+    background: url('assets/img/ranking_spanish_flag_banner.webp') center top/contain no-repeat;
     border: none;
     box-shadow: none;
     margin: 0;
@@ -544,16 +545,16 @@ h1 {
 }
 
 .rank-1 .rank-medal {
-    background-image: url('assets/podium/top1.gif');
+    background-image: url('assets/podium/top1.webp');
     height: 100%;
 }
 
 .rank-2 .rank-medal {
-    background-image: url('assets/podium/top2.gif');
+    background-image: url('assets/podium/top2.webp');
 }
 
 .rank-3 .rank-medal {
-    background-image: url('assets/podium/top3.gif');
+    background-image: url('assets/podium/top3.webp');
 }
 
 .podium-name {

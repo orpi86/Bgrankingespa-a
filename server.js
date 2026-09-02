@@ -40,7 +40,7 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { maxAge: '7d' })); // Cache static files for 7 days to save bandwidth
 
 // --- CONEXIÓN MONGODB ---
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -403,6 +403,7 @@ app.get('/api/player-summary', async (req, res) => {
 });
 
 app.get('/api/history', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=3600'); // Caché de 1 hora para historial
     const { player } = req.query;
     if (!player || !historyData[player]) return res.json([]);
     res.json(historyData[player]);
@@ -428,6 +429,7 @@ app.get('/api/twitch-hydrate', async (req, res) => {
 });
 
 app.get('/api/ranking', async (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300'); // Caché de 5 minutos para ahorrar ancho de banda en la API
     const seasonToScan = parseInt(req.query.season) || CURRENT_SEASON_ID;
     const isCurrentSeason = (seasonToScan === CURRENT_SEASON_ID);
 
@@ -892,6 +894,7 @@ app.post('/api/register', async (req, res) => {
 // --- NEWS API ---
 
 app.get('/api/news', async (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300'); // Caché de 5 minutos
     if (MONGODB_URI && mongoose.connection.readyState === 1) {
         const news = await News.find().sort({ date: -1 });
         res.json(news);
