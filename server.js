@@ -1,5 +1,7 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https');
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -49,7 +51,12 @@ if (MONGODB_URI) {
         serverSelectionTimeoutMS: 5000, // No esperar más de 5s si falla
         socketTimeoutMS: 45000,
     })
-        .then(() => console.log("🚀 Conectado a MongoDB Atlas"))
+        .then(async () => {
+            console.log("🚀 Conectado a MongoDB Atlas");
+            if (typeof sincronizarTemporadas === 'function') {
+                await sincronizarTemporadas();
+            }
+        })
         .catch(err => {
             console.error("❌ Error conectando a MongoDB:", err.message);
             console.log("⚠️ Fallback: Usando archivos JSON locales por error de conexión.");
@@ -328,7 +335,12 @@ function isMod(req, res, next) {
 // --- API ---
 
 // Endpoint para obtener las temporadas configuradas
-app.get('/api/seasons', (req, res) => {
+app.get('/api/seasons', async (req, res) => {
+    if (!CONFIG.seasons || CONFIG.seasons.length === 0 || !CONFIG.currentSeason) {
+        if (typeof sincronizarTemporadas === 'function') {
+            await sincronizarTemporadas();
+        }
+    }
     res.json(CONFIG);
 });
 
@@ -1691,6 +1703,9 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`🚀 Servidor con Persistencia en puerto ${PORT}`);
 
+    // Sincronizar temporadas disponibles de BD, API y archivos
+    await sincronizarTemporadas();
+
     // 1. GESTIONAR TEMPORADA ACTUAL
     const cacheValida = memoriaCache[CURRENT_SEASON_ID] &&
         (Date.now() - memoriaCache[CURRENT_SEASON_ID].timestamp < TIEMPO_CACHE_ACTUAL);
@@ -1766,7 +1781,8 @@ async function fetchBlizzardNews() {
         const url = 'https://hearthstone.blizzard.com/es-es/news';
         const response = await axios.get(url, {
             headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
-            timeout: 15000
+            timeout: 15000,
+            httpsAgent
         });
 
         const html = response.data;
@@ -1958,7 +1974,8 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
                 batchPromises.push(
                     axios.get(`https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=${j}&seasonId=${seasonId}`, {
                         timeout: 15000,
-                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+                        httpsAgent
                     })
                         .then(r => r.data)
                         .catch((err) => {
@@ -2119,6 +2136,93 @@ async function realizarEscaneoInterno(seasonId, maxPages = MAX_PAGES_TO_SCAN, ta
     }
 }
 
+async function sincronizarTemporadas() {
+    try {
+        console.log("🔄 Sincronizando temporadas disponibles...");
+
+        // 1. Recopilar IDs de temporadas conocidas
+        const seasonIdsSet = new Set((CONFIG.seasons || []).map(s => Number(s.id)));
+        Object.keys(historicalData.seasons || {}).forEach(id => seasonIdsSet.add(Number(id)));
+        Object.keys(memoriaCache || {}).forEach(id => seasonIdsSet.add(Number(id)));
+
+        // 2. Recopilar IDs de temporadas desde MongoDB si está conectado
+        if (MONGODB_URI && mongoose.connection.readyState === 1) {
+            try {
+                const mongoSeasons = await Ranking.distinct('seasonId');
+                mongoSeasons.forEach(id => seasonIdsSet.add(Number(id)));
+            } catch (mongoErr) {
+                console.error("⚠️ Error consultando temporadas en Mongo:", mongoErr.message);
+            }
+        }
+
+        // Asegurar que al menos tengamos las temporadas base históricas (7 a 19)
+        for (let s = 7; s <= 19; s++) {
+            seasonIdsSet.add(s);
+        }
+
+        // 3. Comprobar Blizzard API para detectar temporadas más recientes a partir de la máxima conocida
+        let maxKnownId = Math.max(...Array.from(seasonIdsSet));
+        let checkId = maxKnownId;
+        let searchingBlizzard = true;
+
+        while (searchingBlizzard && checkId <= maxKnownId + 5) {
+            const candidateId = checkId + 1;
+            const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=1&seasonId=${candidateId}`;
+            try {
+                const response = await axios.get(url, {
+                    timeout: 10000,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+                    httpsAgent
+                });
+                if (response.data && response.data.leaderboard && response.data.leaderboard.rows && response.data.leaderboard.rows.length > 0) {
+                    console.log(`✨ Temporada detectada en Blizzard API: Season ${candidateId} (T. ${candidateId - 5})`);
+                    seasonIdsSet.add(candidateId);
+                    checkId = candidateId;
+                } else {
+                    searchingBlizzard = false;
+                }
+            } catch (err) {
+                searchingBlizzard = false;
+            }
+        }
+
+        // 4. Determinar la temporada actual (la mayor conocida con datos)
+        const allSortedIds = Array.from(seasonIdsSet).filter(id => !isNaN(id) && id > 0).sort((a, b) => b - a);
+        const highestSeasonId = allSortedIds[0] || 19;
+
+        const previousCurrent = CURRENT_SEASON_ID;
+        CURRENT_SEASON_ID = highestSeasonId;
+        CONFIG.currentSeason = highestSeasonId;
+
+        CONFIG.seasons = allSortedIds.map(id => {
+            const seasonNum = id - 5;
+            return {
+                id: id,
+                name: id === CURRENT_SEASON_ID ? `T. ${seasonNum} (Actual)` : `Temporada ${seasonNum}`
+            };
+        });
+
+        // 5. Guardar en seasons.json
+        try {
+            fs.writeFileSync(CONFIG_PATH, JSON.stringify(CONFIG, null, 2));
+            console.log(`✅ Temporadas sincronizadas. Temporada actual: S${CURRENT_SEASON_ID} (T.${CURRENT_SEASON_ID - 5}). Total temporadas: ${CONFIG.seasons.length}`);
+        } catch (fsErr) {
+            console.error("Error guardando seasons.json:", fsErr.message);
+        }
+
+        // Si cambió la temporada actual, archivar la previa
+        if (previousCurrent && previousCurrent !== CURRENT_SEASON_ID) {
+            console.log(`📦 Transición de temporada detectada: S${previousCurrent} -> S${CURRENT_SEASON_ID}`);
+            if (memoriaCache[previousCurrent] && memoriaCache[previousCurrent].data) {
+                historicalData.seasons[previousCurrent] = memoriaCache[previousCurrent].data;
+                saveHistoricalData();
+            }
+        }
+    } catch (e) {
+        console.error("❌ Error en sincronizarTemporadas:", e.message);
+    }
+}
+
 async function verificarIntegridadTemporadas() {
     console.log("🔍 Verificando integridad de temporadas pasadas...");
     const currentPlayersList = await loadPlayers();
@@ -2129,13 +2233,18 @@ async function verificarIntegridadTemporadas() {
 
         let historyPlayers = [];
         if (MONGODB_URI && mongoose.connection.readyState === 1) {
-            historyPlayers = await Ranking.find({ seasonId: season.id }).lean();
-        } else {
+            try {
+                historyPlayers = await Ranking.find({ seasonId: season.id }).lean();
+            } catch (err) {
+                console.error(`Error consultando temporada ${season.id} en Mongo:`, err.message);
+            }
+        }
+        if (!historyPlayers || historyPlayers.length === 0) {
             historyPlayers = historicalData.seasons[season.id] || [];
         }
 
         if (!historyPlayers || historyPlayers.length === 0) {
-            console.log(`📜 Season ${season.id} VACÍA. Iniciando escaneo COMPLETO.`);
+            console.log(`📜 Season ${season.id} VACÍA en BD y archivo. Iniciando escaneo inicial para archivado...`);
             await realizarEscaneoInterno(season.id);
             continue;
         }
@@ -2158,56 +2267,19 @@ async function detectarNuevaTemporada() {
 
     console.log("🔍 Buscando cambios de temporada en Blizzard API...");
     try {
-        // Consultar la página 1 de la temporada actual + 1 para ver si ya hay datos
-        const nextSeasonId = CURRENT_SEASON_ID + 1;
+        const oldSeasonId = CURRENT_SEASON_ID;
+        await sincronizarTemporadas();
 
-        // Comprobación de seguridad: ¿Ya existe en nuestra CONFIG?
-        const alreadyExists = CONFIG.seasons.some(s => s.id === nextSeasonId);
-        if (alreadyExists) {
-            console.log(`✅ Season ${nextSeasonId} ya está en la configuración. Cancelando.`);
-            isDetectingSeason = false;
-            return;
-        }
+        if (CURRENT_SEASON_ID > oldSeasonId) {
+            console.log(`✨ ¡NUEVA TEMPORADA DETECTADA!: Season ${CURRENT_SEASON_ID} (T. ${CURRENT_SEASON_ID - 5})`);
 
-        const url = `https://hearthstone.blizzard.com/en-us/api/community/leaderboardsData?region=${REGION}&leaderboardId=battlegrounds&page=1&seasonId=${nextSeasonId}`;
-        const response = await axios.get(url, {
-            timeout: 10000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
-        });
+            // Aseguramos que la temporada que termina esté archivada
+            console.log(`📦 Archivando temporada previa ${oldSeasonId}...`);
+            await realizarEscaneoInterno(oldSeasonId);
 
-        if (response.data && response.data.leaderboard && response.data.leaderboard.rows && response.data.leaderboard.rows.length > 0) {
-            console.log(`✨ ¡NUEVA TEMPORADA DETECTADA!: Season ${nextSeasonId}`);
-
-            // 1. Antes de cambiar, nos aseguramos de que la temporada que "termina" esté bien cacheada en históricos
-            console.log(`📦 Archivando temporada ${CURRENT_SEASON_ID} en datos históricos...`);
+            // Escanear la nueva temporada
             await realizarEscaneoInterno(CURRENT_SEASON_ID);
-
-            // 2. Actualizar configuración
-            const newSeasonNum = CURRENT_SEASON_ID - 5 + 1;
-
-            CONFIG.currentSeason = nextSeasonId;
-
-            // Doble verificación justo antes de insertar (por si acaso hubo cambios durante el await)
-            if (!CONFIG.seasons.some(s => s.id === nextSeasonId)) {
-                CONFIG.seasons.unshift({
-                    id: nextSeasonId,
-                    name: `T. ${newSeasonNum} (Actual)`
-                });
-
-                // Actualizar el nombre de la que era "Actual"
-                const prevSeason = CONFIG.seasons.find(s => s.id === CURRENT_SEASON_ID);
-                if (prevSeason) prevSeason.name = `Temporada ${newSeasonNum - 1}`;
-            }
-
-            CURRENT_SEASON_ID = nextSeasonId;
-
-            // 3. Guardar seasons.json
-            fs.writeFileSync(CONFIG_PATH, JSON.stringify(CONFIG, null, 2));
-            console.log("📝 seasons.json actualizado.");
-
-            // 4. Iniciar escaneo de la nueva temporada
-            await realizarEscaneoInterno(nextSeasonId);
-            console.log(`✅ Transición a Season ${nextSeasonId} completada.`);
+            console.log(`✅ Transición a Season ${CURRENT_SEASON_ID} completada.`);
         } else {
             console.log("✅ Sin cambios de temporada detectados.");
         }

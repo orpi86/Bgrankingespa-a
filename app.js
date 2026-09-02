@@ -1,6 +1,6 @@
 let allData = [];
-let currentSeasonId = 17;
-let realCurrentSeasonId = 17;
+let currentSeasonId = 19;
+let realCurrentSeasonId = 19;
 
 async function init() {
     // Only run ranking logic if we are on the Ranking Page
@@ -22,24 +22,29 @@ async function fetchSeasons() {
         const res = await fetch(`/api/seasons?_t=${Date.now()}`);
         const config = await res.json();
         const nav = document.getElementById('season-selector');
+        if (!nav) return;
         nav.innerHTML = '';
 
-        config.seasons.forEach(s => {
-            const btn = document.createElement('button');
-            btn.className = 'season-btn' + (s.id === config.currentSeason ? ' active' : '');
+        if (config && config.currentSeason) {
+            currentSeasonId = config.currentSeason;
+            realCurrentSeasonId = config.currentSeason;
+        }
 
-            // Extraer solo el número del nombre
-            const numMatch = s.name.match(/\d+/);
-            const displayNum = numMatch ? numMatch[0] : s.id;
+        if (config && Array.isArray(config.seasons)) {
+            config.seasons.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = 'season-btn' + (s.id === currentSeasonId ? ' active' : '');
 
-            btn.innerText = displayNum;
-            btn.onclick = () => switchSeason(s.id, s.name, btn);
-            nav.appendChild(btn);
-        });
-        currentSeasonId = config.currentSeason;
-        realCurrentSeasonId = config.currentSeason;
+                // Extraer solo el número del nombre
+                const numMatch = s.name.match(/\d+/);
+                const displayNum = numMatch ? numMatch[0] : s.id;
 
-    } catch (e) { console.error(e); }
+                btn.innerText = displayNum;
+                btn.onclick = () => switchSeason(s.id, s.name, btn);
+                nav.appendChild(btn);
+            });
+        }
+    } catch (e) { console.error("Error cargando temporadas:", e); }
 }
 
 function switchSeason(id, name, btn) {
